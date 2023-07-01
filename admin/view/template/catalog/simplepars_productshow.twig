@@ -1,0 +1,295 @@
+{{ header }}{{ column_left }} 
+<div id="content" xmlns="http://www.w3.org/1999/html">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <style>
+    .thumbnails {
+      margin-left: -20px;
+    }
+
+    .thumbnails {
+      overflow: auto;
+      clear: both;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .thumbnails .image-additional {
+      float: left;
+      margin-left: 20px;
+    }
+
+    .thumbnails > li {
+      margin-left: 20px;
+
+    }
+
+    .thumbnails img {
+      width: 400px;
+
+    }
+
+    .image-additional {
+      max-width: 78px;
+    }
+
+    .image-additional img {
+      width: 66px;
+      height: 66px;
+    }
+  </style>
+  <div class="page-header">
+    <div class="container-fluid">
+      <ul class="breadcrumb">
+        {% for bread in breadcrumbs %} 
+        <li><a href="{{ bread['href']}}">{{ bread['text']}}</a></li>
+        {% endfor %}
+      </ul>
+      <div class="pull-right">
+        <a href="{{ back_url}}" class="btn btn-success"><i class="fa fa-reply"></i></a>
+      </div>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if (error) %} 
+    <div class="alert alert-danger">
+      <i class="fa fa-info-circle"></i>{{ error}}
+    </div>
+    {% elseif (success) %} 
+    <div class="alert alert alert-success">
+      <i class="fa fa-info-circle"></i>{{ success}}
+    </div>
+    {% endif %}
+    <div class="alert alert alert-success" hidden id="msg"><i class="fa fa-info-circle"></i></div>
+    <form class="form-horizontal" id="form" method="POST">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <div class="row">
+            <div class="col-md-12">
+              <h3 class="panel-title">Результат проверки товара {{ '<b>['~setting['dn_name']~']</b>'}}</h3>
+            </div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
+            <ul class="nav nav-tabs" id="myTabs" role="tablist">
+              {% for page in mpage %} 
+              <li role="presentation" class="{{ page['active']}}">
+                <a href="{{ page['href']}}" id="home-tab" role="tab" aria-controls="home" aria-expanded="true">{{ page['title']}}</a>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+          <div class="panel panel-default">
+            <div class="panel-body">
+              <form class="form-horizontal" method="POST">
+                <div class="row">
+                  <div class="col-sm-2">
+                    <input class="btn btn-success" type="submit" name="go_show" value="Пред просмотр">
+                  </div>
+                  <div class="col-sm-4">
+                    <select class="form-control" name="view_href">
+                      <option value="0">Выберите ссылку</option>
+                      {% for link in links %} 
+                      <option value="{{ link['link']}}">{{ link['link']}}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-sm-5">
+                    <input type="text" name="view_href2" class="form-control" value="{{ view_href}}" placeholder="Вставьте ссылку что бы увидеть результат парсинга.">
+                  </div>
+                  <div class="col-sm-1">
+                    {% if (view_href) %}
+                    <a href="{{ view_href}}" target="_blank" class="btn btn-default"><i class="fa fa-link"></i></a>
+                    {% endif %}
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+          <div class="panel panel-default">
+            <div class="panel-body">
+              <div class="row">
+                <div class="col-sm-12">
+                  <ol class="breadcrumb">
+                    {% if (product['cat'] is not empty) %} 
+                    {% for cat in product['cat'] %} 
+                    <li><a>{{ cat}}</a></li>
+                    {% endfor %}
+                    {% else %} 
+                    <li><a>Каталог</a></li>
+                    {% endif %}
+                  </ol>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-sm-12">
+                  <div class="row">
+                    <div class="col-sm-8">
+                      <ul class="thumbnails">
+                        {% if (product['img'] is not empty) %} 
+                        {% for key,img in product['img'] %} 
+                        <li class="{{ key == 0?'thumbnail':'image-additional'}}">
+                          <img src="{{ img}}" {{ key == 0?'':
+ 'class="thumbnail"'}}>
+                        </li>
+                        {% endfor %}
+                        {% else %} 
+                        <li class="image-additiona">
+                          <img src="{{ http_catalog~'image/no_image.png'}}">
+                        </li>
+                        {% endif %}
+                      </ul>
+                      <ul class="nav nav-tabs">
+                        <li class="active">
+                          <a aria-expanded="true" data-toggle="tab"
+                             href="#tab-description" style="">
+                            Описание
+                          </a>
+                        </li>
+                        <li class="">
+                          <a aria-expanded="false" data-toggle="tab"
+                             href="#tab-specification" style="">
+                            Характеристики
+                          </a>
+                        </li>
+                        <li class="">
+                          <a aria-expanded="false" data-toggle="tab"
+                             href="#tab-options" style="">
+                            Опции
+                          </a>
+                        </li>
+                      </ul>
+                      <div class="tab-content">
+                        <div class="tab-pane active" id="tab-description">
+                          <div>
+                            <pre style="border:0; background-color: #fff;">{{ product['des']}}</pre>
+                          </div>
+                        </div>
+                        <div class="tab-pane" id="tab-specification">
+                          <table class="table table-striped">
+                            <tbody>
+                            {% if (product['attr'] is not empty) %}
+                            {% for attr in product['attr'] %} 
+                            <tr>
+                              <td>{{ attr[0]}}</td>
+                              <td>{{ attr[1]}}</td>
+                            </tr>
+                            {% endfor %}
+                            {% endif %}
+                            </tbody>
+                          </table>
+                        </div>
+                        <div class="tab-pane" id="tab-options">
+                          <table class="table table-striped">
+                            <tbody>
+                            {% if (product['opts'] is not empty) %}
+                            {% for opt in product['opts'] %} 
+                            <tr>
+                              <td>
+                                {{ opt['name'] ? opt['name'] : 'ID опции по умолчанию = <font color="grean">'~opt['opt_id']~'</font>'}}{{ opt['required']?'<font color="red">*</font>':''}}
+                              </td>
+                              <td>
+                                <select class="form-control">
+                                  {% for opt_key,value in opt['value'] %} 
+                                    <option>
+                                      {{ value['value']~' | Цена '~value['price_prefix']~value['price']~' | Кол-во ('~value['quant']~')'}}
+                                    </option>
+                                  {% endfor %}
+                                </select>
+                              </td>
+                            </tr>
+                            {% endfor %}
+                            {% endif %}
+                          </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-sm-4">
+                      {% if (product['name'] is not empty) %} 
+                      <h1>{{ product['name']}}</h1>
+                      {% else %} 
+                      <h1 class="text-danger">Название</h1>
+                      {% endif %}
+                      <ul class="list-unstyled">
+                        {% if (product['manufac'] is not empty) %} 
+                        <li>Производитель: <a>{{ product['manufac']}}</a></li>
+                        {% else %} 
+                        <li>Производитель: <a class="text-danger">Не указан</a></li>
+                        {% endif %}
+                        {% if (product['sku'] is not empty) %} 
+                        <li>Артикул (sku): {{ product['sku']}}</li>
+                        {% else %} 
+                        <li>Артикул (sku): <span class="text-danger">По умолчанию (id товара)</span></li>
+                        {% endif %}
+                        {% if (product['quant'] is not empty) %} 
+                        <li>Количество: {{ product['quant']}}</li>
+                        {% else %} 
+                        <li>Количество: <span class="text-danger">0</span></li>
+                        {% endif %}
+                      </ul>
+                      <ul class="list-unstyled">
+                        <li>
+                          {% if (product['price'] is not empty) %} 
+                          <h2>Цена: {{ product['price']~'р.'}}</h2>
+                          {% else %} 
+                          <h2 class="text-danger">Цена: 0 р.</h2>
+                          {% endif %}
+                        </li>
+                        <li>
+                          {% if (product['price_spec'] is not empty) %} 
+                          <h4 class="text-warning">Акционная цена: {{ product['price_spec']~'р.'}}</h2>
+                          {% endif %}
+                        </li>
+                      </ul>
+                      {% if (product['permit_grans_text'] is not empty) %}
+                        <h2 class="text-danger">{{ product['permit_grans_text']}}</h2>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <h3>Отладочная информация</h3>
+          <div>
+
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" role="tablist">
+              <li role="presentation" class="active"><a href="#product" aria-controls="home" role="tab" data-toggle="tab">Товар</a></li>
+              <li role="presentation"><a href="#seo" aria-controls="profile" role="tab" data-toggle="tab">SEO Шаблон</a></li>
+
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content">
+              <div role="tabpanel" class="tab-pane active" id="product">
+                <div class="panel panel-default">
+                {% if (product['debug_text']['pr'] is not empty) %}
+                  {% for dbpr in product['debug_text']['pr'] %}
+                    <b>{{ dbpr['name']}}</b>
+                    <textarea wrap="off" rows="{{ dbpr['row']}}" readonly class="form-control">{{ dbpr['text']}}</textarea>
+                    <br>
+                  {% endfor %}
+                {% endif %}
+                </div>
+              </div>
+              <div role="tabpanel" class="tab-pane" id="seo">
+                <div class="panel panel-default">
+                {% if (product['debug_text']['seo'] is not empty) %}
+                  {% for dbpr in product['debug_text']['seo'] %}
+                    <b>{{ dbpr['name']}}</b>
+                    <textarea wrap="off" rows="{{ dbpr['row']}}" readonly class="form-control">{{ dbpr['text']}}</textarea>
+                    <br>
+                  {% endfor %}
+                {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+  {{ footer }} 

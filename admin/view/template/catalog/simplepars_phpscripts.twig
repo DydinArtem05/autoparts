@@ -1,0 +1,387 @@
+{{ header }}{{ column_left }} 
+<div id="content">
+  <!-- ========== HEADER ========== -->
+  <div class="page-header">
+    <div class="container-fluid">
+      <!-- USER TOOLS -->
+      <div class="pull-right">
+        <button type="submit" class="btn btn-default" data-original-title="Обновить страницу" onClick="window.location.href=window.location.href">
+          <i class="fa fa-refresh"></i>
+        </button>
+      </div>
+      <h1>SimplePars</h1>
+      <!-- BREADCRUMBS -->
+      <ul class="breadcrumb">
+        {% for bread in breadcrumbs %}
+        <li><a href="{{ bread['href']}}">{{ bread['text']}}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div><!-- /header -->
+  <!-- ========== CONTENT ========== -->
+  <div class="container-fluid">
+    {% if (error) %} 
+    <div class="alert alert-danger">
+      <i class="fa fa-info-circle"></i>{{ error}}
+    </div>
+    {% elseif (warning) %} 
+    <div class="alert alert-warning">
+      <i class="fa fa-info-circle"></i>{{ warning}}
+    </div>
+    {% endif %}
+    <div class="alert alert alert-danger" hidden id="msg">
+      <i class="fa fa-info-circle"></i>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> Работа с PHP скриптами для {{ '<b>['~setting['dn_name']~']</b>'}}</h3>
+      </div>
+      <div class="panel-body">
+        <!-- NAVIGATION -->
+        <ul class="nav nav-tabs">
+          {% for page in mpage %} 
+          <li role="presentation" class="{{ page['active']}}">
+            <a href="{{ page['href']}}" id="home-tab" role="tab" aria-controls="home" aria-expanded="true">
+              {{ page['title']}}
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane active">
+            <ul class="nav nav-tabs" role="tablist">
+              <li role="presentation" class="active"><a href="#scr_main" aria-controls="scr_main" role="tab" data-toggle="tab">Настройка выполнения скриптов</a></li>
+              <li role="presentation"><a href="#scr-scripts" aria-controls="scr-scripts" role="tab" data-toggle="tab">Редактор скриптов</a></li>
+              
+            </ul>
+            <!-- Tab panes -->
+            <style>
+              select{
+                height: auto !important;
+              }
+            </style>
+            <div class="tab-content">
+              <div role="tabpanel" class="tab-pane" id="scr-scripts">
+                <div class="col-sm-5 col-md-4 col-lg-3">
+                  <div class="panel panel-default">
+                    <div class="panel-heading">Выбор доступных скриптов</div>
+                    <div class="panel-body">
+                      <select class="form-control" id="select_script" size="40">
+                      <option id="new_script_b" value="" class="btn btn-warning btn-sm btn-block">СОЗДАТЬ НОВЫЙ СКРИПТ</option>
+                      {% for script_name in scripts %} 
+                        <option id="{{ script_name}}" value="{{ script_name}}" class="btn btn-default btn-sm btn-block">{{ script_name}}</option>
+                      {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-7 col-md-8 col-lg-9">
+                  <div class="panel panel-default">
+                    <div class="panel-heading">Информация по скрипту</div>
+                    <div class="panel-body">
+                      <form class="form-horizontal" id="form" method="post">
+                      <div class="form-group required">
+                        <div class="col-sm-3">
+                          <label for="replance_start">Названия скрипта (англ.)<span data-toggle="tooltip" data-original-title="В данном поле необходимо указать название скрипта. название может состоять из латинских букв нижнего регистра, так же можно использовать цифры и символы - _ Название скрипта должно заканчиваться на .php Минимальная длина имени скрипта составляет 3 символа."></span></label>
+                          <input class="form-control" id="file_name" type="text" value="">
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <div class="col-sm-12">
+                          <label for="replance_search">Код PHP скрипта</label>
+                          <textarea id="code" rows="30" class="col-sm-12 form-control"></textarea>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="panel panel-default">
+                    <div class="panel-heading">Управление сприптом</div>
+                    <div class="panel-body">
+                      <div class="col-sm-10">
+                        <button id="scr_add_up" type="button" data-toggle="tooltip" class="btn btn-success">Сохранить</button>
+                      </div>
+                      <div class="col-sm-2">
+                        <button id="scr_del" type="button" data-toggle="tooltip" title="" class="btn btn-danger">Удалить скрипт</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <form method="post" enctype="multipart/form-data" id="form_scr" class="form-horizontal">
+              <div role="tabpanel" class="tab-pane active" id="scr_main">
+                <div class="panel panel-default">
+                  <div class="panel-heading">Настройка выполнения собственных скриптов PHP</div>
+                  <div class="panel-body">
+                    <div class="row">
+                    <div class="col-sm-2">
+                    <label class="control-label">Использовать скрипты ?</label>
+                      <select name="scripts_permit" class="form-control">
+                        <option value="1" {{ setting['scripts_permit'] == 1?'selected':''}}>Да</option>
+                        <option value="0" {{ setting['scripts_permit'] == 0?'selected':''}}>Нет</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-2" style="top: 21px;">
+                      <button name="save_script_task" value="1" type="submit" class="btn btn-success"><i class="fa fa-save"></i> Сохранить</button>
+                    </div>
+                    </div>
+                    <br>
+
+                    <div id="scripts_list">
+                      {% for ts_key,task in tasks %}
+                      <div class="row" id="script_row-{{ ts_key}}">
+                        <div class="col-sm-1">
+                          <label class="control-label">Вкл/Выкл <span data-toggle="tooltip" data-original-title="Включает и выключает выполнение этого скрипта."></label>
+                          <select name="scripts_list[{{ ts_key}}][status]" class="form-control" form="form">
+                            <option value="1" {{ task['status'] == 1?'selected':''}}>Вкл</option>
+                            <option value="0" {{ task['status'] == 0?'selected':''}}>Выкл</option>
+                          </select>
+                        </div>
+                        <div class="col-sm-2">
+                          <label class="control-label">Скрипт <span data-toggle="tooltip" data-original-title="Выберите какой скрипт исполнять."></label>
+                          <select name="scripts_list[{{ ts_key}}][name]" class="form-control" form="form">
+                            <option id="0" value="" class="btn btn-warning btn-sm btn-block">Выберите скрипт</option>
+                            {% for script_name in scripts %} 
+                              <option value="{{ script_name}}" {{ task['name'] == script_name?'selected':''}}>{{ script_name}}</option>
+                            {% endfor %}
+                          </select>
+                        </div>
+                        <div class="col-sm-2">
+                          <label class="control-label">Когда выполнять <span data-toggle="tooltip" data-original-title="Выберите когда модуль будет выполнять ваш скрипт."></label>
+                          <select name="scripts_list[{{ ts_key}}][when_do]" class="form-control" form="form">
+                            <option value="0" {{ task['when_do'] == 0?'selected':''}}>Никогда</option>
+                            <option value="1" {{ task['when_do'] == 1?'selected':''}}>Перед отправкой ссылки на парсинг</option>
+                            <option value="2" {{ task['when_do'] == 2?'selected':''}}>Перед Парсинг в ИМ</option>
+                            <option value="3" {{ task['when_do'] == 3?'selected':''}}>После Парсинга в ИМ</option>
+                            <option value="4" {{ task['when_do'] == 4?'selected':''}}>Перед Парсинг в CSV</option>
+                            <option value="5" {{ task['when_do'] == 5?'selected':''}}>После Парсинг в CSV</option>
+                            <!--option value="6" {{ task['when_do'] == 6?'selected':''}}>По завершению парсинга всех ссылок</option-->
+                          </select>
+                        </div>
+                        <div class="col-sm-1">
+                          <label class="control-label">Очередь <span data-toggle="tooltip" data-original-title="Порядок выполнения скриптов если указано два и больше скрипта в одно и тоже время."></label>
+                          <input name="scripts_list[{{ ts_key}}][sort]" type="text" value="{{ task['status']}}" class="form-control" form="form">
+                        </div>
+                        <div class="col-sm-5">
+                          <label class="control-label">Коментарий к скрипту <span data-toggle="tooltip" data-original-title="Оставьте комментарий зачем это задание."></label>
+                          <input name="scripts_list[{{ ts_key}}][comment]" type="text" value="{{ task['comment']}}" class="form-control" form="form">
+                        </div>
+                        <div class="col-sm-1">
+                          <button type="button" onclick="$('#script_row-{{ ts_key}}').remove()" class="btn btn-danger" style="margin-top: 20px" title="Удалить"><i class="fa fa-trash-o"></i></button>
+                        </div>
+                      </div>
+                      {% endfor %}
+                    </div>
+                    <br>
+                    <button type="button" onclick="addParamPermit()" class="btn btn-primary btn-sm"><i class="fa fa-plus-circle"></i> Добавить проверочное поле</button>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-12">
+                  <div class="alert alert-info" role="alert">
+                    <h1>Внимание!!!</h1>
+                    При включении собственных скриптов вы несете полную ответственность за работу модуля.<br>
+                    Техническая поддержка не предоставляется если включены собственные скрипты.<br>
+                    <br>
+                    <h2>Обратите внимание!</h2>
+                    <b>При включении собственных скриптов модуль будет работать исключительно в однопоточном режиме, не смотря на то какие у вас выбраны настройки.</b><br> 
+                    <br>
+                    <h2>Инструкция.</h2>
+                    Вся информация по работе с данными функциями доступна по ссылке - <a href="https://simplepars.top/index.php?page=notes&tag_id=34">https://simplepars.top/index.php?page=notes&tag_id=34</a><br>
+                  </div>
+                </div>
+              </div>
+              </form>
+            </div>
+            <!-- /simpleparspage stop-->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /content --> 
+</div>
+<script type="text/javascript">
+  $(document).ready(function () {
+    
+    //выбираем сприпт для работы.
+    $("#select_script").bind("click", function () {
+
+      var value = {};
+      var answ;
+
+      value.do = 'get_script';
+      value.script_name = $("#select_script").val();
+
+
+      if(value.script_name != 'new_script_b'){
+        $("#new_script_b").attr('class', 'btn btn-default btn-sm btn-block');
+      }
+      $("#"+value.script_name).attr('class', 'btn btn-warning btn-sm btn-block');
+
+
+      console.log(value);
+      answ = send_request(value);
+      answ = $.parseJSON(answ);
+      render_script_page(answ);
+      //console.log(answ);
+    });
+
+    //добавление и сохранение скрипта.
+    $("#scr_add_up").bind("click", function () {
+
+      var value = {};
+      var answ;
+
+      value.do = 'script_add_update';
+      value.file_name = $("#file_name").val();
+      value.code = $("#code").val();
+
+      console.log(value);
+      answ = send_request(value);
+      answ = $.parseJSON(answ);
+      console.log(answ.error);
+      if(answ.msg == 1){ 
+        window.location.href=window.location.href;
+      }else if(answ.msg == 2){ 
+        $("#msg").attr('class', 'alert alert alert-success');
+        $("#msg").text(answ.text);
+        $("#msg").show();
+        setTimeout(() => { $("#msg").hide() }, 2000);
+      }else if(answ.msg == 0){
+        $("#msg").attr('class', 'alert alert alert-danger');
+        $("#msg").text(answ.error);
+        $("#msg").show();
+        setTimeout(() => { $("#msg").hide() }, 2000);
+      }
+      //render_script_page(answ);
+      //console.log(answ);
+    });
+
+    //добавление и сохранение скрипта.
+    $("#scr_del").bind("click", function () {
+
+      var value = {};
+
+      value.do = 'script_del';
+      value.file_name = $("#file_name").val();
+
+      console.log(value);
+      send_request(value);
+      window.location.href=window.location.href
+
+    });
+
+    function render_script_page(data){
+      console.log(data);
+      $("#file_name").val(data.name);
+      $("#code").val(data.code);
+      data.code = '';
+    }
+
+    function send_request(value) {
+      var retVal;
+      $.ajax({
+        url: 'index.php?route=catalog/simplepars/ajax&who=phpscripts&{{ adap['token']}}&dn_id={{ dn_id}}',
+        type: "POST",
+        data: value,
+        async: false,
+        dataType: "html",
+        success: function (data) {
+          retVal = data;
+        }
+      });
+      return retVal;
+    };
+
+    //отсекаем вод русских букв в имени скрипта.
+    document.getElementById('file_name').onkeyup = function () {
+      var reg = /[а-яА-ЯёЁ+\\/~^\&\$\#\@\*;:\"\'\]\[\>\<\{\}]/g;
+      if (this.value.search(reg) !=  -1) {
+          this.value  =  this.value.replace(reg, '');
+      }
+    }
+  });
+</script>
+
+<!--Отрисовка добавления скрипта-->
+<script type="text/javascript">
+  var key_script = {{ js_ts_key}};
+  var script_row = key_script+1;
+  function addParamPermit(){
+    
+    html = '<div class="row" id="script_row-'+script_row+'">';
+    html +='  <div class="col-sm-1">';
+    html +='    <label class="control-label">Вкл/Выкл <span data-toggle="tooltip" data-original-title="Включает и выключает выполнение этого скрипта."></label>';
+    html +='    <select name="scripts_list['+script_row+'][status]" class="form-control" form="form">';
+    html +='      <option value="1">Вкл</option>';
+    html +='      <option value="0">Выкл</option>';
+    html +='    </select>';
+    html +='  </div>';
+    html +='  <div class="col-sm-2">';
+    html +='    <label class="control-label">Скрипт <span data-toggle="tooltip" data-original-title="Выберите какой скрипт исполнять."></label>';
+    html +='    <select name="scripts_list['+script_row+'][name]" class="form-control" form="form">';
+    html +='      <option id="0" value="" class="btn btn-warning btn-sm btn-block">Выберите скрипт</option>';
+                  {% for script_name in scripts %} 
+    html +='        <option id="{{ script_name}}" value="{{ script_name}}" class="btn btn-default btn-sm btn-block">{{ script_name}}</option>';
+                  {% endfor %}
+    html +='    </select>';
+    html +='  </div>';
+    html +='  <div class="col-sm-2">';
+    html +='    <label class="control-label">Когда выполнять <span data-toggle="tooltip" data-original-title="Выберите когда модуль будет выполнять ваш скрипт."></label>';
+    html +='    <select name="scripts_list['+script_row+'][when_do]" class="form-control" form="form">';
+    html +='      <option value="0">Никогда</option>';
+    html +='      <option value="1">Перед отправкой ссылки на парсинг</option>';
+    html +='      <option value="2">Перед Парсинг в ИМ</option>';
+    html +='      <option value="3">После Парсинга в ИМ</option>';
+    html +='      <option value="4">Перед Парсинг в CSV</option>';
+    html +='      <option value="5">После Парсинг в CSV</option>';
+
+    html +='    </select>';
+    html +='  </div>';
+    html +='  <div class="col-sm-1">';
+    html +='    <label class="control-label">Очередь <span data-toggle="tooltip" data-original-title="Порядок выполнения скриптов если указано два и больше скрипта в одно и тоже время."></label>';
+    html +='    <input name="scripts_list['+script_row+'][sort]" type="text" value="0" class="form-control" form="form">';
+    html +='  </div>';
+    html +='  <div class="col-sm-5">';
+    html +='    <label class="control-label">Коментарий к скрипту <span data-toggle="tooltip" data-original-title="Оставьте комментарий зачем это задание."></label>';
+    html +='    <input name="scripts_list['+script_row+'][comment]" type="text" value="" class="form-control" form="form">';
+    html +='  </div>';
+    html +='  <div class="col-sm-1">';
+    html +='    <button type="button" onclick="$(\'#script_row-'+script_row+'\').remove()" class="btn btn-danger" style="margin-top: 20px" title="Удалить"><i class="fa fa-trash-o"></i></button>';
+    html +='  </div>';
+    html +='</div>';
+
+    $('#scripts_list').append(html);
+    script_row ++;
+  }
+
+
+</script>
+
+<style>
+
+  .progress {
+    position: relative;
+    margin-top: 9px;
+  }
+
+  .progress span {
+    position: absolute;
+    display: block;
+    width: 100%;
+    color: black;
+  }
+
+  .float-right {
+    float: right !important;
+  }
+
+  label > span:after {
+    font-family: FontAwesome;
+    color: #1E91CF;
+    content: "\f059";
+    margin-left: 4px;
+  }
+</style>
+{{ footer }}

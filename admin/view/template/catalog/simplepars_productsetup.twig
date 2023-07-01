@@ -1,0 +1,2437 @@
+{{ header }}{{ column_left }} 
+<div id="content">
+  <!-- ========== HEADER ========== -->
+  <div class="page-header">
+    <div class="container-fluid">
+      <!-- USER TOOLS -->
+      <div class="pull-right">
+        <button id="pars_data_start" type="button" form="form" data-toggle="tooltip" title=""
+                class="btn btn btn-success" data-original-title="Старт парсинга">
+          <i class="fa fa-play"></i>
+        </button>
+        <button id="stop_grab" type="submit" data-toggle="tooltip" title="" class="btn btn-warning"
+                data-original-title="Стоп/Пауза парсинга"><i class="fa fa-stop" aria-hidden="true"></i>
+        </button>
+        <button name="save" type="submit" form="form" data-toggle="tooltip" title="" class="btn btn-primary"
+                data-original-title="Сохранить настройки">
+          <i class="fa fa-save"></i>
+        </button>
+        <button name="update_grab" type="submit" form="form" data-toggle="tooltip" title="" class="btn btn-info"
+                data-original-title="Обновить страницу">
+          <i class="fa fa-refresh"></i>
+        </button>
+      </div>
+      <h1>SimplePars</h1>
+      <!-- BREADCRUMBS -->
+      <ul class="breadcrumb">
+        {% for bread in breadcrumbs %} 
+        <li>
+          <a href="{{ bread['href']}}">{{ bread['text']}}</a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div><!-- /header -->
+  <!-- ========== CONTENT ========== -->
+  <div class="container-fluid">
+    {% if (error) %} 
+    <div class="alert alert-danger">
+      <i class="fa fa-info-circle"></i>{{ error}}
+    </div>
+    {% elseif (success) %} 
+    <div class="alert alert alert-success">
+      <i class="fa fa-info-circle"></i>{{ success}}
+    </div>
+    {% endif %}
+    <div class="alert alert alert-success" hidden id="msg">
+      <i class="fa fa-info-circle"></i>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> Редактирование проекта {{ '<b>['~setting['dn_name']~']</b>'}}</h3>
+      </div>
+      <div class="panel-body">
+        <form method="post" enctype="multipart/form-data" id="form" class="form-horizontal">
+          <!-- NAVIGATION -->
+          <ul class="nav nav-tabs">
+            {% for page in mpage %} 
+            <li role="presentation" class="{{ page['active']}}">
+              <a href="{{ page['href']}}" id="home-tab" role="tab" aria-controls="home" aria-expanded="true">
+                {{ page['title']}}
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+          <div class="row">
+            <div class="col-sm-12">
+              <div id="progress" hidden>
+                <div class="col-sm-12">
+                  <div class="progress">
+                    <div id="pross" class="progress-bar progress-bar-warning progress-bar-striped active" style="width: 0%">
+                      <span id="info_count" class="show"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="tab-content">
+            <div class="tab-pane active">
+              <div class="form-group required">
+                <div class="col-sm-1"></div>
+                <div class="col-sm-5">              
+                  <p class="text-center" style="margin: 25px">
+                    <span id="link_scan_count" class="text-danger"></span> | <span id="link_count" class="text-success"></span> | <span id="link_full"></span>
+                  </p>
+                </div>
+                <div class="col-sm-2">
+                  <label for="">Выбор списка ссылок</label>
+                  <select name="link_list" id="link_list" class="form-control input-sm">
+                    <option value="">Все ссылки</option>
+                    {% for link_list in link_lists %}
+                    <option value="{{ link_list['id']}}" {{ setting['link_list'] == link_list['id']?'selected':''}}>{{ link_list['name']}}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-sm-2">
+                  <label for="">Ссылки с ошибками</label>
+                  <select name="link_error" id="link_error" class="form-control input-sm">
+                    <option value="">Все ссылки</option>
+                    {% for link_error in link_errors %}
+                    <option value="{{ link_error}}" {{ setting['link_error'] == link_error?'selected':''}}>{{ link_error}}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-sm-2">
+                    <button type="button" id="links_restart" class="btn btn-warning btn-sm" style="margin-top: 20px"><i class="fa fa-refresh"></i> Перезагрузить ссылки
+                    </button>
+                  </div>
+              </div>
+              <div class="well">
+              <div class="row">
+                <div class="col-md-6">
+                    <div class="row">
+                      <div class="col-sm-3">
+                        <label class="control-label" for="select-action-1">Действие</label>
+                        <select class="form-control input-sm" id="select-action-1" name="action">
+                          <option value="1" style="color: #3c763d;"
+                          {{ setting['action'] == 1?'selected':''}}>Добавлять</option>
+                          <option value="2" style="color: #a94442;"
+                          {{ setting['action'] == 2?'selected':''}}>Обновлять</option>
+                          <option value="3"
+                          {{ setting['action'] == 3?'selected':''}}>Добавлять и обновлять</option>
+                        </select>
+                      </div>
+                      <div class="col-sm-3">
+                        <label class="control-label" for="sku2">Идентификатор товара</label>
+                        <select class="form-control input-sm" id="sku2" name="sid">
+                          <option value="sku" {{ setting['sid'] == 'sku'?'selected':''}}>Артикул [sku]</option>
+                          <option value="model" {{ setting['sid'] == 'model'?'selected':''}}>Код товара [model]</option>
+                          <option value="name" {{ setting['sid'] == 'name'?'selected':''}}>Название [name] НЕ РЕКОМЕНДУЕТСЯ</option>
+                          <option value="-" disabled="">Дополнительные идентификаторы. (Вкладка данные)</option>
+                          <option value="upc" {{ setting['sid'] == 'upc'?'selected':''}}>Универсальный код [upc]</option>
+                          <option value="ean" {{ setting['sid'] == 'ean'?'selected':''}}>Европейский номер товара [ean]</option>
+                          <option value="jan" {{ setting['sid'] == 'jan'?'selected':''}}>Японский штрихкод [jan]</option>
+                          <option value="isbn" {{ setting['sid'] == 'isbn'?'selected':''}}>Номер книжного издания [isbn]</option>
+                          <option value="mpn" {{ setting['sid'] == 'mpn'?'selected':''}}>Номер партии [mpn]</option>
+                          <option value="location" {{ setting['sid'] == 'location'?'selected':''}}>Поле расположение [location]</option>
+                        
+                        </select>
+                      </div>
+                      <div class="col-sm-2">
+                        <label class="control-label" for="select-action-1">Языки</label>
+                        <div class="checkselect">
+                          {% for lang in langs %} 
+                            <label>
+                              <input type="checkbox" name="r_lang[]" value="{{ lang['language_id']}}" {{ lang['checked']?'checked':''}}>{{ lang['name']}}
+                            </label>
+                          {% endfor %}
+                        </div>
+                      </div>
+                      <div class="col-sm-2">
+                        <label class="control-label" for="select-action-1">Магазины</label>
+                        <div class="checkselect">
+                          {% for stor in stores %} 
+                          <label><input type="checkbox" name="r_store[]" value="{{ stor['store_id']}}" {{ stor['checked']?'checked':''}}>{{ stor['name']}}</label>
+                          {% endfor %}
+                        </div>
+                      </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="row">
+                      <div class="col-sm-5">
+                        <a class="btn btn-primary btn-sm" type="button" style="margin-top: 25px"
+                           href="{{ href_show}}"><i class="fa fa-eye" aria-hidden="true"></i> Пред просмотр</a>
+                        <!--button type="submit" name="links_restart" class="btn btn-default btn-sm" style="margin-top: 25px"><i
+                                  class="fa fa-refresh"></i> Перезагрузить ссылки
+                        </button-->
+                      </div>
+                      <div class="col-sm-2">
+                        <label class="control-label">Потоки</label>
+                        <select class="form-control input-sm" name="thread">
+                          <option value="1" {{ setting['thread'] == 1?'selected':''}}>1 поток</option>
+                          <option value="2" {{ setting['thread'] == 2?'selected':''}}>2 потока</option>
+                          <option value="3" {{ setting['thread'] == 3?'selected':''}}>3 потока</option>
+                          <option value="4" {{ setting['thread'] == 4?'selected':''}}>4 потока</option>
+                          <option value="5" {{ setting['thread'] == 5?'selected':''}}>5 потоков</option>
+                          <!--option value="10" {{ setting['thread'] == 10?'selected':''}}>10 потоков</option-->
+                        </select>
+                      </div>
+                      <div class="col-sm-2">
+                        <label class="control-label">Пауза</label>
+                        <input class="form-control input-sm" name="pars_pause" type="text"
+                               value="{{ setting['pars_pause']}}">
+                      </div>
+                      <div class="col-sm-3">
+                        <label class="control-label">Кэш</label>
+                        <select name="cache_page" class="form-control input-sm">
+                          <option value="0" {{ browser['cache_page'] == 0?'selected':''}}>Не использовать кэш</option>
+                          <option value="1" {{ browser['cache_page'] == 1?'selected':''}}>Создавать/Использовать кэш если есть</option>
+                          <option value="2" {{ browser['cache_page'] == 2?'selected':''}}>Парсить и обновлять кэш</option>
+                        </select>
+                      </div>
+                    </div>
+                </div>
+              </div>
+            </div>
+
+              <!--rassol2-->
+              <!-- fixme: Новый блок -->
+              <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
+                <ul id="myTabs" class="nav nav-tabs" role="tablist">
+                  <li role="presentation" class="active">
+                    <a href="#smpp_products" id="home-tab" role="tab" data-toggle="tab" aria-controls="home"
+                       aria-expanded="true">
+                      Товары
+                    </a>
+                  </li>
+                  <li role="presentation">
+                    <a href="#smpp__seo" role="tab" id="profile-tab" data-toggle="tab" aria-controls="profile">
+                      SEO Шаблон
+                    </a>
+                  </li>
+                </ul>
+                <div id="myTabContent" class="tab-content">
+                  <div role="tabpanel" class="tab-pane fade in active" id="smpp_products" aria-labelledby="home-tab">
+                    <div class="row">
+                      <div class="col-sm-2">
+                        <ul class="nav nav-pills nav-stacked" id="option">
+                          <li class="active"><a href="#tab-option0" data-toggle="tab" aria-expanded="true"> Код
+                              товара [model]</a></li>
+                          <li><a href="#tab-option1" data-toggle="tab" aria-expanded="true"> Артикул [sku]</a></li>
+                          <li><a href="#tab-option2" data-toggle="tab" aria-expanded="true"> Название</a></li>
+                          <li><a href="#tab-option3" data-toggle="tab" aria-expanded="true"> Цена</a></li>
+                          <li><a href="#tab-option4" data-toggle="tab" aria-expanded="true"> Количество</a></li>
+                          <li><a href="#tab-option5" data-toggle="tab" aria-expanded="true"> Производитель</a></li>
+                          <li><a href="#tab-option6" data-toggle="tab" aria-expanded="true"> Описание</a></li>
+                          <li><a href="#tab-option7" data-toggle="tab" aria-expanded="true"> Категории</a></li>
+                          <li><a href="#tab-option8" data-toggle="tab" aria-expanded="true"> Изображения</a></li>
+                          <li><a href="#tab-option9" data-toggle="tab" aria-expanded="true"> Атрибуты</a></li>
+                          <li><a href="#tab-option10" data-toggle="tab" aria-expanded="true"> Опций</a></li>
+                          <li><a href="#tab-option11" data-toggle="tab" aria-expanded="true"> Данные</a></li>
+                        </ul>
+                      </div>
+                      <div class="col-sm-10">
+                        <div class="tab-content">
+                          <!--Код товара model-->
+                          <div class="tab-pane active" id="tab-option0">
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label" for="action-1">Действие:</label>
+                              <div class="col-sm-10">
+                                <select name="rules[model]" id="action-1" class="form-control">
+                                  <option value="1"
+                                  {{ setting['r_model'] == 1?'selected':''}}>Создавать по умолчанию [Работает
+                                  только при добавлении товара]</option>
+                                  <option value="2"
+                                  {{ setting['r_model'] == 2?'selected':''}}>Парсить [Работает только при
+                                  добавлении товара]</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label" for="model">Код товара [model] =</label>
+                              <div class="col-sm-6">
+                                <input class="form-control" id="model" name="model" type="text"
+                                       value="{{ setup['model']}}">
+                              </div>
+                              <label class="col-sm-2 control-label" for="value-border-4">Выбрать границу:</label>
+                              <div class="col-sm-2">
+                                <select class="form-control" id="value-border-4"
+                                        onchange="document.getElementById('model').value+=value+''">
+                                  <option value="">Выберите границу парсинга</option>
+                                  {% for param in params %} 
+                                    <option value="{gran_{{ param['id']}}}">
+                                      {{ param['name']~ '| {gran_'~param['id']~'}'}}
+                                    </option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                          <!--Артикул SKU-->
+                          <div class="tab-pane" id="tab-option1">
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label" for="action-">При обновлении:</label>
+                              <div class="col-sm-10">
+                                <select name="rules[sku]" id="" class="form-control">
+                                  <option value="0"
+                                  {{ setting['r_sku'] == 0?'selected':''}}>Не обновлять</option>
+                                  <option value="1"
+                                  {{ setting['r_sku'] == 1?'selected':''}}>Обновлять</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label" for="sku">Артикул [sku] =</label>
+                              <div class="col-sm-6">
+                                <input id='sku' class="form-control" name="sku" type="text"
+                                       value="{{ setup['sku']}}">
+                              </div>
+                              <label class="col-sm-2 control-label" for="value-border-4">Выбрать границу:</label>
+                              <div class="col-sm-2">
+                                <select class="form-control" id="value-border-4"
+                                        onchange="document.getElementById('sku').value+=value+''">
+                                  <option value="">Выберите границу парсинга</option>
+                                  {% for param in params %} 
+                                    <option value="{gran_{{ param['id']}}}">
+                                      {{ param['name']~ '| {gran_'~param['id']~'}'}}
+                                    </option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                          <!--Имя товара name-->
+                          <div class="tab-pane" id="tab-option2">
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label" for="to-renew-1">При обновлении:</label>
+                              <div class="col-sm-10">
+                                <select name="rules[name]" id="to-renew-1" class="form-control">
+                                  <option value="0"
+                                  {{ setting['r_name'] == 0?'selected':''}}>Не обновлять</option>
+                                  <option value="1"
+                                  {{ setting['r_name'] == 1?'selected':''}}>Обновлять</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label" for="name">Название =</label>
+                              <div class="col-sm-6">
+                                <input id="name" class="form-control" name="name" type="text"
+                                       value="{{ setup['name']}}">
+                              </div>
+                              <label class="col-sm-2 control-label" for="value-border-4">Выбрать границу:</label>
+                              <div class="col-sm-2">
+                                <select class="form-control" id="value-border-4"
+                                        onchange="document.getElementById('name').value+=value+''">
+                                  <option value="">Выберите границу парсинга</option>
+                                  {% for param in params %} 
+                                    <option value="{gran_{{ param['id']}}}">
+                                      {{ param['name']~ '| {gran_'~param['id']~'}'}}
+                                    </option>
+                                  {% endfor %}
+                                </select>
+                              </div>                              
+                            </div>
+                          </div>
+                          <!--Цена price-->
+                          <div class="tab-pane" id="tab-option3">
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label" for="to-renew-2">При обновлении:</label>
+                              <div class="col-sm-4">
+                                <select name="rules[price]" id="to-renew-2" class="form-control">
+                                  <option value="1" {{ setting['r_price'] == 1?'selected':''}}>Обновлять</option>
+                                  <option value="0" {{ setting['r_price'] == 0?'selected':''}}>Не обновлять</option>
+                                  <option value="2" {{ setting['r_price'] == 2?'selected':''}}>Обновлять если цена выросла</option>
+                                  <option value="3" {{ setting['r_price'] == 3?'selected':''}}>Обновляет если цена упала</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label" for="price">Цена =</label>
+                              <div class="col-sm-6">
+                                <input id="price" class="form-control" name="price" type="text"
+                                       value="{{ setup['price']}}">
+                              </div>
+                              <label class="col-sm-2 control-label" for="value-border-4">Выбрать границу:</label>
+                              <div class="col-sm-2">
+                                <select class="form-control" id="value-border-4"
+                                        onchange="document.getElementById('price').value+=value+''">
+                                  <option value="">Выберите границу парсинга</option>
+                                  {% for param in params %} 
+                                    <option value="{gran_{{ param['id']}}}">
+                                      {{ param['name']~ '| {gran_'~param['id']~'}'}}
+                                    </option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label" for="to-renew-2">Обновлять акции ?</label>
+                              <div class="col-sm-4">
+                                <select name="r_price_spec" id="to-renew-2" class="form-control">
+                                  <option value="0" {{ setting['r_price_spec'] == 0?'selected':''}}>Не обновлять</option>
+                                  <option value="1" {{ setting['r_price_spec'] == 1?'selected':''}}>Обновлять</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label" for="value-border-4">Акционная цена =</label>
+                              <div class="col-sm-6">
+                                <input id="price_spec" class="form-control" name="price_spec" type="text"
+                                       value="{{ setup['price_spec']}}">
+                              </div>
+                              <label class="col-sm-2 control-label" for="value-border-4">Выбрать границу:</label>
+                              <div class="col-sm-2">
+                                <select class="form-control" id="value-border-4"
+                                        onchange="document.getElementById('price_spec').value+=value+''">
+                                  <option value="">Выберите границу парсинга</option>
+                                  {% for param in params %} 
+                                    <option value="{gran_{{ param['id']}}}">
+                                      {{ param['name']~ '| {gran_'~param['id']~'}'}}
+                                      </option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label" for="value-border-4">Группа покупателей:</label>
+                              <div class="col-sm-2">
+                                <select class="form-control" name="r_price_spec_groups">
+                                  <option value="all"{{ setting['r_price_spec_groups'] is not empty and setting['r_price_spec_groups'] == 'all'?'selected':''}}>Все группы</option>
+                                  {% for cast_id,cast_group in cast_groups %}
+                                  <option value="{{ cast_id}}"{{ setting['r_price_spec_groups'] is not empty and setting['r_price_spec_groups'] == cast_id?'selected':''}}>{{ cast_group}}</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                              <label class="col-sm-2 control-label">Начало Акции:</label>
+                              <div class="col-sm-2">
+                                <input type="date" name="r_price_spec_date_start" value="{{ setting['r_price_spec_date_start'] }}" data-date-format="YYYY-MM-DD"/>
+                              </div>
+                              <label class="col-sm-2 control-label">Конец Акции:</label>
+                              <div class="col-sm-2">
+                                <input type="date" name="r_price_spec_date_end" value="{{ setting['r_price_spec_date_end'] }}" data-date-format="YYYY-MM-DD"/>
+                              </div>
+                            </div>
+                          </div>
+                          <!--Количество quant-->
+                          <div class="tab-pane" id="tab-option4">
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label" for="to-renew-3">При обновлении:</label>
+                              <div class="col-sm-10">
+                                <select name="rules[quant]" id="to-renew-3" class="form-control">
+                                  <option value="0"
+                                  {{ setting['r_quant'] == 0?'selected':''}}>Не обновлять</option>
+                                  <option value="1"
+                                  {{ setting['r_quant'] == 1?'selected':''}}>Обновлять</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label" for="quant">Количество =</label>
+                              <div class="col-sm-6">
+                                <input id="quant" class="form-control" name="quant" type="text"
+                                       value="{{ setup['quant']}}">
+                              </div>
+                              <label class="col-sm-2 control-label" for="value-border-4">Выбрать границу:</label>
+                              <div class="col-sm-2">
+                                <select class="form-control" id="value-border-4"
+                                        onchange="document.getElementById('quant').value+=value+''">
+                                  <option value="">Выберите границу парсинга</option>
+                                  {% for param in params %} 
+                                    <option value="{gran_{{ param['id']}}}">
+                                      {{ param['name']~ '| {gran_'~param['id']~'}'}}
+                                    </option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label" for="quant_d">По умолчанию:</label>
+                              <div class="col-sm-10">
+                                <input id="quant_d" class="form-control" name="quant_d" type="number"
+                                       value="{{ setup['quant_d']}}">
+                              </div>
+                            </div>
+                          </div>
+                          <!--Производитель manufac-->
+                          <div class="tab-pane" id="tab-option5">
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label" for="action-2">При обновлении:<span data-toggle="tooltip" data-original-title="Выберите какое действие необходимо выполнить модулю с этим полем в момент обновления товара."></span></label>
+                              <div class="col-sm-4">
+                                <select name="u_manufac" id="action-2" class="form-control">
+                                  <option value="0" {{ setting['u_manufac'] == 0?'selected':''}}>Не обновлять</option>
+                                  <option value="1" {{ setting['u_manufac'] == 1?'selected':''}}>Создавать и обновлять в товаре, если новое значение</option>
+                                  <option value="2" {{ setting['u_manufac'] == 2?'selected':''}}>Обновлять в товаре если новый производитель и он уже создан в магазин</option>
+                                </select>
+                              </div>
+                              <label class="col-sm-2 control-label" for="action-2">При добавлении:<span data-toggle="tooltip" data-original-title="Выберите какое действие необходимо выполнить модулю с этим полем в момент добавления нового товара."></span></label>
+                              <div class="col-sm-4">
+                                <select name="rules[manufac]" id="action-2" class="form-control">
+                                  <option value="0" {{ setting['r_manufac'] == 0?'selected':''}}>Не учитывать</option>
+                                  <option value="1" {{ setting['r_manufac'] == 1?'selected':''}}>Создавать, добавлять в товар</option>
+                                  <option value="2" {{ setting['r_manufac'] == 2?'selected':''}}>Добавлять в товар если уже создан в магазине</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label" for="manufac">Производитель =</label>
+                              <div class="col-sm-6">
+                                <input id="manufac" class="form-control" name="manufac" type="text"
+                                       value="{{ setup['manufac']}}">
+                              </div>
+                              <label class="col-sm-2 control-label" for="value-border-4">Выбрать границу:</label>
+                              <div class="col-sm-2">
+                                <select class="form-control" id="value-border-4"
+                                        onchange="document.getElementById('manufac').value+=value+''">
+                                  <option value="">Выберите границу парсинга</option>
+                                  {% for param in params %} 
+                                    <option value="{gran_{{ param['id']}}}">
+                                      {{ param['name']~ '| {gran_'~param['id']~'}'}}
+                                    </option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label" for="by-default-2">По умолчанию:</label>
+                              <div class="col-sm-10">
+                                <select class="form-control" name="manufac_d">
+                                  <option value="0"
+                                  {{ setup['manufac_d'] is not empty and setup['manufac_d'] == 0?'selected':''}}
+                                  >Производитель по умолчанию</option>
+                                  {% for manuf in manufs %}
+                                  <option value="{{ manuf['id']}}"{{ setup['manufac_d'] is not empty and setup['manufac_d'] == manuf['id']?'selected':''}}>{{ manuf['name']}}</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label" for="value-border-3">SEO_URL</label>
+                              <div class="col-sm-2">
+                                <select name="r_manufac_made_url" class="form-control" id="value-border-3">
+                                  <option value="1"
+                                  {{ setting['r_manufac_made_url'] == 1?'selected':''}}>Формировать из
+                                  названия</option>
+                                  <option value="2"
+                                  {{ setting['r_manufac_made_url'] == 2?'selected':''}}>По SEO
+                                  шаблону</option>
+                                  <option value="0"
+                                  {{ setting['r_manufac_made_url'] == 0?'selected':''}}>Не создавать</option>
+                                </select>
+                              </div>
+                              <label class="col-sm-2 control-label" for="by-default-3">Заполнять метаданные</label>
+                              <div class="col-md-2">
+                                <select name="r_manufac_made_meta" class="form-control">
+                                  <option value="0"
+                                  {{ setting['r_manufac_made_meta'] == 0?'selected':''}}>Не
+                                  заполнять</option>
+                                  <option value="1"
+                                  {{ setting['r_manufac_made_meta'] == 1?'selected':''}}>По SEO
+                                  шаблону</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                          <!--Описание des-->
+                          <div class="tab-pane" id="tab-option6">
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label" for="to-renew-4">При обновлении:<span data-toggle="tooltip" data-original-title="Выберите какое действие необходимо выполнить модулю с этим полем в момент обновления товара."></span></label>
+                              <div class="col-sm-4">
+                                <select name="u_des" id="to-renew-4" class="form-control">
+                                  <option value="0"{{ setting['u_des'] == 0?'selected':''}}>Не обновлять</option>
+                                  <option value="1"{{ setting['u_des'] == 1?'selected':''}}>Обновлять заменив полностью</option>
+                                  <option value="2"{{ setting['u_des'] == 2?'selected':''}}>Обновлять добавив в начало существующего описания</option>
+                                  <option value="3"{{ setting['u_des'] == 3?'selected':''}}>Обновлять добавив в конец существующего описания</option>
+                                </select>
+                              </div>
+                              <label class="col-sm-2 control-label" for="to-renew-4">При добавлении:<span data-toggle="tooltip" data-original-title="Выберите какое действие необходимо выполнить модулю с этим полем в момент добавления нового товара."></span></label>
+                              <div class="col-sm-4">
+                                <select name="rules[des]" id="to-renew-4" class="form-control">
+                                  <option value="0" {{ setting['r_des'] == 0?'selected':''}}>Не заполнять</option>
+                                  <option value="1" {{ setting['r_des'] == 1?'selected':''}}>Заполнять</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label" for="des">Описание =</label>
+                              <div class="col-sm-6">
+                                <textarea id="des" name="des" rows="3"
+                                  class="col-sm-6 form-control">{{ setup['des']}}</textarea>
+                              </div>
+                              <label class="col-sm-2 control-label" for="value-border-4">Выбрать границу:</label>
+                              <div class="col-sm-2">
+                                <select class="form-control" id="value-border-4"
+                                        onchange="document.getElementById('des').value+=value+''">
+                                  <option value="">Выберите границу парсинга</option>
+                                  {% for param in params %} 
+                                    <option value="{gran_{{ param['id']}}}">
+                                      {{ param['name']~ '| {gran_'~param['id']~'}'}}
+                                    </option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label" for="des_d">По умолчанию:</label>
+                              <div class="col-sm-10">
+                                <textarea id="des_d" class="form-control"
+                                          name="des_d">{{ setup['des_d']}}</textarea>
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label" for="des_dir">Директория для фото <span
+                                        data-toggle="tooltip"
+                                        data-original-title="Существующая папка для загрузки фото товара (без image/catalog/). Так же возможно использование границ парсинга для создания директорий. Любой текст в границе парсинга транслируется в латиницу. Повторяющиеся границы парсинга преобразовываются в вложенные папки. Пример 'Категория{csvnc}Под категория' => 'kategoriya/pod_kategoriya'"></span></label>
+                              <div class="col-sm-3">
+                                <input id="des_dir" class="form-control" name="des_dir" type="text"
+                                       value="{{ setup['des_dir']}}">
+                              </div>
+                              <div class="col-sm-3"></div>
+                              <label class="col-sm-2 control-label" for="value-border-4">Выбрать границу:</label>
+                              <div class="col-sm-2">
+                                <select class="form-control" id="value-border-4"
+                                        onchange="document.getElementById('des_dir').value+=value+''">
+                                  <option value="">Выберите границу парсинга</option>
+                                  {% for param in params %} 
+                                    <option value="{gran_{{ param['id']}}}">
+                                      {{ param['name']~ '| {gran_'~param['id']~'}'}}
+                                    </option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label">Создать подпапки: <span data-toggle="tooltip"
+                                                                                    data-original-title="Разложить по подпапкам [0][1]...[9]"></label>
+                              <div class="col-sm-10">
+                                <label class="radio-inline">
+                                  <input type="radio" name="rules[des_dir]" value="1" {{ setting['r_des_dir'] == 1?'checked':''}}>Да 
+                                </label>
+                                <label class="radio-inline">
+                                  <input type="radio" name="rules[des_dir]" value="0" {{ setting['r_des_dir'] == 0?'checked':''}}>Нет 
+                                </label>
+                              </div>
+                            </div>
+                            <div class="row">
+                              <div class="col-sm-2"></div>
+                              <div class="col-sm-10">
+                                <div class="alert alert-info" role="alert">
+                                  Настройка парсинга описаний с изображениями подробно описана в инструкции --> <a href="https://simplepars.top/index.php?page=note&n=34" target="_blank">Парсинг описаний с изображениями</a>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <!--Категории Cat-->
+                          <div class="tab-pane" id="tab-option7">
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label" for="action-3">При обновлении:<span data-toggle="tooltip" data-original-title="Выберите какое действие необходимо выполнить модулю с этим полем в момент обновления товара."></span></label>
+                              <div class="col-sm-4">
+                                <select name="u_cat" id="action-3" class="form-control">
+                                  <option value="0" {{ setting['u_cat'] == 0?'selected':''}}>Не обновлять категории</option>
+                                  <option value="1" {{ setting['u_cat'] == 1?'selected':''}}>Создавать категории и обновлять в товаре</option>
+                                  <option value="2" {{ setting['u_cat'] == 2?'selected':''}}>Не создавать новые категории, но обновлять если категория уже создана</option>
+                                  <option value="3" {{ setting['u_cat'] == 3?'selected':''}}>Создавать, и добавлять товар в дополнительные новые категории</option>
+                                </select>
+                              </div>
+                              <label class="col-sm-2 control-label" for="action-3">При добавлении:<span data-toggle="tooltip" data-original-title="Выберите какое действие необходимо выполнить модулю с этим полем в момент добавления нового товара."></span></label>
+                              <div class="col-sm-4">
+                                <select name="rules[cat]" id="action-3" class="form-control">
+                                  <option value="0" {{ setting['r_cat'] == 0?'selected':''}}>Не заполнять [Не рекомендую, товар получит категорию с id = 0]</option>
+                                  <option value="1" {{ setting['r_cat'] == 1?'selected':''}}>Создавать категории и заполнять в товаре</option>
+                                  <option value="2" {{ setting['r_cat'] == 2?'selected':''}}>Заполнить категорию в товаре только если категория уже создана в магазине</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label" for="cat">Категория =</label>
+                              <div class="col-sm-6">
+                                <input id="cat" class="form-control" name="cat" type="text" value="{{ setup['cat']}}">
+                              </div>
+                              <label class="col-sm-2 control-label" for="value-border-4">Выбрать границу:</label>
+                              <div class="col-sm-2">
+                                <select class="form-control" id="value-border-4"
+                                        onchange="document.getElementById('cat').value+=value+''">
+                                  <option value="">Выберите границу парсинга</option>
+                                  {% for param in params %} 
+                                    <option value="{gran_{{ param['id']}}}">
+                                      {{ param['name']~ '| {gran_'~param['id']~'}'}}
+                                    </option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label" for="by-default-3">Показывать в:</label>
+                              <div class="col-sm-3">
+                                <select class="form-control" name="r_cat_perent">
+                                  <option value="0"
+                                  {{ setting['r_cat_perent'] == 0?'selected':''}}>Только в младшей
+                                  категории</option>
+                                  <option value="1"
+                                  {{ setting['r_cat_perent'] == 1?'selected':''}}>В младшей и родительской
+                                  категории</option>
+                                  <option value="2"
+                                  {{ setting['r_cat_perent'] == 2?'selected':''}}>В младшей и во всех
+                                  родительских категориях</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label" for="by-default-3">По умолчанию: <span data-toggle="tooltip" data-original-title="Категория по умолчанию это категория в которую попадет товар если в момент парсинга ничего не будет найдено.
+                              При работе с категорией по умолчанию переключатель Показывать в родительских категориях НЕ РАБОТАЕТ."></span></label>
+                              <div class="col-sm-10">
+                                <select class="form-control" name="cat_d">
+                                  <option value="0">Выберите категорию по умолчанию</option>
+                                  {% for key,category in categorys %}
+                                    <option value="{{ key}}" {{ setup['cat_d'] is not empty and setup['cat_d'] == key?'selected':''}}>{{ category}}</option>
+                                    {% endfor %}
+
+                                </select>
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label" for="value-border-3">SEO_URL</label>
+                              <div class="col-sm-2">
+                                <select name="r_cat_made_url" class="form-control" id="value-border-3">
+                                  <option value="1"
+                                  {{ setting['r_cat_made_url'] == 1?'selected':''}}>Формировать из
+                                  названия</option>
+                                  <option value="2"
+                                  {{ setting['r_cat_made_url'] == 2?'selected':''}}>По SEO шаблону</option>
+                                  <option value="0"
+                                  {{ setting['r_cat_made_url'] == 0?'selected':''}}>Не создавать</option>
+                                </select>
+                              </div>
+                              <label class="col-sm-2 control-label" for="by-default-3">Заполнять метаданные</label>
+                              <div class="col-md-2">
+                                <select name="r_cat_made_meta" class="form-control">
+                                  <option value="0"
+                                  {{ setting['r_cat_made_meta'] == 0?'selected':''}}>Не заполнять</option>
+                                  <option value="1"
+                                  {{ setting['r_cat_made_meta'] == 1?'selected':''}}>По SEO шаблону</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                          <!--Фото IMG-->
+                          <div class="tab-pane" id="tab-option8">
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label" for="to-renew-5">При обновлении:<span data-toggle="tooltip" data-original-title="Выберите какое действие необходимо выполнить модулю с этим полем в момент обновления товара."></span></label>
+                              <div class="col-sm-4">
+                                <select name="u_img" id="to-renew-5" class="form-control">
+                                  <option value="0" {{ setting['u_img'] == 0?'selected':''}}>Не обновлять</option>
+                                  <option value="1" {{ setting['u_img'] == 1?'selected':''}}>Заменит все изображения товара (Без физического удаления изображений с хостинга)</option>
+                                  <option value="2" {{ setting['u_img'] == 2?'selected':''}}>Заменит все изображения товара (С удалением изображений с диска. Будут удалены изображения что привязаны к товару в момент обновления)</option>
+                                  <option value="3" {{ setting['u_img'] == 3?'selected':''}}>Добавлять дополнительные изображения при обновлении (Внимание!!! Не производится проверка на дубли!!!)</option>
+                                  <option value="4" {{ setting['u_img'] == 4?'selected':''}}>Добавлять изображения если в товаре их нет</option>
+                                </select>
+                              </div>
+                              <label class="col-sm-2 control-label" for="to-renew-5">При добавлении:<span data-toggle="tooltip" data-original-title="Выберите какое действие необходимо выполнить модулю с этим полем в момент добавления нового товара."></span></label>
+                              <div class="col-sm-4">
+                                <select name="rules[img]" id="to-renew-5" class="form-control">
+                                  <option value="0"  {{ setting['r_img'] == 0?'selected':''}}>Не добавлять</option>
+                                  <option value="1" {{ setting['r_img'] == 1?'selected':''}}>Добавлять</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label" for="img">Изображения =</label>
+                              <div class="col-sm-6">
+                                <input id="img" class="form-control" name="img" type="text"
+                                       value="{{ setup['img']}}">
+                              </div>
+                              <label class="col-sm-2 control-label" for="value-border-4">Выбрать границу:</label>
+                              <div class="col-sm-2">
+                                <select class="form-control" id="value-border-4"
+                                        onchange="document.getElementById('img').value+=value+''">
+                                  <option value="">Выберите границу парсинга</option>
+                                  {% for param in params %} 
+                                    <option value="{gran_{{ param['id']}}}">
+                                      {{ param['name']~ '| {gran_'~param['id']~'}'}}
+                                    </option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label" for="img_d">По умолчанию</label>
+                              <div class="col-sm-10">
+                                <input id="img_d" class="form-control" name="img_d" type="text"
+                                       value="{{ setup['img_d']}}">
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label" for="img_d">Директория для фото <span
+                                        data-toggle="tooltip"
+                                        data-original-title="Существующая папка для загрузки фото товара (без image/catalog/). Так же возможно использование границ парсинга для создания директорий. Любой текст в границе парсинга транслируется в латиницу. Повторяющиеся границы парсинга преобразовываются в вложенные папки. Пример 'Категория{csvnc}Под категория' => 'kategoriya/pod_kategoriya'"></span></label>
+                              <div class="col-sm-3">
+                                <input id="img_dir" class="form-control" name="img_dir" type="text"
+                                       value="{{ setup['img_dir']}}">
+                              </div>
+                              <div class="col-sm-3"></div>
+                              <label class="col-sm-2 control-label" for="value-border-4">Выбрать границу:</label>
+                              <div class="col-sm-2">
+                                <select class="form-control" id="value-border-4"
+                                        onchange="document.getElementById('img_dir').value+=value+''">
+                                  <option value="">Выберите границу парсинга</option>
+                                  {% for param in params %} 
+                                    <option value="{gran_{{ param['id']}}}">
+                                      {{ param['name']~ '| {gran_'~param['id']~'}'}}
+                                    </option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label">Создать подпапки: <span data-toggle="tooltip"
+                                                                                    data-original-title="Разложить по подпапкам [0][1]...[9]"></label>
+                              <div class="col-sm-10">
+                                <label class="radio-inline">
+                                  <input type="radio" name="rules[img_dir]"
+                                         value="1" {{ setting['r_img_dir'] == 1?'checked':''}}>
+                                  Да </label>
+                                <label class="radio-inline">
+                                  <input type="radio" name="rules[img_dir]"
+                                         value="0" {{ setting['r_img_dir'] == 0?'checked':''}}>
+                                  Нет </label>
+                              </div>
+                            </div>
+                          </div>
+                          <!--Атрибуты attr-->
+                          <div class="tab-pane" id="tab-option9">
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label" for="to-renew-6">При обновлении:<span data-toggle="tooltip" data-original-title="Выберите какое действие необходимо выполнить модулю с этим полем в момент обновления товара."></span></label>
+                              <div class="col-sm-4">
+                                <select name="u_attr" id="to-renew-6" class="form-control">
+                                  <option value="0" {{ setting['u_attr'] == 0?'selected':''}}>Не работать с атрибутами</option>
+                                  <option value="1" {{ setting['u_attr'] == 1?'selected':''}}>Создавать/Добавлять/Обновлять атрибуты</option>
+                                  <option value="2" {{ setting['u_attr'] == 2?'selected':''}}>Добавить/Обновить атрибуты в товаре, не создавать новые</option>
+                                  <option value="3" {{ setting['u_attr'] == 3?'selected':''}}>Добавить новый не обновлять существующие, не создавать новые</option>
+                                  <option value="4" {{ setting['u_attr'] == 4?'selected':''}}>Обновить значения существующих атрибутов, не добавлять, не создавать новые</option>
+                                  <option value="5" {{ setting['u_attr'] == 5?'selected':''}}>Удалить все атрибуты в товаре и загрузить заново</option>
+                                </select>
+                              </div>
+                              <label class="col-sm-2 control-label" for="to-renew-6">При добавлении:<span data-toggle="tooltip" data-original-title="Выберите какое действие необходимо выполнить модулю с этим полем в момент добавления нового товара."></span></label>
+                              <div class="col-sm-4">
+                                <select name="rules[attr]" id="to-renew-6" class="form-control">
+                                  <option value="0"  {{ setting['r_attr'] == 0?'selected':''}}>Не работать с атрибутами</option>
+                                  <option value="1" {{ setting['r_attr'] == 1?'selected':''}}>Создавать атрибуты если таких нет, добавлять атрибуты в товар</option>
+                                  <option value="2" {{ setting['r_attr'] == 2?'selected':''}}>Добавлять в товар без создания новых атрибутов</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label" for="attr">Атрибуты =</label>
+                              <div class="col-sm-6">
+                                <input id="attr" class="form-control" name="attr" type="text"
+                                       value="{{ setup['attr']}}">
+                              </div>
+                              <label class="col-sm-2 control-label" for="value-border-4">Выбрать границу:</label>
+                              <div class="col-sm-2">
+                                <select class="form-control" id="value-border-4"
+                                        onchange="document.getElementById('attr').value+=value+''">
+                                  <option value="">Выберите границу парсинга</option>
+                                  {% for param in params %} 
+                                    <option value="{gran_{{ param['id']}}}">
+                                      {{ param['name']~ '| {gran_'~param['id']~'}'}}
+                                    </option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label" for="value-border-10">Группа атрибутов
+                                <span data-toggle="tooltip" data-original-title="Используйте при создании новых атрибутов. По умолчанию установлена группа атрибутов с attribute_group_id=1">
+                                </span>
+                              </label>
+                              <div class="col-sm-3">
+                                <select class="form-control" name="r_attr_group">
+                                  <option value="1">Группа атрибутов по умолчанию id=1</option>
+                                  {% for key,attr_g in attr_groups %} 
+                                  <option value="{{ key}}"
+                                  {{ setting['r_attr_group'] == key?'selected':''}}
+                                  >{{ attr_g}}</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                          <!-- Опций -->
+                          <div class="tab-pane" id="tab-option10">
+                              <div class="row">
+                                <div class="col-sm-10">
+                                  <div class="alert alert-info" role="alert">
+                                    Инструкция по работе с опциями - <a href="https://simplepars.top/index.php?page=notes&tag_id=32" target="_blank">Перейти к инструции</a>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="row">
+                                <div class="form-group">
+                                  <div class="col-sm-2">
+                                    <label for="input-pr">При обновлении:<span data-toggle="tooltip" data-original-title="Выберите какое действие необходимо выполнить модулю с этим полем в момент обновления товара."></span></label>
+                                    <select name="u_opt" id="to-renew-6" class="form-control">
+                                      <option value="0" {{ setting['u_opt'] == 0?'selected':''}}>Не работать с опциями</option>
+                                      <option value="1" {{ setting['u_opt'] == 1?'selected':''}}>Обновить значения существующих опций</option>
+                                      <option value="2" {{ setting['u_opt'] == 2?'selected':''}}>Добавить новые опции и обновить существующие</option>
+                                      <option value="3" {{ setting['u_opt'] == 3?'selected':''}}>Добавить новый не обновлять существующие</option>
+                                      <option value="4" {{ setting['u_opt'] == 4?'selected':''}}>Удалить все опции и загрузить заново</option>
+                                    </select>
+                                  </div>
+                                  <div class="col-sm-2"></div>
+                                  <div class="col-sm-2">
+                                    <label for="input-pr">При добавлении:<span data-toggle="tooltip" data-original-title="Выберите какое действие необходимо выполнить модулю с этим полем в момент добавления нового товара."></span></label>
+                                    <select name="r_opt" id="to-renew-6" class="form-control">
+                                      <option value="0" {{ setting['r_opt'] == 0?'selected':''}}>Не работать с опциями</option>
+                                      <option value="1" {{ setting['r_opt'] == 1?'selected':''}}>Создавать, заполнять в товар</option>
+                                      <option value="2" {{ setting['r_opt'] == 2?'selected':''}}>Заполнять в товаре без создания новых опций и значений опций</option>
+                                    </select>
+                                  </div>
+                                </div>
+                                {% for opt_key,opt in setup['opts'] %} 
+                                <div class="row" id="recurring-row-{{ opt_key}}">
+                                  <div class="form-group">
+                                    <div class="col-sm-2 col-lg-2">
+                                      <label for="">&nbsp;</label>
+                                      <select class="form-control" name="opts[{{ opt_key}}][data][required]">
+                                        <option value="0" {{ opt['data']['required'] == '0'?'selected':''}}>Не обязательная опция</option>
+                                        <option value="1" {{ opt['data']['required'] == '1'?'selected':''}}>Обязательная опция</option>
+                                      </select>
+                                    </div>
+                                  </div>
+                                  <div class="form-group">
+                                    <div class="col-sm-5">
+                                      <label for="input-pr">Имя опции</label>
+                                      <input id="name_{{ opt_key}}" name="opts[{{ opt_key}}][name]" type="text" value="{{ opt['name']}}" class="form-control">
+                                    </div>
+                                    <div class="col-sm-2">
+                                      <label for="input-link">&nbsp;</label>
+                                      <select class="form-control" id="value-border-1" onchange="document.getElementById('name_{{ opt_key}}').value+=value+''">
+                                        <option value="">Выберите границу парсинга</option>
+                                        {% for param in params %} 
+                                          <option value="{gran_{{ param['id']}}}">
+                                            {{ param['name']~ '| {gran_'~param['id']~'}'}}
+                                          </option>
+                                        {% endfor %}
+                                      </select>
+                                    </div>
+                                    <div class="col-sm-2">
+                                      <label for="input-link">Выбор опции из магазина<span data-toggle="tooltip" data-original-title="В этом поле вы можете выбрать опцию из вашего магазина. Если вы здесь выбрали опцию то поле имя опции заполнять необязательно."></span></label> 
+                                      <select class="form-control" name="opts[{{ opt_key}}][opt_id]">
+                                        <option value="0">Выберите опцию</option>
+                                        {% for option in options %} 
+                                          <option value="{{ option['option_id']}}" {{ opt['opt_id'] == option['option_id']?'selected':''}}>{{ option['name']}}</option>
+                                        {% endfor %}
+                                       </select>
+                                    </div>
+                                  </div>
+                                  <div class="form-group">
+                                    <div class="col-sm-5">
+                                      <label for="input-pr">Значение опции</label>
+                                      <input id="value_{{ opt_key}}" name="opts[{{ opt_key}}][value]" type="text" value="{{ opt['value']}}" class="form-control">
+                                    </div>
+                                    <div class="col-sm-2">
+                                      <label for="input-link">&nbsp;</label>
+                                      <select class="form-control" id="value-border-1" onchange="document.getElementById('value_{{ opt_key}}').value+=value+''">
+                                        <option value="">Выберите границу парсинга</option>
+                                        {% for param in params %} 
+                                        <option value="{gran_{{ param['id']}}}">
+                                          {{ param['name']~ '| {gran_'~param['id']~'}'}}
+                                        </option>
+                                        {% endfor %}
+                                      </select>
+                                    </div>
+                                  </div>
+                                  <div class="form-group">
+                                    <div class="col-sm-5">
+                                      <label for="input-pr">Цена опции</label>
+                                      <input id="price_{{ opt_key}}" name="opts[{{ opt_key}}][price]" type="text" value="{{ opt['price']}}" class="form-control">
+                                    </div>
+                                    <div class="col-sm-2">
+                                      <label for="input-link">&nbsp;</label>
+                                      <select class="form-control" id="value-border-1" onchange="document.getElementById('price_{{ opt_key}}').value+=value+''">
+                                        <option value="">Выберите границу парсинга</option>
+                                        {% for param in params %} 
+                                          <option value="{gran_{{ param['id']}}}">
+                                            {{ param['name']~ '| {gran_'~param['id']~'}'}} 
+                                          </option>
+                                        {% endfor %}
+                                      </select>
+                                    </div>
+                                    <div class="col-sm-2 col-lg-2">
+                                      <label for="">Префикс цены<span data-toggle="tooltip" data-original-title="Выбирая префикс цены вы определяете цена опции будет добавляться к основной цене товара или отниматься."></span></label>  
+                                      <select class="form-control" name="opts[{{ opt_key}}][data][price_prefix]">
+                                        <option value="+" {{ opt['data']['price_prefix'] == '+'?'selected':''}}>(+) Плюс к цене</option>
+                                        <option value="-" {{ opt['data']['price_prefix'] == '-'?'selected':''}}>(-) Минус от цены</option>
+                                        <!--option value="=" {{ opt['data']['price_prefix'] == '='?'selected':''}}>(=) Цена опции равна цене товара</option-->
+                                      </select>
+                                    </div>
+                                  </div>
+                                  <div class="form-group">
+                                    <div class="col-sm-5">
+                                      <label for="input-pr">Колво опций</label>
+                                      <input id="quant_{{ opt_key}}"name="opts[{{ opt_key}}][quant]" type="text" value="{{ opt['quant']}}" class="form-control">
+                                    </div>
+                                    <div class="col-sm-2">
+                                      <label for="input-link">&nbsp;</label>
+                                      <select class="form-control" id="value-border-1" onchange="document.getElementById('quant_{{ opt_key}}').value+=value+''">
+                                        <option value="">Выберите границу парсинга</option>
+                                        {% for param in params %} 
+                                          <option value="{gran_{{ param['id']}}}">
+                                            {{ param['name']~ '| {gran_'~param['id']~'}'}}
+                                          </option>
+                                        {% endfor %}
+                                      </select>
+                                    </div>
+                                    <div class="col-sm-2 col-lg-2">
+                                      <label for="input-pr">Колво опций по умолчанию<span data-toggle="tooltip" data-original-title="Здесь вы можете указать количество товара с этой опцией по умолчанию. Это значит что все опции которые при парсине не получили количество на складке получат количество из этого поля. Обратите внимание что если на сайте доноре количество будет равно 0 то кол-во для опции тоже будет браться с этого поля, вместо нуля. Если вы хотите указать количество для опций ноль, то ноль нужно указать и в этом поле."></span></label>  
+                                      <input id="quant_d_{{ opt_key}}"name="opts[{{ opt_key}}][quant_d]" type="text" value="{{ opt['quant_d']}}" class="form-control">
+                                    </div>
+                                  </div>
+
+                                  <div class="form-group">
+                                    <div class="col-sm-5">
+                                      <label for="input-pr">Изображение опции</label>
+                                      <input id="imgs_{{ opt_key}}" name="opts[{{ opt_key}}][imgs]" type="text" value="{{ opt['imgs']}}" class="form-control">
+                                    </div>
+                                    <div class="col-sm-2">
+                                      <label for="input-link">&nbsp;</label>
+                                      <select class="form-control" id="value-border-1" onchange="document.getElementById('imgs_{{ opt_key}}').value+=value+''">
+                                        <option value="">Выберите границу парсинга</option>
+                                        {% for param in params %} 
+                                        <option value="{gran_{{ param['id']}}}">
+                                          {{ param['name']~ '| {gran_'~param['id']~'}'}}
+                                        </option>
+                                        {% endfor %}
+                                      </select>
+                                    </div>
+                                    <div class="col-sm-2 col-lg-2">
+                                      <label for="">Cтандарт  изображений<span data-toggle="tooltip" data-original-title="Эта настройка определяет как привязывать изображение к опции. По умолчанию стандарт опенкарта. "></span></label>  
+                                      <select class="form-control" name="opts[{{ opt_key}}][data][imgs_type]">
+                                        <option value="0" {{ opt['data']['imgs_type'] == '0'?'selected':''}}>Не использовать</option>
+                                        <option value="1" {{ opt['data']['imgs_type'] == '1'?'selected':''}}>По стандарту Opencart</option>
+                                        <option value="2" {{ opt['data']['imgs_type'] == '2'?'selected':''}}{{ option_module_img == 1?'':' disabled=""'}}>Модуль опций от HyperLabTeam</option>
+                                        <option value="3" {{ opt['data']['imgs_type'] == '3'?'selected':''}}{{ option_module_img == 2?'':' disabled=""'}}>Изображения опций PRO от 19th</option>
+                                      </select>
+                                    </div>
+                                  </div>
+
+                                  <div class="form-group">
+                                    <div class="col-sm-4">
+                                      <button type="button" onclick="addRecurring()" data-toggle="tooltip" title=""
+                                              class="btn btn-primary btn-sm" data-original-title="Добавить повторно"><i class="fa fa-plus-circle" aria-hidden="true"></i>
+                                      </button>
+                                      {% if (opt_key != 0) %}
+                                        <button type="button" onclick="$('#recurring-row-{{ opt_key}}').remove()"data-toggle="tooltip"
+                                                title="" class="btn btn-danger btn-sm" data-original-title="Удалить"><i class="fa fa-minus-circle" aria-hidden="true"></i>
+                                        </button>
+                                      {% endif %}
+                                    </div>
+                                  </div>
+                                </div>
+                                {% endfor %}
+                              </div>
+                          </div>
+                          <!--Разное-->
+                          <div class="tab-pane" id="tab-option11">
+                            <!--UPC-->
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label"> UPC =<span data-toggle="tooltip" data-original-title="Универсальный код товара"></span></label> 
+                              <div class="col-sm-4">
+                                <input class="form-control" id="upc" name="upc" type="text" value="{{ setup['upc'] }}">
+                              </div>
+                              <label class="col-sm-2 control-label" for="value-border-4">Выбрать границу:</label>
+                              <div class="col-sm-2">
+                                <select class="form-control" id="value-border-4" onchange="document.getElementById('upc').value+=value+''">
+                                  <option value="">Выберите границу парсинга</option>
+                                  {% for param in params %} 
+                                    <option value="{gran_{{ param['id']}}}">{{ param['name']~ '| {gran_'~param['id']~'}'}}</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                              <div class="col-sm-2">
+                                <select class="form-control" name="r_upc">
+                                  <option value="0" {{ setting['r_upc'] == 0?'selected':''}}>Не обновлять</option>
+                                  <option value="1" {{ setting['r_upc'] == 1?'selected':''}}>Обновлять</option>
+                                </select>
+                              </div>
+                            </div>
+                            <!--EAN-->
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label"> EAN =<span data-toggle="tooltip" data-original-title="Европейский номер товара (штрихкод EAN-13)"></span></label>
+                              <div class="col-sm-4">
+                                <input class="form-control" id="ean" name="ean" type="text" value="{{ setup['ean'] }}">
+                              </div>
+                              <label class="col-sm-2 control-label" for="value-border-4">Выбрать границу:</label>
+                              <div class="col-sm-2">
+                                <select class="form-control" id="value-border-4" onchange="document.getElementById('ean').value+=value+''">
+                                  <option value="">Выберите границу парсинга</option>
+                                  {% for param in params %} 
+                                    <option value="{gran_{{ param['id']}}}">{{ param['name']~ '| {gran_'~param['id']~'}'}}</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                              <div class="col-sm-2">
+                                <select class="form-control" name="r_ean">
+                                  <option value="0" {{ setting['r_ean'] == 0?'selected':''}}>Не обновлять</option>
+                                  <option value="1" {{ setting['r_ean'] == 1?'selected':''}}>Обновлять</option>
+                                </select>
+                              </div>
+                            </div>
+                            <!--JAN-->
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label"> JAN =<span data-toggle="tooltip" data-original-title="Японский штрихкод"></span></label>
+                              <div class="col-sm-4">
+                                <input class="form-control" id="jan" name="jan" type="text" value="{{ setup['jan'] }}">
+                              </div>
+                              <label class="col-sm-2 control-label" for="value-border-4">Выбрать границу:</label>
+                              <div class="col-sm-2">
+                                <select class="form-control" id="value-border-4" onchange="document.getElementById('jan').value+=value+''">
+                                  <option value="">Выберите границу парсинга</option>
+                                  {% for param in params %} 
+                                    <option value="{gran_{{ param['id']}}}">{{ param['name']~ '| {gran_'~param['id']~'}'}}</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                              <div class="col-sm-2">
+                                <select class="form-control" name="r_jan">
+                                  <option value="0" {{ setting['r_jan'] == 0?'selected':''}}>Не обновлять</option>
+                                  <option value="1" {{ setting['r_jan'] == 1?'selected':''}}>Обновлять</option>
+                                </select>
+                              </div>
+                            </div>
+                            <!--ISBN-->
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label"> ISBN =<span data-toggle="tooltip" data-original-title="Уникальный номер книжного издания, необходимый для распространения книги и автоматизации работы с изданием."></span></label>
+                              <div class="col-sm-4">
+                                <input class="form-control" id="isbn" name="isbn" type="text" value="{{ setup['isbn'] }}">
+                              </div>
+                              <label class="col-sm-2 control-label" for="value-border-4">Выбрать границу:</label>
+                              <div class="col-sm-2">
+                                <select class="form-control" id="value-border-4" onchange="document.getElementById('isbn').value+=value+''">
+                                  <option value="">Выберите границу парсинга</option>
+                                  {% for param in params %} 
+                                    <option value="{gran_{{ param['id']}}}">{{ param['name']~ '| {gran_'~param['id']~'}'}}</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                              <div class="col-sm-2">
+                                <select class="form-control" name="r_isbn">
+                                  <option value="0" {{ setting['r_isbn'] == 0?'selected':''}}>Не обновлять</option>
+                                  <option value="1" {{ setting['r_isbn'] == 1?'selected':''}}>Обновлять</option>
+                                </select>
+                              </div>
+                            </div>
+                            <!--MPN-->
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label"> MPN =<span data-toggle="tooltip" data-original-title="Номер партии изготовителя"></span></label>
+                              <div class="col-sm-4">
+                                <input class="form-control" id="mpn" name="mpn" type="text" value="{{ setup['mpn'] }}">
+                              </div>
+                              <label class="col-sm-2 control-label" for="value-border-4">Выбрать границу:</label>
+                              <div class="col-sm-2">
+                                <select class="form-control" id="value-border-4" onchange="document.getElementById('mpn').value+=value+''">
+                                  <option value="">Выберите границу парсинга</option>
+                                  {% for param in params %} 
+                                    <option value="{gran_{{ param['id']}}}">{{ param['name']~ '| {gran_'~param['id']~'}'}}</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                              <div class="col-sm-2">
+                                <select class="form-control" name="r_mpn">
+                                  <option value="0" {{ setting['r_mpn'] == 0?'selected':''}}>Не обновлять</option>
+                                  <option value="1" {{ setting['r_mpn'] == 1?'selected':''}}>Обновлять</option>
+                                </select>
+                              </div>
+                            </div>
+                            <!--Расположение [Location]-->
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label"> Расположение [Location] =<span data-toggle="tooltip" data-original-title="Поле предназначено для указания расположения товара на складе. (В магазине не выводится, можно использовать под свои нужды)"></span></label>
+                              <div class="col-sm-4">
+                                <input class="form-control" id="location" name="location" type="text" value="{{ setup['location'] }}">
+                              </div>
+                              <label class="col-sm-2 control-label" for="value-border-4">Выбрать границу:</label>
+                              <div class="col-sm-2">
+                                <select class="form-control" id="value-border-4" onchange="document.getElementById('location').value+=value+''">
+                                  <option value="">Выберите границу парсинга</option>
+                                  {% for param in params %} 
+                                    <option value="{gran_{{ param['id']}}}">{{ param['name']~ '| {gran_'~param['id']~'}'}}</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                              <div class="col-sm-2">
+                                <select class="form-control" name="r_location">
+                                  <option value="0" {{ setting['r_location'] == 0?'selected':''}}>Не обновлять</option>
+                                  <option value="1" {{ setting['r_location'] == 1?'selected':''}}>Обновлять</option>
+                                </select>
+                              </div>
+                            </div>
+                            <!--Минимальное кол-во-->
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label"> Минимальное кол-во =<span data-toggle="tooltip" data-original-title="Минимальное количество для заказа этого товара"></span></label>
+                              <div class="col-sm-4">
+                                <input class="form-control" id="minimum" name="minimum" type="text" value="{{ setup['minimum'] }}">
+                              </div>
+                              <label class="col-sm-2 control-label" for="value-border-4">Выбрать границу:</label>
+                              <div class="col-sm-2">
+                                <select class="form-control" id="value-border-4" onchange="document.getElementById('minimum').value+=value+''">
+                                  <option value="">Выберите границу парсинга</option>
+                                  {% for param in params %} 
+                                    <option value="{gran_{{ param['id']}}}">{{ param['name']~ '| {gran_'~param['id']~'}'}}</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                              <div class="col-sm-2">
+                                <select class="form-control" name="r_minimum">
+                                  <option value="0" {{ setting['r_minimum'] == 0?'selected':''}}>Не обновлять</option>
+                                  <option value="1" {{ setting['r_minimum'] == 1?'selected':''}}>Обновлять</option>
+                                </select>
+                              </div>
+                            </div>
+                            <!--Вычитать со склада-->
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label">Вычитать со склада :<span data-toggle="tooltip" data-original-title="Вычитать со склада при покупке."></span></label>
+                              <div class="col-sm-2">
+                                <select class="form-control" name="subtract">
+                                  <option value="1" {{ setup['subtract'] == 1?'selected':''}}>Да</option>
+                                  <option value="0" {{ setup['subtract'] == 0?'selected':''}}>Нет</option>
+                                </select>
+                              </div>
+                              <div class="col-sm-6"> </div>
+                              <div class="col-sm-2">
+                                <select class="form-control" name="r_subtract">
+                                  <option value="0" {{ setting['r_subtract'] == 0?'selected':''}}>Не обновлять</option>
+                                  <option value="1" {{ setting['r_subtract'] == 1?'selected':''}}>Обновлять</option>
+                                </select>
+                              </div>
+                            </div>
+                            <!--Размеры (Длина)-->
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label"> Размеры (Длина) =<span data-toggle="tooltip" data-original-title="Длина товара"></span></label>
+                              <div class="col-sm-4">
+                                <input class="form-control" id="length" name="length" type="text" value="{{ setup['length'] }}">
+                              </div>
+                              <label class="col-sm-2 control-label" for="value-border-4">Выбрать границу:</label>
+                              <div class="col-sm-2">
+                                <select class="form-control" id="value-border-4" onchange="document.getElementById('length').value+=value+''">
+                                  <option value="">Выберите границу парсинга</option>
+                                  {% for param in params %} 
+                                    <option value="{gran_{{ param['id']}}}">{{ param['name']~ '| {gran_'~param['id']~'}'}}</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                              <div class="col-sm-2">
+                                <select name="r_length" class="form-control">
+                                  <option value="0" {{ setting['r_length'] == 0?'selected':''}}>Не обновлять</option>
+                                  <option value="1" {{ setting['r_length'] == 1?'selected':''}}>Обновлять</option>
+                                </select>
+                              </div>
+                            </div>
+                            <!--Размеры (Ширина)-->
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label"> Размеры (Ширина) =<span data-toggle="tooltip" data-original-title="Ширина товара"></span></label>
+                              <div class="col-sm-4">
+                                <input class="form-control" id="width" name="width" type="text" value="{{ setup['width'] }}">
+                              </div>
+                              <label class="col-sm-2 control-label" for="value-border-4">Выбрать границу:</label>
+                              <div class="col-sm-2">
+                                <select class="form-control" id="value-border-4" onchange="document.getElementById('width').value+=value+''">
+                                  <option value="">Выберите границу парсинга</option>
+                                  {% for param in params %} 
+                                    <option value="{gran_{{ param['id']}}}">{{ param['name']~ '| {gran_'~param['id']~'}'}}</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                              <div class="col-sm-2">
+                                <select class="form-control" name="r_width">
+                                  <option value="0" {{ setting['r_width'] == 0?'selected':''}}>Не обновлять</option>
+                                  <option value="1" {{ setting['r_width'] == 1?'selected':''}}>Обновлять</option>
+                                </select>
+                              </div>
+                            </div>
+                            <!--Размеры (Высота)-->
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label"> Размеры (Высота) =<span data-toggle="tooltip" data-original-title="Высота товара"></span></label>
+                              <div class="col-sm-4">
+                                <input class="form-control" id="height" name="height" type="text" value="{{ setup['height'] }}">
+                              </div>
+                              <label class="col-sm-2 control-label" for="value-border-4">Выбрать границу:</label>
+                              <div class="col-sm-2">
+                                <select class="form-control" id="value-border-4" onchange="document.getElementById('height').value+=value+''">
+                                  <option value="">Выберите границу парсинга</option>
+                                  {% for param in params %} 
+                                    <option value="{gran_{{ param['id']}}}">{{ param['name']~ '| {gran_'~param['id']~'}'}}</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                              <div class="col-sm-2">
+                                <select class="form-control" name="r_height">
+                                  <option value="0" {{ setting['r_height'] == 0?'selected':''}}>Не обновлять</option>
+                                  <option value="1" {{ setting['r_height'] == 1?'selected':''}}>Обновлять</option>
+                                </select>
+                              </div>
+                            </div>
+                            <!--Единица длины-->
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label">Единица длины :<span data-toggle="tooltip" data-original-title="Единицы измерения размера товара"></span></label>
+                              <div class="col-sm-2">
+                                <select class="form-control" name="length_class_id">
+                                  {% for length_class in length_classes %} 
+                                  <option value="{{ length_class['length_class_id']}}" {{ length_class['length_class_id'] == setup['length_class_id']?'selected':''}}>{{ length_class['title']~' ('~length_class['unit']~')'}}</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                              <div class="col-sm-6"> </div>
+                              <div class="col-sm-2">
+                                <select class="form-control" name="r_length_class_id">
+                                  <option value="0" {{ setting['r_length_class_id'] == 0?'selected':''}}>Не обновлять</option>
+                                  <option value="1" {{ setting['r_length_class_id'] == 1?'selected':''}}>Обновлять</option>
+                                </select>
+                              </div>
+                            </div>
+                            <!--Вес-->
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label"> Вес товара =<span data-toggle="tooltip" data-original-title="Вес товара"></span></label>
+                              <div class="col-sm-4">
+                                <input class="form-control" id="weight" name="weight" type="text" value="{{ setup['weight'] }}">
+                              </div>
+                              <label class="col-sm-2 control-label" for="value-border-4">Выбрать границу:</label>
+                              <div class="col-sm-2">
+                                <select class="form-control" id="value-border-4" onchange="document.getElementById('weight').value+=value+''">
+                                  <option value="">Выберите границу парсинга</option>
+                                  {% for param in params %} 
+                                    <option value="{gran_{{ param['id']}}}">{{ param['name']~ '| {gran_'~param['id']~'}'}}</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                              <div class="col-sm-2">
+                                <select class="form-control" name="r_weight">
+                                  <option value="0" {{ setting['r_weight'] == 0?'selected':''}}>Не обновлять</option>
+                                  <option value="1" {{ setting['r_weight'] == 1?'selected':''}}>Обновлять</option>
+                                </select>
+                              </div>
+                            </div>
+                            <!--Единица веса-->
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label">Единица веса :<span data-toggle="tooltip" data-original-title="Единицы измерения веса товара"></span> </label>
+                              <div class="col-sm-2">
+                                <select class="form-control" id="weight_class_id" name="weight_class_id">
+                                  {% for weight_class in weight_classes %} 
+                                  <option value="{{ weight_class['weight_class_id']}}" {{ weight_class['weight_class_id'] == setup['weight_class_id']?'selected':''}}>{{ weight_class['title']~' ('~weight_class['unit']~')'}}</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                              <div class="col-sm-6"> </div>
+                              <div class="col-sm-2">
+                                <select class="form-control" name="r_weight_class_id">
+                                  <option value="0" {{ setting['r_weight_class_id'] == 0?'selected':''}}>Не обновлять</option>
+                                  <option value="1" {{ setting['r_weight_class_id'] == 1?'selected':''}}>Обновлять</option>
+                                </select>
+                              </div>
+                            </div>
+                            <!--Статус-->
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label"> Статус товара:<span data-toggle="tooltip" data-original-title="Статус показывает включен товар или нет. Если статус выключен тогда товар не выводится в магазине."></span></label>
+                              <div class="col-sm-2">
+                                <select class="form-control" name="status">
+                                  <option value="1" {{ setup['status'] == 1?'selected':''}}>Включен</option>
+                                  <option value="2" {{ setup['status'] == 2?'selected':''}}>Отключен</option>
+                                  <option value="3" {{ setup['status'] == 3?'selected':''}}>Отключить при нулевом остатке</option>
+                                </select>
+                              </div>
+                              <div class="col-sm-6"> </div>
+                              <div class="col-sm-2">
+                                <select class="form-control" name="r_status">
+                                  <option value="0" {{ setting['r_status'] == 0?'selected':''}}>Не обновлять</option>
+                                  <option value="1" {{ setting['r_status'] == 1?'selected':''}}>Обновлять</option>
+                                </select>
+                              </div>
+                            </div>
+                            <!--Статус при нулевом остатке-->
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label"> Отсутствие на складе:<span data-toggle="tooltip" data-original-title="Статус, показываемый, когда товара нет на складе"></span></label>
+                              <div class="col-sm-2">
+                                <select class="form-control" name="r_status_zero">
+                                  {% for stock_statu in stock_status %}
+                                  <option value="{{ stock_statu['stock_status_id']}}" {{ setting['r_status_zero'] is not empty and setting['r_status_zero'] == stock_statu['stock_status_id']?'selected':''}}>
+                                    {{ stock_statu['name']}}  
+                                  </option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                            </div>
+                            <!--Порядок сортировки-->
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label"> Порядок сортировки =<span data-toggle="tooltip" data-original-title="Порядок сортировки указывает какой товар будет выводится в категории первым."></span></label>
+                              <div class="col-sm-4">
+                                <input class="form-control" id="sort_order" name="sort_order" type="text" value="{{ setup['sort_order'] }}">
+                              </div>
+                              <label class="col-sm-2 control-label" for="value-border-4">Выбрать границу:</label>
+                              <div class="col-sm-2">
+                                <select class="form-control" id="value-border-4" onchange="document.getElementById('sort_order').value+=value+''">
+                                  <option value="">Выберите границу парсинга</option>
+                                  {% for param in params %} 
+                                    <option value="{gran_{{ param['id']}}}">{{ param['name']~ '| {gran_'~param['id']~'}'}}</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                              <div class="col-sm-2">
+                                <select class="form-control" name="r_sort_order">
+                                  <option value="0" {{ setting['r_sort_order'] == 0?'selected':''}}>Не обновлять</option>
+                                  <option value="1" {{ setting['r_sort_order'] == 1?'selected':''}}>Обновлять</option>
+                                </select>
+                              </div>
+                            </div>
+                            <!--Выбор макета товара-->
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label">Выбор макета товара :<span data-toggle="tooltip" data-original-title="Единицы измерения размера товара"></span></label>
+                              <div class="col-sm-2">
+                                <select class="form-control" name="layout_pr">
+                                  <option value="0">Выберите макет</option>
+                                  {% for layout in layouts %} 
+                                  <option value="{{ layout['layout_id']}}" {{ layout['layout_id'] == setup['layout_pr']?'selected':''}}>{{ layout['name']}}</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                              <div class="col-sm-6"> </div>
+                              <div class="col-sm-2">
+                                <select class="form-control" name="r_layout_pr">
+                                  <option value="0" {{ setting['r_layout_pr'] == 0?'selected':''}}>Не обновлять</option>
+                                  <option value="1" {{ setting['r_layout_pr'] == 1?'selected':''}}>Обновлять</option>
+                                </select>
+                              </div>
+                            </div>
+                            <!--Выбор макета категории-->
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label">Выбор макета категории :<span data-toggle="tooltip" data-original-title="Макет для категории работает только при создании новой категории. Эта настройка не участвует при обновлении товара."></span></label>
+                              <div class="col-sm-2">
+                                <select class="form-control" name="layout_cat">
+                                  <option value="0">Выберите макет</option>
+                                  {% for layout in layouts %} 
+                                  <option value="{{ layout['layout_id']}}" {{ layout['layout_id'] == setup['layout_cat']?'selected':''}}>{{ layout['name']}}</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                            </div>
+                            <!--Работа стегами товара-->
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label"> Теги товара =<span data-toggle="tooltip" data-original-title="Обратите внимание что теги разделяются запятой. В вашей границе парсинга теги должны отделятся именно запятой."></span></label>
+                              <div class="col-sm-4">
+                                <input class="form-control" id="tags" name="tags" type="text" value="{{ setup['tags'] }}">
+                              </div>
+                              <label class="col-sm-2 control-label" for="value-border-4">Выбрать границу:</label>
+                              <div class="col-sm-2">
+                                <select class="form-control" id="value-border-4" onchange="document.getElementById('tags').value+=value+''">
+                                  <option value="">Выберите границу парсинга</option>
+                                  {% for param in params %} 
+                                    <option value="{gran_{{ param['id']}}}">{{ param['name']~ '| {gran_'~param['id']~'}'}}</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                              <div class="col-sm-2">
+                                <select class="form-control" name="r_tags">
+                                  <option value="0" {{ setting['r_tags'] == 0?'selected':''}}>Не обновлять</option>
+                                  <option value="1" {{ setting['r_tags'] == 1?'selected':''}}>Обновлять</option>
+                                </select>
+                              </div>
+                            </div>
+                            <!--Работа с закупочной ценой-->
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label"> Закупочная цена =<span data-toggle="tooltip" data-original-title="Это поле отвечает за закупочную цену, она работает при использовании дополнительного модуля CostPrice"></span></label>
+                              <div class="col-sm-4">
+                                <input class="form-control" id="cost" name="cost" type="text" value="{{ setup['cost'] }}">
+                              </div>
+                              <label class="col-sm-2 control-label" for="value-border-4">Выбрать границу:</label>
+                              <div class="col-sm-2">
+                                <select class="form-control" id="value-border-4" onchange="document.getElementById('cost').value+=value+''">
+                                  <option value="">Выберите границу парсинга</option>
+                                  {% for param in params %} 
+                                    <option value="{gran_{{ param['id']}}}">{{ param['name']~ '| {gran_'~param['id']~'}'}}</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                              <div class="col-sm-2">
+                                <select class="form-control" name="r_cost">
+                                  <option value="0" {{ setting['r_cost'] == 0?'selected':''}}>Не обновлять</option>
+                                  <option value="1" {{ setting['r_cost'] == 1?'selected':''}}>Обновлять</option>
+                                </select>
+                              </div>
+                            </div>
+                            <!--Рекомендованные товары-->
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label">Поле для связи сопут. товары :<span data-toggle="tooltip" data-original-title="В данном поле вы можете выбрать по какому полю парсер будет обеднять товары и сопутствующие товары. Так же рекомендую подробнее ознакомится с этой функцией в инструкции к модулю. "></span></label>
+                              <div class="col-sm-2">
+                                <select class="form-control" name="related_sku">
+                                  <option value="0">Выберите поле с идентификаторами.</option>
+                                  <option value="model" {{ setup['related_sku'] == 'model'?'selected':''}}>Model</option>
+                                  <option value="sku" {{ setup['related_sku'] == 'sku'?'selected':''}}>SKU</option>
+                                  <option value="upc" {{ setup['related_sku'] == 'upc'?'selected':''}}>UPC</option>
+                                  <option value="ean" {{ setup['related_sku'] == 'ean'?'selected':''}}>EAN</option>
+                                  <option value="jan" {{ setup['related_sku'] == 'jan'?'selected':''}}>JAN</option>
+                                  <option value="isbn" {{ setup['related_sku'] == 'isbn'?'selected':''}}>ISBN</option>
+                                  <option value="mpn" {{ setup['related_sku'] == 'mpn'?'selected':''}}>MPN</option>
+                                  <option value="location" {{ setup['related_sku'] == 'location'?'selected':''}}>Location</option>
+                                </select>
+                              </div>
+                              <div class="col-sm-6" style="top: 10px;"> <span><b class="text-danger">Внимание!!!</b> 
+                                <a href="https://simplepars.top/index.php?page=note&n=51" target="_blank">Прочтите инструкцию по сопутствующим товарам!!</a></span>
+                              </div>
+                              <div class="col-sm-2">
+                                <select class="form-control" name="r_related">
+                                  <option value="0" {{ setting['r_related'] == 0?'selected':''}}>Не обновлять</option>
+                                  <option value="1" {{ setting['r_related'] == 1?'selected':''}}>Обновлять</option>
+                                </select>
+                              </div>
+                            </div>
+                            <!--Выбор поля для идентификации HPM-->
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label">HPM поле для связи товара :<span data-toggle="tooltip" data-original-title="В данном поле вы можете выбрать по какому полю парсер будет обеднять товары и записывать в HPM. Так же рекомендую подробнее ознакомится с этой функцией в инструкции к модулю. "></span></label>
+                              <div class="col-sm-2">
+                                <select class="form-control" name="hpm_sku">
+                                  <option value="0">Выберите поле с идентификатором моделей.</option>
+                                  <option value="model" {{ setup['hpm_sku'] == 'model'?'selected':''}}{{ hpm_inst?'':' disabled=""'}}>Model</option>
+                                  <option value="sku" {{ setup['hpm_sku'] == 'sku'?'selected':''}}{{ hpm_inst?'':' disabled=""'}}>SKU</option>
+                                  <option value="upc" {{ setup['hpm_sku'] == 'upc'?'selected':''}}{{ hpm_inst?'':' disabled=""'}}>UPC</option>
+                                  <option value="ean" {{ setup['hpm_sku'] == 'ean'?'selected':''}}{{ hpm_inst?'':' disabled=""'}}>EAN</option>
+                                  <option value="jan" {{ setup['hpm_sku'] == 'jan'?'selected':''}}{{ hpm_inst?'':' disabled=""'}}>JAN</option>
+                                  <option value="isbn" {{ setup['hpm_sku'] == 'isbn'?'selected':''}}{{ hpm_inst?'':' disabled=""'}}>ISBN</option>
+                                  <option value="mpn" {{ setup['hpm_sku'] == 'mpn'?'selected':''}}{{ hpm_inst?'':' disabled=""'}}>MPN</option>
+                                  <option value="location" {{ setup['hpm_sku'] == 'location'?'selected':''}}{{ hpm_inst?'':' disabled=""'}}>Location</option>
+                                </select>
+                              </div>
+                              <div class="col-sm-6" style="top: 10px;"> <span><b class="text-danger">Внимание!!!</b> 
+                                <a href="https://simplepars.top/index.php?page=note&n=46" target="_blank">Прочтите инструкцию по HPM!!</a></span>
+                              </div>
+                              <div class="col-sm-2">
+                                <select class="form-control" name="r_hpm">
+                                  <option value="0" {{ setting['r_hpm'] == 0?'selected':''}}>Не обновлять</option>
+                                  <option value="1" {{ setting['r_hpm'] == 1?'selected':''}}>Обновлять</option>
+                                </select>
+                              </div>
+                            </div>
+                            <!--Работа с webp-->
+                            <div class="form-group">
+                              <label class="col-sm-2 control-label">Преобразовывать webp? :<span data-toggle="tooltip" data-original-title="Преобразовывает формат webp в понятный для opencart jpg. Обратите внимание что в стандарте Opencart не поддерживает работу с изображениями формата webp !!!"></span></label>
+                              <div class="col-sm-2">
+                                <select class="form-control" name="webp_conv">
+                                  <option value="0">Нет, сохранять в webp</option>
+                                  <option value="1" {{ browser['webp_conv'] == 1?'selected':''}}>Да, в формат jpeg</option>
+                                  <option value="2" {{ browser['webp_conv'] == 2?'selected':''}}>Да, в формат png</option>
+                                </select>
+                              </div>
+                              <div class="col-sm-6" style="top: 10px;"> <span><b class="text-danger">Внимание!!!</b> 
+                                <a href="https://simplepars.top/index.php?page=note&n=45" target="_blank">Прочтите инструкцию по webp!!!</a></span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!--ВКЛАДКА СЕО-->
+                  <div role="tabpanel" class="tab-pane fade" id="smpp__seo" aria-labelledby="profile-tab">
+                    <legend>Товар</legend>
+                      <div class="form-group">
+                      <label class="col-sm-2 control-label" for="to-renew-6">При обновлении:<span data-toggle="tooltip" data-original-title="Выберите какое действие необходимо выполнить модулю с этим полем в момент обновления товара."></span></label>
+                      <div class="col-sm-4">
+                        <select name="u_made_meta" id="to-renew-6" class="form-control">
+                          <option value="0" {{ setting['u_made_meta'] == 0?'selected':''}}>Не обновлять</option>
+                          <option value="1" {{ setting['u_made_meta'] == 1?'selected':''}}>Обновить по сео шаблону</option>
+                        </select>
+                      </div>
+                      <label class="col-sm-2 control-label" for="to-renew-6">При добавлении:<span data-toggle="tooltip" data-original-title="Выберите какое действие необходимо выполнить модулю с этим полем в момент добавления нового товара."></span></label>
+                      <div class="col-sm-4">
+                        <select name="r_made_meta" id="to-renew-6" class="form-control">
+                          <option value="0"
+                          {{ setting['r_made_meta'] == 0?'selected':''}}>Не заполнять</option>
+                          <option value="1"
+                          {{ setting['r_made_meta'] == 1?'selected':''}}>Заполнять</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label id="lol" class="col-sm-2 control-label" for="input-pr">
+                        HTML-тег H1:
+                        <span data-toggle="tooltip" data-original-title="Работает только в ocStore"></span>
+                      </label>
+                      <div class="col-sm-8">
+                        <input name="seo_h1" id="seo_h1" type="text" value="{{ setup['seo_h1']}}"
+                               class="form-control">
+                      </div>
+                      <div class="col-sm-2">
+                        <select class="form-control" onchange="document.getElementById('seo_h1').value+=value+''">
+                          <option value="">Выберите границу парсинга</option>
+                          {% for param in params %} 
+                          <option value="{gran_{{ param['id']}}}">
+                            {{ param['name']~ '| {gran_'~param['id']~'}'}}
+                          </option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="col-sm-2 control-label" for="input-pr">
+                        Мета-тег Title:
+                      </label>
+                      <div class="col-sm-8">
+                        <input name="seo_title" id="seo_title" type="text" value="{{ setup['seo_title']}}"
+                               class="form-control">
+                      </div>
+                      <div class="col-sm-2">
+                        <select class="form-control" onchange="document.getElementById('seo_title').value+=value+''">
+                          <option value="">Выберите границу парсинга</option>
+                          {% for param in params %} 
+                          <option value="{gran_{{ param['id']}}}">
+                            {{ param['name']~ '| {gran_'~param['id']~'}'}}
+                          </option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="col-sm-2 control-label" for="input-pr">
+                        Мета-тег description:
+                      </label>
+                      <div class="col-sm-8">
+                        <input name="seo_desc" id="seo_desc" type="text" value="{{ setup['seo_desc']}}"
+                               class="form-control">
+                      </div>
+                      <div class="col-sm-2">
+                        <select class="form-control" onchange="document.getElementById('seo_desc').value+=value+''">
+                          <option value="">Выберите границу парсинга</option>
+                          {% for param in params %} 
+                          <option value="{gran_{{ param['id']}}}">
+                            {{ param['name']~ '| {gran_'~param['id']~'}'}}
+                          </option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="col-sm-2 control-label" for="input-pr">Мета-тег keywords:</label>
+                      <div class="col-sm-8">
+                        <input name="seo_keyw" id="seo_keyw" type="text" value="{{ setup['seo_keyw']}}"
+                               class="form-control">
+                      </div>
+                      <div class="col-sm-2">
+                        <select class="form-control" onchange="document.getElementById('seo_keyw').value+=value+''">
+                          <option value="">Выберите границу парсинга</option>
+                          {% for param in params %} 
+                          <option value="{gran_{{ param['id']}}}">
+                            {{ param['name']~ '| {gran_'~param['id']~'}'}}
+                          </option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                    <legend>Форимрование URL товара</legend>
+                    <div class="form-group">
+                      <label class="col-sm-2 control-label" for="to-renew-6">При обновлении:<span data-toggle="tooltip" data-original-title="Выберите какое действие необходимо выполнить модулю с этим полем в момент обновления товара."></span></label>
+                      <div class="col-sm-4">
+                        <select name="u_up_url" id="to-renew-6" class="form-control">
+                          <option value="0" {{ setting['u_up_url'] == 0?'selected':''}}>Не обновлять</option>
+                          <option value="1" {{ setting['u_up_url'] == 1?'selected':''}}>Обновить</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="col-sm-2 control-label" for="value-border-3">Формировать URL:</label>
+                      <div class="col-sm-2">
+                        <select name="r_made_url" class="form-control" id="value-border-3">
+                          <option value="1" {{ setting['r_made_url'] == 1?'selected':''}}>Формировать из названия товара</option>
+                          <option value="2" {{ setting['r_made_url'] == 2?'selected':''}}>По SEO шаблону</option>
+                          <option value="0" {{ setting['r_made_url'] == 0?'selected':''}}>Не создавать/Не обновлять</option>
+                        </select>
+                      </div>
+                      <label class="col-sm-1 control-label" for="input-pr">URL шаблон:</label>
+                      <div class="col-sm-5">
+                        <input name="seo_url" id="seo_url" type="text" value="{{ setup['seo_url']}}" id="input-pr" class="form-control">
+                      </div>
+                      <div class="col-sm-2">
+                        <select class="form-control" onchange="document.getElementById('seo_url').value+=value+''">
+                          <option value="">Выберите границу парсинга</option>
+                          {% for param in params %} 
+                          <option value="{gran_{{ param['id']}}}">
+                            {{ param['name']~ '| {gran_'~param['id']~'}'}}
+                          </option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                    <legend>Название изображений</legend>
+                    <div class="form-group">
+                      <label class="col-sm-2 control-label" for="input-pr">Название изображений:</label>
+                      <div class="col-sm-8">
+                        <input name="img_name" id="img_name" type="text" value="{{ setup['img_name']}}"
+                               class="form-control">
+                      </div>
+                      <div class="col-sm-2">
+                        <select class="form-control" onchange="document.getElementById('img_name').value+=value+''">
+                          <option value="">Выберите границу парсинга</option>
+                          {% for param in params %} 
+                          <option value="{gran_{{ param['id']}}}">
+                            {{ param['name']~ '| {gran_'~param['id']~'}'}}
+                          </option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                    <!--
+                      Категории
+                    -->
+                    <legend>Категория</legend>
+                    <div class="form-group">
+                      <label class="col-sm-2 control-label" for="input-pr">URL:</label>
+                      <div class="col-sm-8">
+                        <input name="cat_seo_url" id="cat_seo_url" type="text"
+                               value="{{ setup['cat_seo_url']}}" class="form-control">
+                      </div>
+                      <div class="col-sm-2">
+                        <select class="form-control" onchange="document.getElementById('cat_seo_url').value+=value+''">
+                          <option value="">Выберите границу парсинга</option>
+                          {% for param in params %} 
+                          <option value="{gran_{{ param['id']}}}">
+                            {{ param['name']~ '| {gran_'~param['id']~'}'}}
+                          </option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="col-sm-2 control-label" for="input-pr">
+                        HTML-тег H1:
+                        <span data-toggle="tooltip" data-original-title="Работает только в ocStore"></span>
+                      </label>
+                      <div class="col-sm-8">
+                        <input name="cat_seo_h1" id="cat_seo_h1" type="text" value="{{ setup['cat_seo_h1']}}"
+                               class="form-control">
+                      </div>
+                      <div class="col-sm-2">
+                        <select class="form-control" onchange="document.getElementById('cat_seo_h1').value+=value+''">
+                          <option value="">Выберите границу парсинга</option>
+                          {% for param in params %} 
+                          <option value="{gran_{{ param['id']}}}">
+                            {{ param['name']~ '| {gran_'~param['id']~'}'}}
+                          </option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="col-sm-2 control-label" for="input-pr">
+                        HTML-тег Title:
+                      </label>
+                      <div class="col-sm-8">
+                        <input name="cat_seo_title" id="cat_seo_title" type="text"
+                               value="{{ setup['cat_seo_title']}}"
+                               class="form-control">
+                      </div>
+                      <div class="col-sm-2">
+                        <select class="form-control"
+                                onchange="document.getElementById('cat_seo_title').value+=value+''">
+                          <option value="">Выберите границу парсинга</option>
+                          {% for param in params %} 
+                          <option value="{gran_{{ param['id']}}}">
+                            {{ param['name']~ '| {gran_'~param['id']~'}'}}
+                          </option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="col-sm-2 control-label" for="input-pr">
+                        Мета-тег "description":
+                      </label>
+                      <div class="col-sm-8">
+                        <input name="cat_seo_desc" id="cat_seo_desc" type="text"
+                               value="{{ setup['cat_seo_desc']}}"
+                               class="form-control">
+                      </div>
+                      <div class="col-sm-2">
+                        <select class="form-control" onchange="document.getElementById('cat_seo_desc').value+=value+''">
+                          <option value="">Выберите границу парсинга</option>
+                          {% for param in params %} 
+                          <option value="{gran_{{ param['id']}}}">
+                            {{ param['name']~ '| {gran_'~param['id']~'}'}}
+                          </option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="col-sm-2 control-label" for="input-pr">Keywords:</label>
+                      <div class="col-sm-8">
+                        <input name="cat_seo_keyw" id="cat_seo_keyw" type="text"
+                               value="{{ setup['cat_seo_keyw']}}"
+                               class="form-control">
+                      </div>
+                      <div class="col-sm-2">
+                        <select class="form-control" onchange="document.getElementById('cat_seo_keyw').value+=value+''">
+                          <option value="">Выберите границу парсинга</option>
+                          {% for param in params %} 
+                          <option value="{gran_{{ param['id']}}}">
+                            {{ param['name']~ '| {gran_'~param['id']~'}'}}
+                          </option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                    <!--
+
+                    Производители
+
+                    -->
+                    <legend>Производитель</legend>
+                    <div class="form-group">
+                      <label class="col-sm-2 control-label" for="input-pr">URL:</label>
+                      <div class="col-sm-8">
+                        <input name="manuf_seo_url" id="manuf_seo_url" type="text"
+                               value="{{ setup['manuf_seo_url']}}" class="form-control">
+                      </div>
+                      <div class="col-sm-2">
+                        <select class="form-control"
+                                onchange="document.getElementById('manuf_seo_url').value+=value+''">
+                          <option value="">Выберите границу парсинга</option>
+                          {% for param in params %} 
+                          <option value="{gran_{{ param['id']}}}">
+                            {{ param['name']~ '| {gran_'~param['id']~'}'}}
+                          </option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="col-sm-2 control-label" for="input-pr">
+                        HTML-тег H1:
+                        <span data-toggle="tooltip" data-original-title="Работает только в ocStore"></span>
+                      </label>
+                      <div class="col-sm-8">
+                        <input name="manuf_seo_h1" id="manuf_seo_h1" type="text"
+                               value="{{ setup['manuf_seo_h1']}}"
+                               class="form-control">
+                      </div>
+                      <div class="col-sm-2">
+                        <select class="form-control" onchange="document.getElementById('manuf_seo_h1').value+=value+''">
+                          <option value="">Выберите границу парсинга</option>
+                          {% for param in params %} 
+                          <option value="{gran_{{ param['id']}}}">
+                            {{ param['name']~ '| {gran_'~param['id']~'}'}}
+                          </option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="col-sm-2 control-label" for="input-pr">
+                        HTML-тег Title:
+                      </label>
+                      <div class="col-sm-8">
+                        <input name="manuf_seo_title" id="manuf_seo_title" type="text"
+                               value="{{ setup['manuf_seo_title']}}"
+                               class="form-control">
+                      </div>
+                      <div class="col-sm-2">
+                        <select class="form-control"
+                                onchange="document.getElementById('manuf_seo_title').value+=value+''">
+                          <option value="">Выберите границу парсинга</option>
+                          {% for param in params %} 
+                          <option value="{gran_{{ param['id']}}}">
+                            {{ param['name']~ '| {gran_'~param['id']~'}'}}
+                          </option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="col-sm-2 control-label" for="input-pr">
+                        Мета-тег "description":
+                      </label>
+                      <div class="col-sm-8">
+                        <input name="manuf_seo_desc" id="manuf_seo_desc" type="text"
+                               value="{{ setup['manuf_seo_desc']}}"
+                               class="form-control">
+                      </div>
+                      <div class="col-sm-2">
+                        <select class="form-control"
+                                onchange="document.getElementById('manuf_seo_desc').value+=value+''">
+                          <option value="">Выберите границу парсинга</option>
+                          {% for param in params %} 
+                          <option value="{gran_{{ param['id']}}}">
+                            {{ param['name']~ '| {gran_'~param['id']~'}'}}
+                          </option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="col-sm-2 control-label" for="input-pr">Keywords:</label>
+                      <div class="col-sm-8">
+                        <input name="manuf_seo_keyw" id="manuf_seo_keyw" type="text"
+                               value="{{ setup['manuf_seo_keyw']}}"
+                               class="form-control">
+                      </div>
+                      <div class="col-sm-2">
+                        <select class="form-control"
+                                onchange="document.getElementById('manuf_seo_keyw').value+=value+''">
+                          <option value="">Выберите границу парсинга</option>
+                          {% for param in params %} 
+                          <option value="{gran_{{ param['id']}}}">
+                            {{ param['name']~ '| {gran_'~param['id']~'}'}}
+                          </option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+        
+      </div>
+      <!-- /simpleparspage stop-->
+    </div>
+  </div>
+</div>
+<!-- /content -->
+</div>
+<div class="panel panel-default">
+  <div class="panel-heading">Настройки допуска к обработке страницы</div>
+  <div class="panel-body">
+    <div class="row">
+    <div class="col-sm-2">
+    <label class="control-label">Использовать проверку границ?</label>
+      <select name="grans_permit" class="form-control">
+        <option value="1" {{ setting['grans_permit'] == 1?'selected':''}}>Да</option>
+        <option value="0" {{ setting['grans_permit'] == 0?'selected':''}}>Нет</option>
+      </select>
+    </div>
+    </div>
+    <br>
+
+    <div id="grans_permit_list">
+      {% if (setup['grans_permit_list'] is not empty) %}
+      {% for gl_key,gran_list in setup['grans_permit_list'] %}
+      <div class="row" id="gran_row-{{ gl_key}}">
+        <div class="col-sm-1">
+          <label class="control-label">Вкл/Выкл <span data-toggle="tooltip" data-original-title="Включает и выключает выполнение этого правила."></label>
+          <select name="grans_permit_list[{{ gl_key}}][switch]" class="form-control" form="form">
+            <option value="1" {{ gran_list['switch'] == 1?'selected':''}}>Вкл</option>
+            <option value="0" {{ gran_list['switch'] == 0?'selected':''}}>Выкл</option>
+          </select>
+        </div>
+        <div class="col-sm-2">
+          <label class="control-label">Название <span data-toggle="tooltip" data-original-title="Названия правила, будет отображается в логах модуля."></label>
+          <input name="grans_permit_list[{{ gl_key}}][name]" type="text" value="{{ gran_list['name']}}" class="form-control" form="form">
+        </div>
+        <div class="col-sm-2">
+          <label class="control-label">Граница <span data-toggle="tooltip" data-original-title="Здесь вы можете указать границу парсинга которую будет проверяться. Обратите внимание что можно указывать не одну границу а несколько, в таком случаи данные из гарниц объединятся и правило будет применено к этим данным."></label>
+          <input name="grans_permit_list[{{ gl_key}}][gran]" id="gran_spot-{{ gl_key}}" type="text" value="{{ gran_list['gran']}}" class="form-control" form="form">
+        </div>
+        <div class="col-sm-1">
+          <label class="control-label">Загрузить если <span data-toggle="tooltip" data-original-title="Выбираете как вы хотите проверить границу парсинга. Если граница проходит проверку тогда эта ссылка будет допущена к обработке."></label>
+          <select name="grans_permit_list[{{ gl_key}}][operator]" class="form-control" form="form">
+            <option value="1" {{ gran_list['operator'] == 1?'selected':''}}>Не пустая</option>
+            <option value="2" {{ gran_list['operator'] == 2?'selected':''}}>Пустая</option>
+            <option value="3" {{ gran_list['operator'] == 3?'selected':''}}>Равна = </option>
+            <option value="4" {{ gran_list['operator'] == 4?'selected':''}}>Не равна != </option>
+            <option value="8" {{ gran_list['operator'] == 8?'selected':''}}>Больше/Равно >= </option>
+            <option value="9" {{ gran_list['operator'] == 9?'selected':''}}>Меньше/Равно <= </option>
+            <option value="5" {{ gran_list['operator'] == 5?'selected':''}}>Содержит %значение%</option>
+            <option value="6" {{ gran_list['operator'] == 6?'selected':''}}>Не содержит %значение%</option>
+            <option value="7" {{ gran_list['operator'] == 7?'selected':''}}>Регулярное выражение</option>
+          </select>
+        </div>
+        <div class="col-sm-2">
+          <label class="control-label">С чем сравнивать <span data-toggle="tooltip" data-original-title="В этом поле вы указываете текст с которым хотите сравнить границу парсинга и определить грузить данные по этой ссылке или нет."></label>
+          <input name="grans_permit_list[{{ gl_key}}][value]" type="text" value="{{ gran_list['value']}}" class="form-control" form="form">
+        </div>
+        <div class="col-sm-2">
+          <label class="control-label">Когда проверять <span data-toggle="tooltip" data-original-title="Выбор при каких условиях проверять границу парсинга. Добавление товара, Обновления товара или в обоих случаях."></label>
+          <select name="grans_permit_list[{{ gl_key}}][when_check]" class="form-control" form="form">
+            <option value="1" {{ gran_list['when_check'] == 1?'selected':''}}>Добавление</option>
+            <option value="2" {{ gran_list['when_check'] == 2?'selected':''}}>Обновление</option>
+            <option value="3" {{ gran_list['when_check'] == 3?'selected':''}}>Добавление и Обновление</option>
+            <option value="4" {{ gran_list['when_check'] == 4?'selected':''}}>Парсинг в csv</option>
+          </select>
+        </div>
+        <div class="col-sm-1">
+          <label class="control-label">Границы <span data-toggle="tooltip" data-original-title="Выбор границы парсинга."></label>
+          <select class="form-control" onchange="document.getElementById('gran_spot-{{ gl_key}}').value+=value+''">
+            <option value="">Выберите границу парсинга</option>
+            {% for param in params %} 
+              <option value="{gran_{{ param['id']}}}"> {{ param['name']~ '| {gran_'~param['id']~'}'}}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-sm-1">
+          <button type="button" onclick="$('#gran_row-{{ gl_key}}').remove()" class="btn btn-danger" style="margin-top: 20px" title="Удалить"><i class="fa fa-trash-o"></i></button>
+        </div>
+      </div>
+      {% endfor %}
+      {% endif %}
+    </div>
+    <br>
+    <button type="button" onclick="addParamPermit()" class="btn btn-primary btn-sm"><i class="fa fa-plus-circle"></i> Добавить проверочное поле</button>
+
+
+  </div>
+  </form>
+</div>
+<style>
+  .progress {
+    position: relative;
+    margin-top: 9px;
+  }
+
+  .progress span {
+    position: absolute;
+    display: block;
+    width: 100%;
+    color: black;
+  }
+</style>
+<script type="text/javascript">
+  var key_max = {{ opt_key_max}};
+  var recurring_row = key_max+1;
+  function addRecurring() {
+    html ='<div class="row" id="recurring-row-' + recurring_row + '">';
+    html +='<div class="form-group">';
+    html +='<div class="col-sm-2 col-lg-2">';
+    html +='<label for="">&nbsp;</label>';
+    html +='<select name="opts[' + recurring_row + '][data][required]" class="form-control">';
+    html +='<option value="0">Не обязательная</option>';
+    html +='<option value="1">Обязательная</option>';
+    html +='</select>';
+    html +='</div>';
+
+    html +='</div>';
+    html +='<div class="form-group">';
+    html +='<div class="col-sm-5">';
+    html +='<label for="option_name' + recurring_row + '">Имя опции</label>';
+    html +='<input id="name_' + recurring_row + '" name="opts[' + recurring_row + '][name]" type="text" value="" class="form-control">';
+    html +='</div>';
+    html +='<div class="col-sm-2">';
+    html +='<label for="option_name_plus' + recurring_row + '">&nbsp;</label>';
+    html += '    <select class="form-control" id="value-border-1" onchange="document.getElementById(\'name_'+ recurring_row +'\').value+=value">';
+    html += '      <option value="0">Выберите параметр парсинга</option>';
+    {% for param in params %}
+ {{ 'html += \' <option value="{gran_'~param['id']~'}">'~param['name']~' | {gran_'~param['id']~'}</option>\';'~constant('PHP_EOL') }}
+ {% endfor %}
+    html += '    <select>';
+    html +='</div>';
+    html +='<div class="col-sm-2">';
+    html +='<label for="">&nbsp;</label>';
+    html +='<select class="form-control" name="opts[' + recurring_row + '][opt_id]">';
+    html +='<option value="0">Выберите опцию</option>';
+    {% for option in options %}
+ {{ 'html += \'<option value="'~option["option_id"]~'">'~option["name"]~'</option>\';'~constant('PHP_EOL') }}
+ {% endfor %}
+    html +='</select>';
+    html +='</div>';
+    html +='</div>';
+    html +='<div class="form-group">';
+    html +='<div class="col-sm-5">';
+    html +='<label for="option_value' + recurring_row + '">Значение опции</label>';
+    html +='<input  id="value_' + recurring_row + '" name="opts[' + recurring_row + '][value]" type="text" value="" class="form-control">';
+    html +='</div>';
+    html +='<div class="col-sm-2">';
+    html +='<label for="option_value_plus' + recurring_row + '">&nbsp;</label>';
+    html += '    <select class="form-control" id="value-border-1" onchange="document.getElementById(\'value_'+ recurring_row +'\').value+=value">';
+    html += '      <option value="0">Выберите параметр парсинга</option>';
+    {% for param in params %}
+ {{ 'html += \' <option value="{gran_'~param['id']~'}">'~param['name']~' | {gran_'~param['id']~'}</option>\';'~constant('PHP_EOL') }}
+ {% endfor %}
+    html += '    <select>';
+    html +='</div>';
+    html +='</div>';
+    html +='<div class="form-group">';
+    html +='  <div class="col-sm-5">';
+    html +='    <label for="option_price' + recurring_row + '">Цена опции</label>';
+    html +='    <input id="price_' + recurring_row + '" name="opts[' + recurring_row + '][price]" type="text" value="" class="form-control">';
+    html +='  </div>';
+    html +='  <div class="col-sm-2">';
+    html +='  <label for="option_price-plus' + recurring_row + '">&nbsp;</label>';
+    html += '    <select class="form-control" id="value-border-1" onchange="document.getElementById(\'price_'+ recurring_row +'\').value+=value">';
+    html += '       <option value="0">Выберите параметр парсинга</option>';
+    {% for param in params %}
+ {{ 'html += \' <option value="{gran_'~param['id']~'}">'~param['name']~' | {gran_'~param['id']~'}</option>\';'~constant('PHP_EOL') }}
+ {% endfor %}
+    html += '    <select>';;
+    html +='  </div>';
+    html +='  <div class="col-sm-2 col-lg-2">';
+    html +='    <label for="">&nbsp;</label>';
+    html +='    <select name="opts[' + recurring_row + '][data][price_prefix]" class="form-control">';
+    html +='      <option value="+">(+) Плюс к цене</option>';
+    html +='      <option value="-">(-) Минус от цены</option>';
+    html +='    </select>';
+    html +='  </div>';
+    html +='</div>';
+    html +='<div class="form-group">';
+    html +='  <div class="col-sm-5">';
+    html +='    <label for="number_of_options' + recurring_row + '">Колво опций</label>';
+    html +='    <input id="quant_' + recurring_row + '" name="opts[' + recurring_row + '][quant]" type="text" value="" class="form-control">';
+    html +='  </div>';
+    html +='  <div class="col-sm-2">';
+    html +='    <label for="number_of_options_plus' + recurring_row + '">&nbsp;</label>';
+    html +='    <select class="form-control" id="value-border-1" onchange="document.getElementById(\'quant_' + recurring_row + '\').value+=value">';
+    html +='      <option value="0">Выберите параметр парсинга</option>';
+    {% for param in params %}
+ {{ 'html += \' <option value="{gran_'~param['id']~'}">'~param['name']~' | {gran_'~param['id']~'}</option>\';'~constant('PHP_EOL') }}
+ {% endfor %}
+    html +='    <select>';
+    html +='  </div>';
+
+    html +='  <div class="col-sm-2">';
+    html +='    <label for="number_of_options_plus' + recurring_row + '">Колво опций по умолчанию</label>';
+    html +='    <input id="quant_d' + recurring_row + '" name="opts[' + recurring_row + '][quant_d]" type="text" value="10" class="form-control">';
+    html +='  </div>';
+    html +='</div>';
+
+
+    html +='<div class="form-group">';
+    html +='  <div class="col-sm-5">';
+    html +='    <label for="number_of_options' + recurring_row + '">Изображение опции</label>';
+    html +='    <input id="imgs_' + recurring_row + '" name="opts[' + recurring_row + '][imgs]" type="text" value="" class="form-control">';
+    html +='  </div>';
+    html +='  <div class="col-sm-2">';
+    html +='    <label for="number_of_options_plus' + recurring_row + '">&nbsp;</label>';
+    html +='    <select class="form-control" id="value-border-1" onchange="document.getElementById(\'imgs_' + recurring_row + '\').value+=value">';
+    html +='      <option value="">Выберите границу парсинга</option>';
+    {% for param in params %}
+ {{ 'html += \' <option value="{gran_'~param['id']~'}">'~param['name']~' | {gran_'~param['id']~'}</option>\';'~constant('PHP_EOL') }}
+ {% endfor %}
+    html +='    </select>';
+    html +='  </div>';
+    html +='  <div class="col-sm-2 col-lg-2">';
+    html +='    <label for="number_of_options_plus' + recurring_row + '">Cтандарт  изображений</label>';  
+    html +='    <select class="form-control" name="opts[' + recurring_row + '][data][imgs_type]">';
+    html +='      <option value="0">Не использовать</option>';
+    html +='      <option value="1">По стандарту Opencart</option>';
+    html +='      <option value="2"{{ option_module_img == 1?"":" disabled"}}>Модуль опций от HyperLabTeam</option>';
+    html +='      <option value="3"{{ option_module_img == 2?"":" disabled"}}>Изображения опций PRO от 19th</option>';
+    html +='    </select>';
+    html +='  </div>';
+    html +='</div>';
+
+
+    html +='<div class="form-group">';
+    html +='<div class="col-sm-4">';
+    html +='<button type="button" onclick="addRecurring()" data-toggle="tooltip" title="" class="btn btn-primary btn-sm" data-original-title="Добавить повторно"><i class="fa fa-plus-circle" aria-hidden="true"></i></button>';
+    html +='<button onclick="$(\'#recurring-row-' + recurring_row + '\').remove()" data-toggle="tooltip" title="Удалить" class="btn btn-danger btn-sm"><i class="fa fa-minus-circle"></i></button>';
+    html +='</div>';
+    html +='</div>';
+    html +='</div>';
+    $('#tab-option10').append(html);
+    recurring_row++;
+  }
+  var key_grans = {{ grans_permit_key_max}};
+  var grans_row = key_grans+1;
+  function addParamPermit(){
+    
+    html =' <div class="row" id="gran_row-'+grans_row+'">';
+    html +='  <div class="col-sm-1">';
+    html +='    <label class="control-label">Вкл/Выкл</label>';
+    html +='    <select name="grans_permit_list['+grans_row+'][switch]" class="form-control" form="form">';
+    html +='      <option value="1">Вкл</option>';
+    html +='      <option value="0">Выкл</option>';
+    html +='    </select>';
+    html +='  </div>';
+    html +='  <div class="col-sm-2">';
+    html +='    <label class="control-label">Название</label>';
+    html +='    <input name="grans_permit_list['+grans_row+'][name]" type="text" class="form-control" form="form">';
+    html +='  </div>';
+    html +='  <div class="col-sm-2">';
+    html +='    <label class="control-label">Граница</label>';
+    html +='      <input name="grans_permit_list['+grans_row+'][gran]" type="text" id="gran_spot-'+grans_row+'" class="form-control" form="form">';
+    html +='  </div>';
+    html +='  <div class="col-sm-1">';
+    html +='    <label class="control-label">Загрузить если</label>';
+    html +='    <select name="grans_permit_list['+grans_row+'][operator]" class="form-control" form="form">';
+    html +='       <option value="1">Не пустая</option>';
+    html +='       <option value="2">Пустая</option>';
+    html +='       <option value="3">Равна = </option>';
+    html +='       <option value="4">Не равна != </option>';
+    html +='       <option value="8">Больше/Равно >= </option>';
+    html +='       <option value="9">Меньше/Равно <= </option>';
+    html +='       <option value="5">Содержит %значение%</option>';
+    html +='       <option value="6">Не содержит %значение%</option>';
+    html +='       <option value="7">Регулярное выражение</option>';
+    html +='    </select>';
+    html +='  </div>';
+    html +='  <div class="col-sm-2">';
+    html +='    <label class="control-label">С чем сравнивать</label>';
+    html +='      <input name="grans_permit_list['+grans_row+'][value]" type="text" class="form-control" form="form">';
+    html +='  </div>';
+    html +='  <div class="col-sm-2">';
+    html +='    <label class="control-label">Когда проверять</label>';
+    html +='    <select  name="grans_permit_list['+grans_row+'][when_check]" class="form-control" form="form">';
+    html +='      <option value="3">Добавление и Обновление</option>';
+    html +='      <option value="1">Добавление</option>';
+    html +='      <option value="2">Обновление</option>';
+    html +='      <option value="4">Парсинг в csv</option>';
+    html +='    </select>';
+    html +='  </div>';
+    html +='  <div class="col-sm-1">';
+    html +='    <label class="control-label">Границы</label>';
+    html +='    <select class="form-control" onchange="document.getElementById(\'gran_spot-'+grans_row+'\').value+=value+\'\'">';
+    html +='      <option value="">Выберите границу парсинга</option>';
+    {% for param in params %} 
+      html +='    <option value="{gran_{{ param['id']}}}"> {{ param['name']~ '| {gran_'~param['id']~'}'}}</option>';
+    {% endfor %}
+    html +='    </select>';
+    html +='  </div>';
+    html +='  <div class="col-sm-1">';
+    html +='    <button type="button" onclick="$(\'#gran_row-'+grans_row+'\').remove()" class="btn btn-danger" style="margin-top: 20px" title="Удалить"><i class="fa fa-trash-o"></i></button>';
+    html +='  </div>';
+    html +='</div>';
+
+    $('#grans_permit_list').append(html);
+    grans_row ++;
+  }
+</script>
+<script type="text/javascript">
+  $(document).ready(function () {
+      $("#pars_data_start").bind("click", function () {
+        var iter = 0;
+        var time1 = new Date().getTime();//Работа с временем. Получаем время начала парсинга.
+        $("#progress").show();
+        job = 1;
+        ajaxpars(time1, iter);
+      });
+
+      function ajaxpars(time1, iter) {
+        iter++;
+        $.ajax({
+          url: 'index.php?route=catalog/simplepars/parsajax&{{ adap['token']}}&who=pr_im&dn_id={{ dn_id}}',
+          type: "POST",
+          data: 'pars_data_start=1',
+          dataType: "html",
+            success: function (data) {
+              answ = $.parseJSON(data);
+              console.log(answ);
+              //работа с временем
+              var time2 = new Date().getTime();//Получаем время окончания парсинга одной ссылки.
+              var time = secondsToHms(time1, time2, answ.other.clink.link_count, iter);
+              //Конец
+              if (answ.status == 'finish') {
+                $("#msg").text(answ.msg);
+                  $("#msg").show();
+                  $("#pross").css("width", answ.other.progress + "%");
+                  $("#progress").hide();
+                  $("#link_scan_count").text("Обработано ссылок: " + answ.other.clink.link_scan_count);
+                  $("#link_count").text("Ссылок в очереди: " + answ.other.clink.link_count);
+                } else if (answ.status == 'go') {
+                  $("#pross").css("width", answ.other.progress + "%");
+                  $("#info_count").text("Спарсено: " + answ.other.clink.link_scan_count + " | В очереди: " + answ.other.clink.link_count + " | Осталось ~ " + time);
+                  $("#link_scan_count").text("Обработано ссылок: " + answ.other.clink.link_scan_count);
+                  $("#link_count").text("Ссылок в очереди: " + answ.other.clink.link_count);
+                  agenpars(time1, iter);
+                }
+              }
+          });
+      };
+
+      function agenpars(time1, iter) {
+          $("#stop_grab").bind("click", function () {
+              $("#progress").hide();
+              job = 0;
+          });
+          if (job == 1) {
+              ajaxpars(time1, iter);
+          }
+          ;
+      };
+      //Фунция преобразования времени в Ч:М:C
+      function secondsToHms(time1, time2, slink, flink) {
+        //получаем количество потоков
+        var thread = {{ setting['thread']}};
+        flink = flink * thread;
+        var link = slink/flink;
+        time = Math.round((link*((time2 - time1)/1000)));
+        time = Number(time);
+        var h = Math.floor(time / 3600);
+        var m = Math.floor(time % 3600 / 60);
+        var s = Math.floor(time % 3600 % 60);
+
+        return ('0' + h).slice(-2) + ":" + ('0' + m).slice(-2) + ":" + ('0' + s).slice(-2);
+      }
+
+  });
+
+
+</script>
+
+<script type="text/javascript">
+  $(document).ready(function () {
+    get_url_stats();
+  });
+  //если был изменен выбор ссписка
+  $("#link_list").bind("change", function () {
+    get_url_stats();
+  });
+  $("#link_error").bind("change", function () {
+    get_url_stats();
+  });
+
+  //Нажали рестарт, получаем данные о списках и отправляем запрос.
+  $("#links_restart").bind("click", function () {
+    var data = getSettingUrl();
+    data['links_restart'] = 1;
+    result = url_ajax(data);
+    get_url_stats();
+    $("#pross").css("width","0%");
+    $("#info_count").text("");
+    console.log(result);
+  });
+
+  function get_url_stats(){
+    data = getSettingUrl();
+    urls = url_ajax(data);
+    showUrlsStats(urls);
+    console.log(urls);
+  };
+
+  function url_ajax(data){
+    // /var answ;
+    $.ajax({
+      url: 'index.php?route=catalog/simplepars/ajax&{{ adap['token']}}&who=get_urls&dn_id={{ dn_id}}',
+      type: "POST",
+      data: data,
+      async: false,
+      dataType: "html",
+      success: function (data) {
+        answ = data;
+        answ = $.parseJSON(data);
+      }
+    });
+    //console.log(answ);
+    return answ;
+  };
+
+  function getSettingUrl(){
+    var data_form = {};
+    data_form['link_list'] = $("#link_list").val();
+    data_form['link_error'] = $("#link_error").val();
+
+    console.log(data_form);
+    return data_form;
+  }
+
+  function showUrlsStats(urls){
+    link_scan = urls['total']-urls['queue'];
+    $("#link_scan_count").text("Обработано ссылок: " + link_scan);
+    $("#link_count").text("Ссылок в очереди: " + urls['queue']);
+    $("#link_full").text("[Ссылок в проекте: " + urls['full'] +"]");
+  }
+</script>
+
+<script>
+    (function($) {  function setChecked(target) {   var checked = $(target).find("input[type='checkbox']:checked").length;    if (checked) {      $(target).find('select option:first').html('Выбрано: ' + checked);    } else {      $(target).find('select option:first').html('Выберите из списка');   } }   $.fn.checkselect = function() {   this.wrapInner('<div class="checkselect-popup"></div>');    this.prepend(     '<div class="checkselect-control">' +       '<select class="form-control"><option></option></select>' +       '<div class="checkselect-over"></div>' +      '</div>'    );      this.each(function(){     setChecked(this);   });       this.find('input[type="checkbox"]').click(function(){     setChecked($(this).parents('.checkselect'));    });     this.parent().find('.checkselect-control').on('click', function(){      $popup = $(this).next();      $('.checkselect-popup').not($popup).css('display', 'none');     if ($popup.is(':hidden')) {       $popup.css('display', 'block');       $(this).find('select').focus();     } else {        $popup.css('display', 'none');      }   });     $('html, body').on('click', function(e){      if ($(e.target).closest('.checkselect').length == 0){       $('.checkselect-popup').css('display', 'none');     }   }); };})(jQuery);  $('.checkselect').checkselect();
+</script>
+<style>
+
+  .checkselect {
+    position: relative;
+    display: inline-block;
+    text-align: left;
+  }
+
+  .checkselect-control {
+    position: relative;
+    padding: 0 !important;
+  }
+
+  .checkselect-control select {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    margin: 0;
+    padding: 4px 9px;
+    height: 26px;
+  }
+
+  .checkselect-over {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    cursor: pointer;
+  }
+
+  .checkselect-popup {
+    display: none;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: auto;
+    max-height: 200px;
+    position: absolute;
+    top: 100%;
+    left: 0px;
+    border: 1px solid #dadada;
+    border-top: none;
+    background: #fff;
+    z-index: 9999;
+    overflow: auto;
+    user-select: none;
+  }
+
+  .checkselect label {
+    position: relative;
+    display: block;
+    margin: 0;
+    padding: 4px 6px 4px 25px;
+    font-weight: normal;
+    font-size: 1em;
+    line-height: 1.1;
+    cursor: pointer;
+  }
+
+  .checkselect-popup input {
+    position: absolute;
+    top: 5px;
+    left: 8px;
+    margin: 0 !important;
+    padding: 0;
+  }
+
+  .checkselect-popup label:hover {
+    background: #03a2ff;
+    color: #fff;
+  }
+
+  .checkselect-popup fieldset {
+    display: block;
+    margin: 0;
+    padding: 0;
+    border: none;
+  }
+
+  .checkselect-popup fieldset input {
+    left: 15px;
+  }
+
+  .checkselect-popup fieldset label {
+    padding-left: 32px;
+  }
+
+  .checkselect-popup legend {
+    display: block;
+    margin: 0;
+    padding: 5px 8px;
+    font-weight: 700;
+    font-size: 1em;
+    line-height: 1.1;
+  }
+
+  label>span:after {
+    font-family: FontAwesome;
+    color: #1E91CF;
+    content: "\f059";
+    margin-left: 4px;
+  }
+
+</style>
+{{ footer }}

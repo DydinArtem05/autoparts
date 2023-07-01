@@ -1,0 +1,34 @@
+[07-May-2023 16:05:01 UTC] PHP Warning:  mysqli::__construct(): (HY000/1226): User 'autopa15_autopartsinvolved' has exceeded the 'max_user_connections' resource (current value: 30) in /home/autopa15/public_html/system/library/db/mysqli.php on line 7
+[07-May-2023 16:05:01 UTC] PHP Warning:  DB\MySQLi::__construct(): Couldn't fetch mysqli in /home/autopa15/public_html/system/library/db/mysqli.php on line 10
+[07-May-2023 16:05:01 UTC] PHP Fatal error:  Uncaught Exception: Error: <br />Error No:  in /home/autopa15/public_html/system/library/db/mysqli.php:10
+Stack trace:
+#0 /home/autopa15/public_html/system/library/db.php(31): DB\MySQLi->__construct('localhost', 'autopa15_autopa...', 'AutopartsHjkknj...', 'autopa15_autopa...', '3306')
+#1 /home/autopa15/public_html/admin/sp_cron.php(15): DB->__construct('mysqli', 'localhost', 'autopa15_autopa...', 'AutopartsHjkknj...', 'autopa15_autopa...', '3306')
+#2 {main}
+  thrown in /home/autopa15/public_html/system/library/db/mysqli.php on line 10
+[07-May-2023 16:05:55 UTC] PHP Fatal error:  Uncaught Exception: Error: <br />Error No:  in /home/autopa15/public_html/system/library/db/mysqli.php:10
+Stack trace:
+#0 /home/autopa15/public_html/system/library/db.php(31): DB\MySQLi->__construct('localhost', 'autopa15_autopa...', 'AutopartsHjkknj...', 'autopa15_autopa...', '3306')
+#1 /home/autopa15/public_html/system/framework.php(80): DB->__construct('mysqli', 'localhost', 'autopa15_autopa...', 'AutopartsHjkknj...', 'autopa15_autopa...', '3306')
+#2 /home/autopa15/public_html/system/startup.php(104): require_once('/home/autopa15/...')
+#3 /home/autopa15/public_html/admin/index.php(19): start('admin')
+#4 {main}
+  thrown in /home/autopa15/public_html/system/library/db/mysqli.php on line 10
+[07-May-2023 16:06:01 UTC] PHP Warning:  mysqli::__construct(): (HY000/1226): User 'autopa15_autopartsinvolved' has exceeded the 'max_user_connections' resource (current value: 30) in /home/autopa15/public_html/system/library/db/mysqli.php on line 7
+[07-May-2023 16:06:01 UTC] PHP Warning:  DB\MySQLi::__construct(): Couldn't fetch mysqli in /home/autopa15/public_html/system/library/db/mysqli.php on line 10
+[07-May-2023 16:06:01 UTC] PHP Fatal error:  Uncaught Exception: Error: <br />Error No:  in /home/autopa15/public_html/system/library/db/mysqli.php:10
+Stack trace:
+#0 /home/autopa15/public_html/system/library/db.php(31): DB\MySQLi->__construct('localhost', 'autopa15_autopa...', 'AutopartsHjkknj...', 'autopa15_autopa...', '3306')
+#1 /home/autopa15/public_html/admin/sp_cron.php(15): DB->__construct('mysqli', 'localhost', 'autopa15_autopa...', 'AutopartsHjkknj...', 'autopa15_autopa...', '3306')
+#2 {main}
+  thrown in /home/autopa15/public_html/system/library/db/mysqli.php on line 10
+[26-May-2023 18:02:57 UTC] PHP Fatal error:  Uncaught Exception: Error: Table 'autopa15_autopartsinvolved.oc_manufacturer_description' doesn't exist<br />Error No: 1146<br />DELETE m FROM oc_manufacturer_description m LEFT JOIN oc_product p 
+										ON m.manufacturer_id = p.manufacturer_id
+										WHERE p.manufacturer_id IS NULL in /home/autopa15/public_html/system/library/db/mysqli.php:40
+Stack trace:
+#0 /home/autopa15/public_html/system/library/db.php(45): DB\MySQLi->query('DELETE m FROM o...')
+#1 /home/autopa15/public_html/admin/model/catalog/simplepars.php(8971): DB->query('DELETE m FROM o...')
+#2 /home/autopa15/public_html/admin/model/catalog/simplepars.php(9473): ModelCatalogSimplePars->toolDelManufIsNull(Array, 0, 141)
+#3 /home/autopa15/public_html/storage/modification/system/engine/loader.php(248): ModelCatalogSimplePars->toolControlerFunction(Array, 141, 'user')
+#4 /home/autopa15/public_html/system/engine/proxy.php(47): Loader->{closure}(Array, Array)
+#5 /home/autopa15/public_html/admin/controller/catalog/simplepars.php(1202): Proxy->__call in /home/autopa15/public_html/system/library/db/mysqli.php on line 40

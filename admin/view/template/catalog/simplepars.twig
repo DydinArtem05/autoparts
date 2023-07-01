@@ -1,0 +1,101 @@
+{{ header }}{{ column_left }} 
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <h1>SimplePars</h1>
+      <ul class="breadcrumb">
+        {% for bread in breadcrumbs %} 
+        <li><a href="{{ bread['href']}}">{{ bread['text']}}</a></li>
+        {% endfor %}
+      </ul>
+      <div class="pull-right">
+        <a href="{{ dn_add_link}}" data-toggle="tooltip" title="" class="btn btn-primary"
+           data-original-title="Добавить">
+          <i class="fa fa-plus"></i>
+        </a>
+        <a href="{{ act_link}}" class="btn btn-default"><i class="fa fa-key"></i></a>
+        <button name="dn_del" type="submit" form="form" data-toggle="tooltip" title="" class="btn btn-danger"
+                data-original-title="Удалить">
+          <i class="fa fa-trash-o" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div id="extension">
+        {% if (success) %} 
+          <div class="alert alert-success">
+            <i class="fa fa-info-circle"></i>{{ success}}
+          </div>
+          {% elseif (error) %} 
+          <div class="alert alert alert-danger">
+            <i class="fa fa-info-circle"></i>{{ error}}
+          </div>
+        {% endif %}
+        </div>
+      </div>
+    </div>
+    <form class="form-horizontal" id="form" method="POST">
+    <div class="container-fluid">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title"><i class="fa fa-calendar"></i> Менеджер заданий (CRON)</h3>
+        </div>
+        
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover">
+            <tbody>
+            <tr>
+              <td style="width: 1px;" class="text-center">
+                <a href="{{ cron_link}}" data-toggle="tooltip" class="btn btn-primary" data-original-title="Редактировать">
+                  <i class="fa fa-pencil" aria-hidden="true"></i> Открыть настройки CRON</a>
+              </td>
+              <td class="text-center">{{ cron_text}}</td>
+
+              <td style="width: 1px;" class="text-right">
+                <button type="submit" name="cron_permit" value="{{ cron_permit}}" class="{{ cron_button['class']}}">
+                  <i class="fa fa-power-off" aria-hidden="true"></i> {{ cron_button['text']}}
+                </button>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title"><i class="fa fa-list"></i> Список проектов</h3>
+        </div>
+          <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+              <thead>
+              <tr>
+                <td style="width: 1px;" class="text-center">id</td>
+                <td style="width: 1px;" class="text-center"></td>
+                <td class="">Название проекта</td>
+                <td class="text-right">Действие</td>
+              </tr>
+              </thead>
+              <tbody>
+              {% if (pars_setting is not empty) %}
+              {% for dn in pars_setting %} 
+              <tr>
+                <td class="text-center">{{ dn['dn_id']}}</td>
+                <td class="text-center"><input type="checkbox" name="dn_id[]"
+                                               value="{{ dn['dn_id']}}">
+                </td>
+                <td class="left">{{ dn['dn_name']}}</td>
+
+                <td class="text-right">
+                  <a href="{{ link_dn~dn['dn_id']}}" data-toggle="tooltip" class="btn btn-primary" data-original-title="Редактировать">
+                    <i class="fa fa-pencil" aria-hidden="true"></i></a>
+                </td>
+              </tr>
+              {% endfor %}
+              {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+    </div>
+    </form>
+  </div>
+{{ footer }} 
+</div>

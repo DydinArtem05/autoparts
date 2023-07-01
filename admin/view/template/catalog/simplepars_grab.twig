@@ -1,0 +1,494 @@
+{{ header }}{{ column_left }} 
+<div id="content">
+  <!-- ========== HEADER ========== -->
+  <div class="page-header">
+    <div class="container-fluid">
+      <!-- USER TOOLS -->
+
+      <div class="pull-right">
+        <button id="start_grab" type="submit" data-toggle="tooltip" class="btn btn-success"
+                data-original-title="Старт сканированияь">
+          <i class="fa fa-play" aria-hidden="true"></i>
+        </button>
+        <button id="stop_grab" type="submit" data-toggle="tooltip" class="btn btn-warning"
+                data-original-title="Остановить сканирование">
+          <i class="fa fa-stop" aria-hidden="true"></i>
+        </button>
+        <button name="save_grab" type="submit" form="form" data-toggle="tooltip" class="btn btn-primary"
+                data-original-title="Сохранить настройки">
+          <i class="fa fa-save"></i>
+        </button>
+        <button name="update_grab" type="submit" form="form" data-toggle="tooltip" class="btn btn-info"
+                data-original-title="Обновить страницу">
+          <i class="fa fa-refresh"></i>
+        </button>
+      </div>
+      <h1>SimplePars</h1>
+      <!-- BREADCRUMBS -->
+      <ul class="breadcrumb">
+        {% for bread in breadcrumbs %} 
+        <li>
+          <a href="{{ bread['href']}}">{{ bread['text']}}</a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div><!-- /header -->
+  <!-- ========== CONTENT ========== -->
+  <div class="container-fluid">
+    {% if (error) %} 
+    <div class="alert alert-danger">
+      <i class="fa fa-info-circle"></i>{{ error}}
+    </div>
+    {% elseif (success) %} 
+    <div class="alert alert alert-success">
+      <i class="fa fa-info-circle"></i>{{ success}}
+    </div>
+    {% endif %}
+    <div class="alert alert alert-success" hidden id="msg">
+      <i class="fa fa-info-circle"></i>{{ ' Сканирование завершено'}}
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> Редактирование проекта {{ '<b>['~setting['dn_name']~']</b>'}}</h3>
+      </div>
+      <div class="panel-body">
+        <form method="post" enctype="multipart/form-data" id="form_del" class="form-horizontal"></form>
+        <form method="post" enctype="multipart/form-data" id="form_file" class="form-horizontal"></form>
+        <form method="post" enctype="multipart/form-data" id="form_seve_link_round" class="form-horizontal"></form>
+        <form method="post" enctype="multipart/form-data" id="form_seve_link" class="form-horizontal"></form>
+        <form method="post" enctype="multipart/form-data" id="form" class="form-horizontal">
+          <!-- NAVIGATION -->
+          <ul class="nav nav-tabs">
+            {% for page in mpage %} 
+            <li role="presentation" class="{{ page['active']}}">
+              <a href="{{ page['href']}}" id="home-tab" role="tab" aria-controls="home" aria-expanded="true">
+                {{ page['title']}}
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+          <div class="tab-content">
+            <div class="tab-pane active">
+              <!-- simpleparspage start -->
+              <div id="progress" class="form-group" hidden>
+                <label class="col-sm-2 control-label">Производится сбор ссылок</label>
+                <div class="col-sm-10">
+                  <div class="progress">
+                    <div class="progress-bar progress-bar-warning progress-bar-striped active" style="width: 100%">
+                      <span id="info_count" class="show"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-2">
+                  <label id="lol" for="input-pr">Проект<span data-toggle="tooltip" data-original-title="Название проекта"></span></label>
+                  <input name="dn_name" type="text" value="{{ setting['dn_name']}}" id="input-pr"
+                         class="form-control" required>
+                </div>
+                <div class="col-sm-1">
+                  <label for="input-pause">Потоки<span data-toggle="tooltip" data-original-title="Кол-во потоков это количество ссылок которое модуль будет парсить за один запрос, чем выше количество потоков тем быстрее модуль спасрить все ссылки. Но тем выше риск ПОЛУЧИТЬ БАН за аномальную активность на сайте доноре."></span></label>
+                  <select class="form-control" name="thread">
+                    <option value="1" {{ setting['thread'] == 1?'selected':''}}>1 поток</option>
+                    <option value="2" {{ setting['thread'] == 2?'selected':''}}>2 потока</option>
+                    <option value="3" {{ setting['thread'] == 3?'selected':''}}>3 потока</option>
+                    <option value="4" {{ setting['thread'] == 4?'selected':''}}>4 потока</option>
+                    <option value="5" {{ setting['thread'] == 5?'selected':''}}>5 потоков</option>
+                  </select>
+                </div>
+                <div class="col-sm-1">
+                  <label for="input-pause">Пауза<span data-toggle="tooltip" data-original-title="Пауза между запросами к сайту донору. Указывается в секундах. Так же возможно указывать диапазон. К примеру 0-5 в этом случаи будет разная пауза между запросами, рандомно в диапазоне от нуля до пяти секунд."></span></label>
+                  <input name="pars_pause" type="text" min="0" value="{{ setting['pars_pause']}}"
+                         id="input-pause" class="col-sm-1 form-control">
+                </div>
+                <div class="col-sm-3">
+                  <label for="input-link">Стартовая ссылка<span data-toggle="tooltip" data-original-title="Укажите ссылку на страницу с которой модуль начнет собирать ссылки. Это точка входа на сайт донор. Обратите внимание что стартовая ссылка должна содержать полный адрес включая протокол http:// или https://"></span></label>
+                  <input name="start_link" type="text" value="{{ setting['start_link']}}"
+                         id="input-link" class="col-sm-10 form-control">
+                </div>
+                <div class="col-sm-2">
+                  <label for="">Сколько показывать ссылок<span data-toggle="tooltip" data-original-title="Количество ссылок которое будет показываться в полях Очередь сканирования и Ссылки на товар. Обратите внимание это число влияет только на количество ссылок которые модуль покажет вам для ознакомления. Чем ниже это значение тем меньше ресурсов браузера необходимо для загрузки этой страницы модуля."></span></label>
+                  <select class="form-control" name="page_cou_link">
+                    <option value="10000000" {{ setting['page_cou_link'] == 10000000?'selected':''}}>Показывать все ссылки</option>
+                    <option value="100" {{ setting['page_cou_link'] == 100?'selected':''}}>Показывать 100 ссылок</option>
+                    <option value="500" {{ setting['page_cou_link'] == 500?'selected':''}}>Показывать 500 ссылок</option>
+                    <option value="1000" {{ setting['page_cou_link'] == 1000?'selected':''}}>Показывать 1000 ссылок</option>
+                    <option value="2000" {{ setting['page_cou_link'] == 2000?'selected':''}}>Показывать 2000 ссылок</option>
+                    <option value="3000" {{ setting['page_cou_link'] == 3000?'selected':''}}>Показывать 3000 ссылок</option>
+                    <option value="4000" {{ setting['page_cou_link'] == 4000?'selected':''}}>Показывать 4000 ссылок</option>
+                    <option value="5000" {{ setting['page_cou_link'] == 5000?'selected':''}}>Показывать 5000 ссылок</option>
+                    <option value="10000" {{ setting['page_cou_link'] == 10000?'selected':''}}>Показывать 10 000 ссылок</option>
+                    <option value="20000" {{ setting['page_cou_link'] == 20000?'selected':''}}>Показывать 20 000 ссылок</option>
+                    <option value="50000" {{ setting['page_cou_link'] == 50000?'selected':''}}>Показывать 50 000 ссылок</option>
+                    <option value="100000" {{ setting['page_cou_link'] == 100000?'selected':''}}>Показывать 100 000 ссылок</option>
+                    <option value="500000" {{ setting['page_cou_link'] == 500000?'selected':''}}>Показывать 500 000 ссылок</option>
+                    <option value="1000000" {{ setting['page_cou_link'] == 1000000?'selected':''}}>Показывать 1 000 000 ссылок</option>
+                  </select>
+                </div>
+                <div class="col-sm-1">
+                  <label for="">Метод<span data-toggle="tooltip" data-original-title="Данная настройка отвечает за алгоритм сбора ссылок. Сбор ссылок с сайта [HTML] эта классический метод сбора. Так же доступен алгоритм быстрого сбора ссылок через сайт мап. Будьте внимательны с данной настройкой поскольку при неправильном выборе типа сбора ссылок модуль не сможет увидеть ссылки на сайте. По умолчанию С сайта [HTML]"></span></label>
+                  <select class="form-control" name="type_grab">
+                    <option value="1" {{ setting['type_grab'] == 1?'selected':''}}>С сайта [HTML]</option>
+                    <option value="2" {{ setting['type_grab'] == 2?'selected':''}}>С sitemap [XML]</option>
+                    <option value="3" {{ setting['type_grab'] == 3?'selected':''}}>С sitemap [XML + gz] (Не используются настройки запросов) </option>
+                    <option value="4" {{ setting['type_grab'] == 4?'selected':''}}>С XML выгрузки тег ссылки &lt;URL&gt;</option>
+                  </select>
+                </div>
+                <div class="col-sm-2">
+                  <label for="">Кэш<span data-toggle="tooltip" data-original-title="Данная настройка отвечает за то откуда модуль будет брать код сайта, из кэша модуля или делать запрос на сайт донор. Так же отвечает за создание новый страниц кэша. Не рекомендуется создавать кэш в момент сбора ссылок."></span></label>
+                  <select name="cache_page" class="form-control">
+                    <option value="0" {{ browser['cache_page'] == 0?'selected':''}}>Не использовать кэш</option>
+                    <option value="1" {{ browser['cache_page'] == 1?'selected':''}}>Создавать/Использовать кэш если есть</option>
+                    <option value="2" {{ browser['cache_page'] == 2?'selected':''}}>Парсить и обновлять кэш</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-9">
+                  <label for="link_round">Очередь сканирования ссылок<span data-toggle="tooltip" data-original-title="В этом поле записываются ссылки по которым будет ходить модуль в поиске ссылок на товар. "></span></label>
+                  <textarea name="link_round" rows="19" id="link_round" form="form_seve_link_round"
+                            class="form-control">{{ round_link }}</textarea>
+
+                  <div>
+                    <button type="submit" name="seve_links_sen" class="btn btn-success" form="form_seve_link_round">
+                        <i class="fa fa-floppy-o" aria-hidden="true"></i> Сохранить ссылки
+                    </button>
+                    <button type="submit" name="del_link_round" id="del_link_round" class="btn btn-danger" form="form_del" onclick="return confirm('Вы уверены что хотите очистить список очереди сканирования ?')">
+                      <i class="fa fa-trash" aria-hidden="true"></i> {{ 'Очистить список'}}
+                    </button>
+                    <button type="submit" name="use_filter_round"
+                            class="btn btn-primary "><i class="fa fa-filter"
+                                                        aria-hidden="true"></i> {{ 'Повторить фильтрацию'}}
+                    </button>
+                    <button type="submit" name="links_sen_restart"
+                            class="btn btn-warning "><i aria-hidden="true"></i>Вернуть ссылки в очередь сканирования
+                    </button>
+
+                    <p class="text-right"><span
+                              class="text-danger">{{ 'Обработано ссылок: ' ~ count_finish_scan}}</span> |
+                      <span
+                              class="text-success">{{ 'Ссылок в очереди: '~round_links_prepare}}</span></p>
+                  </div>
+                </div>
+                <div class="col-sm-3">
+                  <label>Шаблон ссылок очереди<span data-toggle="tooltip" data-original-title="Каждый фильтр записывается с новой строки!"></span></label>
+                  <label class="float-right" for="filter_round_yes">Или/И <span data-toggle="tooltip"
+                          data-original-title="{{ 'Если галочка установлена то ссылка должна содержать все элементы фильтра. Если не установлена то хотя бы один из фильтров.'}}"></span>
+                    <input type="checkbox" id="filter_round_method" name="filter_round_method" value="and"
+                           class="float-right" {% if (setting['filter_round_method'] == 'and') %}{{ 'checked="checked"' }}{% else %} {{ '' }}{% endif %}
+                    >
+                  </label>
+                  <textarea name="filter_round_yes" rows="3" id="filter_round_yes"
+                            class="col-sm-6 form-control">{{ setting['filter_round_yes']}}</textarea>
+                  <br>
+                  <label for="filter_round_no">Не должно быть в ссылках очереди<span data-toggle="tooltip" data-original-title="Каждый фильтр записывается с новой строки!"></span></label>
+                  <textarea name="filter_round_no" rows="3" id="filter_round_no"
+                            class="col-sm-6 form-control">{{ setting['filter_round_no']}}</textarea>
+                  <br>
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <label for="filter_round_no">Текст начала сбора
+                        <span data-toggle="tooltip" data-original-title="Вы можете указать область внутри которой будет производится сбор ссылок для очереди сканирования. В данное поле необходимо записать текст НАЧАЛА парсинга"></span>
+                      </label>
+                      <input name="round_param_start" value="{{ setting['round_param_start']}}" type="text" class="form-control">
+                    </div>
+                    <div class="col-sm-6">
+                      <label for="filter_round_no">Текст конца сбора
+                        <span data-toggle="tooltip" data-original-title="Вы можете указать область внутри которой будет производится сбор ссылок для очереди сканирования. В данное поле необходимо записать текст КОНЦА парсинга"></span>
+                      </label>
+                      <input name="round_param_stop" value="{{ setting['round_param_stop']}}" type="text" class="form-control">
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <label for="filter_round_no">Глубина ссылок 
+                        <span data-toggle="tooltip" data-original-title="Вы можете указать глубину ссылки которые попадут в очередь сканирования. Доступно указание конкретной глубины 3 или же диапазон от и до 1-3"></span>
+                      </label>
+                      <input name="filter_round_depth" value="{{ setting['filter_round_depth']}}" type="text" class="form-control">
+                    </div>
+                    <div class="col-sm-6">
+                      <label for="filter_round_no">Слеш в конце ссылки</label>
+                      <select name="filter_round_slash" class="form-control">
+                        <option value="0" {{ setting['filter_round_slash'] == 0?'selected':''}}>Все</option>
+                        <option value="1" {{ setting['filter_round_slash'] == 1?'selected':''}}>Сохранять ссылки оканчивающиеся только на /</option>
+                        <option value="2" {{ setting['filter_round_slash'] == 2?'selected':''}}>Не сохранять ссылки оканчивающиеся на /</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <label for="filter_round_no">Область ссылок<span data-toggle="tooltip" data-original-title="Внутренними ссылками считаются ссылки у которых совпадает доменное имя с доменным именем стартовой ссылки."></span></label>
+                      <select name="filter_round_domain" class="form-control">
+                        <option value="0" {{ setting['filter_round_domain'] == 0?'selected':''}}>Внутренние и внешние ссылки</option>
+                        <option value="1" {{ setting['filter_round_domain'] == 1?'selected':''}}>Только внутренние ссылки</option>
+                        <option value="2" {{ setting['filter_round_domain'] == 2?'selected':''}}>Только внешние ссылки</option>
+                      </select>
+                    </div>
+
+                    <div class="col-sm-6">
+                      <label for="filter_link_domain">Поиск замены<span data-toggle="tooltip" data-original-title="Снарядное поля указания правил поиск замены. Обратите внимание что поиск замена применяется к ссылке после прохождения ВСЕХ фильтров, то есть самым последним действием перед записью ссылки в очередь."></span></label>
+                      <textarea name="filter_round_rules" rows="1" id="filter_round_rules">{{ setting['filter_round_rules']}}</textarea>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-9">
+                  <label for="links">Ссылки на товары<span data-toggle="tooltip" data-original-title="В этом поле записаны ссылки которые модуль будет использовать для парсинга в интернет магазин."></span></label>
+                  <textarea name="links" rows="19" id="links" form="form_seve_link"
+                            class="form-control">{{ finish_link}}</textarea>
+                  <div>
+                    <button type="submit" name="seve_links" class="btn btn-success" form="form_seve_link">
+                      <i class="fa fa-floppy-o" aria-hidden="true"></i> Сохранить ссылки
+                    </button>
+                    <button type="submit" name="del_finish_link" class="btn btn-danger" form="form_del" onclick="return confirm('Вы уверены что хотите очистить список ссылок на товары ?')">
+                      <i class="fa fa-trash" aria-hidden="true"></i> {{ 'Очистить список'}}
+                    </button>
+                    <button type="submit" name="use_filter_finish"
+                            class="btn btn-primary"><i class="fa fa-filter"
+                                                       aria-hidden="true"></i> {{ 'Повторить фильтрацию'}}
+                    </button>
+                    <p class="text-right">{{ 'Найдено ссылок: '~links_prepare}}</p>
+
+                  </div>
+                </div>
+                <div class="col-sm-3">
+                  <label >Шаблон ссылок на товар<span data-toggle="tooltip" data-original-title="Каждый фильтр записывается с новой строки"></span>
+                  </label>
+                  <label class="float-right" for="filter_link_yes">Или/И<span data-toggle="tooltip"
+                          data-original-title="{{ 'Если галочка установлена то ссылка должна содержать все элементы фильтра. Если не установлена то хотя бы один из фильтров.'}}">
+                    </span>
+                    <input type="checkbox" id="filter_link_method" name="filter_link_method" value="and" 
+                    class="float-right" {% if (setting['filter_link_method'] == 'and') %}{{ 'checked="checked"' }}{% endif %}>
+
+                  </label>
+                  <textarea name="filter_link_yes" rows="3" id="filter_link_yes"
+                            class="col-sm-6 form-control">{{ setting['filter_link_yes']}}</textarea>
+                  <br>
+                  <label for="filter_link_no">
+                    {{ 'Не должно быть в ссылках на товар'}}
+                    <span data-toggle="tooltip" data-original-title="{{ 'Каждый фильтр записывается с новой строки!'}}"></span>
+                  </label>
+                  <textarea name="filter_link_no" rows="3" id="filter_link_no"
+                            class="col-sm-6 form-control">{{ setting['filter_link_no']}}</textarea>
+                  <br>
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <label for="filter_round_no">Текст начала сбора
+                        <span data-toggle="tooltip" data-original-title="Вы можете указать область внутри которой будет производится сбор ссылок на товары. В данное поле необходимо записать текст НАЧАЛА парсинга"></span>
+                      </label>
+                      <input name="link_param_start" value="{{ setting['link_param_start']}}" type="text" class="form-control">
+                    </div>
+                    <div class="col-sm-6">
+                      <label for="filter_round_no">Текст конца сбора
+                        <span data-toggle="tooltip" data-original-title="Вы можете указать область внутри которой будет производится сбор ссылок на товары. В данное поле необходимо записать текст КОНЦА парсинга"></span>
+                      </label>
+                      <input name="link_param_stop" value="{{ setting['link_param_stop']}}" type="text" class="form-control">
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <label for="filter_round_no">Глубина ссылок 
+                        <span data-toggle="tooltip" data-original-title="Вы можете указать глубину ссылки которые попадут в список ссылок на товары. Доступно указание конкретной глубины 3 или же диапазон от и до 1-3"></span>
+                      </label>
+                      <input name="filter_link_depth" value="{{ setting['filter_link_depth']}}" type="text" class="form-control">
+                    </div>
+                    <div class="col-sm-6">
+                      <label for="filter_round_no">Слеш в конце ссылки
+                      </label>
+                      <select name="filter_link_slash" class="form-control">
+                       <option value="0" {{ setting['filter_link_slash'] == 0?'selected':''}}>Все</option>
+                       <option value="1" {{ setting['filter_link_slash'] == 1?'selected':''}}>Сохранять ссылки оканчивающиеся только на /</option>
+                       <option value="2" {{ setting['filter_link_slash'] == 2?'selected':''}}>Не сохранять ссылки оканчивающиеся на /</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <label for="filter_link_domain">Область ссылок<span data-toggle="tooltip" data-original-title="Внутренними ссылками считаются ссылки у которых совпадает доменное имя с доменным именем стартовой ссылки."></span></label>
+                      <select name="filter_link_domain" class="form-control">
+                        <option value="0" {{ setting['filter_link_domain'] == 0?'selected':''}}>Внутренние и внешние ссылки</option>
+                        <option value="1" {{ setting['filter_link_domain'] == 1?'selected':''}}>Только внутренние ссылки</option>
+                        <option value="2" {{ setting['filter_link_domain'] == 2?'selected':''}}>Только внешние ссылки</option>
+                      </select>
+                    </div>
+
+                    <div class="col-sm-6">
+                      <label for="filter_link_domain">Поиск замены<span data-toggle="tooltip" data-original-title="Снарядное поля указания правил поиск замены. Обратите внимание что поиск замена применяется к ссылке после прохождения ВСЕХ фильтров, то есть самым последним действием перед записью ссылки в очередь."></span></label>
+                      <textarea name="filter_link_rules" rows="1" id="filter_link_rules">{{ setting['filter_link_rules']}}</textarea>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+              <label for="filter_link_domain">Импорт ссылок из файла<span data-toggle="tooltip" data-original-title="Для загрузки ссылок вам необходимо выбрать в какой список вы хотите добавить ссылки. Затем выбрать текстовый файл с ссылками, где ссылки записаны в столбик. То есть каждая ссылка записана с новой строки. Обратите внимание что при загрузке ссылок с файла, все ссылки проходят фильтрацию по вашим настройкам и в модуль будут добавлены только те ссылки что соответствуют ваши фильтрам. "></span></label>
+              <div class="form-group">
+                <div class="col-sm-2">
+                  <select name="file_link_who" form="form_file" class="form-control">
+                    <option value="1">Ссылки на товар</option>
+                    <option value="0">Ссылки в очередь сканирования</option>
+                  </select>
+                </div>
+                <div class="col-sm-4">
+                  <div class="input-group">
+                    <label class="input-group-btn" >
+                      <input name="import" type="file" form="form_file" class="main_input_file"/>
+                      <div class="btn btn-default">Выбрать файл…</div>
+                    </label>
+                    <input type="text" class="form-control" id="import" value="Файл не выбран." readonly>
+                    <span class="input-group-btn">
+                    <button class="btn btn-success" type="submit" form="form_file" name="file" value="file_links">
+                      <i class="fa fa-download" aria-hidden="true"></i> Импортировать ссылки
+                    </button>
+                  </span>
+                  </div>
+                  <script>
+                    $(document).ready(function () {
+                        $(".main_input_file").change(function () {
+                            var f_name = [];
+                            for (var i = 0; i < $(this).get(0).files.length; ++i) {
+                                f_name.push(" " + $(this).get(0).files[i].name);
+                            }
+                            $("#import").val(f_name.join(", "));
+                        });
+                    });
+                  </script>
+                  <style>
+                    input[type="file"] {
+                      display: none;
+                    }
+                  </style>
+                </div>
+              </div>
+              <!-- /simpleparspage stop-->
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div><!-- /content -->
+</div>
+<style>
+
+  .progress {
+    position: relative;
+    margin-top: 9px;
+  }
+
+  .progress span {
+    position: absolute;
+    display: block;
+    width: 100%;
+    color: black;
+  }
+
+  .float-right {
+    float: right !important;
+  }
+
+  label > span:after {
+    font-family: FontAwesome;
+    color: #1E91CF;
+    content: "\f059";
+    margin-left: 4px;
+  }
+</style>
+<script>
+    var iteration = 0;
+    $(document).ready(function () {
+        $("#start_grab").bind("click", function () {
+            $("#progress").show();
+            job = 1;
+            //Поучаем настройки формы.
+            var value = getForm();
+
+            //Прооверочка на то что стартовая ссылка указана. 
+            if(value.start_link == ""){ 
+              $("#progress").hide();
+              $("#msg").attr('class', 'alert alert alert-danger');
+              $("#msg").text("Не указана стартовая ссылка!!!");
+              $("#msg").show();
+            }else{
+              ajaxpars(value);
+            }
+            
+        });
+
+        function ajaxpars(value) {
+            iteration++;
+            if(typeof value === 'undefined'){
+              value = 'Rassol2';
+            }
+            console.log(iteration);
+            $.ajax({
+                url: 'index.php?route=catalog/simplepars/parsajax&{{ adap['token']}}&who=grab&i='+iteration+'&dn_id={{ dn_id}}',
+                type: "POST",
+                data: value,
+                dataType: "html",
+                success: function (data) {
+                  answ = $.parseJSON(data);
+                  console.log(answ);
+                  if (answ.status == 'go') {
+                    $("#info_count").text("Просканированно " + answ.other.sen_count + " | В очереди " + answ.other.sen_count_no + " | Собрано " + answ.other.link_count)
+                    agenpars();
+                  } else if (answ.status == 'link_end') {
+                    $("#msg").text(answ.msg);
+                    $("#msg").show();
+                    $("#progress").hide();
+                  }else if(answ.status == 'finish'){
+                    $("#msg").text(answ.msg);
+                    $("#msg").show();
+                    $("#progress").hide();                    
+                  }
+                }
+            });
+        };
+
+        function agenpars() {
+            $("#stop_grab").bind("click", function () {
+                $("#progress").hide();
+                job == 0;
+                location.reload();
+            });
+            if (job == 1) {
+                ajaxpars();
+            };
+        };
+
+        function getForm(){
+          // создадим пустой объект
+          var $data_form = {};
+          // переберём все элементы input, textarea и select формы с id="myForm "
+          $('#form').find ('input, textarea, select').each(function() {
+            // добавим новое свойство к объекту $data
+            // имя свойства – значение атрибута name элемента
+            // значение свойства – значение свойство value элемента
+            $data_form[this.name] = $(this).val();
+
+            //Выбираем правильные чекбоксы.
+            if($("#filter_round_method").prop("checked")){
+              $data_form.filter_round_method = 'and';
+            }else{
+              $data_form.filter_round_method = 'or';
+            }
+
+            if($("#filter_link_method").prop("checked")){
+              $data_form.filter_link_method = 'and';
+            }else{
+              $data_form.filter_link_method = 'or';
+            }
+
+            //удаляем ссылки.
+            delete $data_form.link_round;
+            delete $data_form.links;
+
+          });
+          //console.log($data_form);
+          return $data_form;
+        }
+
+    });
+</script>
+{{ footer }}

@@ -1,0 +1,977 @@
+{{ header }}{{ column_left }} 
+<div id="content">
+  <!-- ========== HEADER ========== -->
+  <div class="page-header">
+    <div class="container-fluid">
+      <!-- USER TOOLS -->
+      <form method="post" enctype="multipart/form-data" id="form" class="form-horizontal">
+      <div class="pull-right">
+        <button name="update" type="submit" form="form" data-toggle="tooltip" class="btn btn-info"
+                data-original-title="Обновить страницу">
+          <i class="fa fa-refresh"></i>
+        </button>
+
+      </div>
+      </form>
+      <h1>SimplePars</h1>
+      <!-- BREADCRUMBS -->
+      <ul class="breadcrumb">
+        {% for bread in breadcrumbs %} 
+        <li>
+          <a href="{{ bread['href']}}">{{ bread['text']}}</a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div><!-- /header -->
+  <!-- ========== CONTENT ========== -->
+  <div class="container-fluid">
+    {% if (error) %} 
+    <div class="alert alert-danger">
+      <i class="fa fa-info-circle"></i>{{ error}}
+    </div>
+    {% elseif (success) %} 
+    <div class="alert alert alert-success">
+      <i class="fa fa-info-circle"></i>{{ success}}
+    </div>
+    {% endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> Редактирование проекта {{ '<b>['~setting['dn_name']~']</b>'}}</h3>
+      </div>
+      <div class="panel-body">
+        <!-- NAVIGATION -->
+        <ul class="nav nav-tabs">
+          {% for page in mpage %} 
+          <li role="presentation" class="{{ page['active']}}">
+            <a href="{{ page['href']}}" id="home-tab" role="tab" aria-controls="home" aria-expanded="true">
+              {{ page['title']}}
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+        <form method="post" enctype="multipart/form-data" id="tools" class="form-horizontal">
+        <p class="text-center">
+          <span id="resul_act" class="text-success" hidden ></span>
+          <span id="not_filter" class="text-danger" hidden ></span>
+        </p>
+        <div class="tab-content">
+          <div class="tab-pane active">
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" role="tablist">
+              <li role="presentation" class="active"><a href="#pfilter" aria-controls="filter" role="tab" data-toggle="tab">Фильтр</a></li>
+              <li role="presentation"><a href="#paction" aria-controls="toolse" role="tab" data-toggle="tab">Действие</a></li>
+              <li role="presentation"><a href="#plist" aria-controls="toolse" role="tab" data-toggle="tab">Списки ссылок</a></li>
+              <li role="presentation"><a href="#ppars" id="take_ppars" aria-controls="toolse" role="tab" data-toggle="tab">Парсинг в кэш</a></li>
+              <li role="presentation"><a href="#pprice" aria-controls="toolse" role="tab" data-toggle="tab">Скачать файл с ссылками</a></li>
+            </ul>
+            <!-- Tab panes -->
+            <div class="tab-content">
+              <div role="tabpanel" class="tab-pane active" id="pfilter">
+                <div class="tab-content">
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <label class="control-label">Фильтр по Спискам</label>
+                      <div class="checkselect">
+                        {% for list_name in list_names %} 
+                          <label>
+                           <input type="checkbox" id="checkbox_list_name" name="list_name[]" value="{{ list_name['id'] }}">{{ list_name['name']}}
+                          </label>
+                        {% endfor %}
+                      </div>
+                    </div>
+                    <div class="col-sm-2">
+                      <label class="control-label">Фильтр по Коду ошибки</label>
+                      <div class="checkselect">
+                        {% for key_e,list_error in list_errors %} 
+                          <label>
+                            <input type="checkbox" id="checkbox_list_error" name="list_error[]" value="{{ list_error}}">{{ list_error}}
+                          </label>
+                        {% endfor %}
+                      </div>
+                    </div>
+                    <div class="col-sm-2">
+                      <label class="control-label">Состояние ссылок</label>
+                      <select class="form-control" name="link_scan">
+                        <option value="all">Все</option>
+                        <option value="1">В очереди на парсинг</option>
+                        <option value="0">Спарсенные ссылки. (Обработанные)</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-2">
+                      <label class="control-label">Состояние ссылок CRON</label>
+                      <select class="form-control" name="link_scan_cron">
+                        <option value="all">Все</option>
+                        <option value="1">В очереди на парсинг</option>
+                        <option value="0">Спарсенные ссылки. (Обработанные)</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-2">
+                      <label class="control-label">Ссылок на страницу</label>
+                      <select class="form-control" name="page_count">
+                        <option value="50" selected>50</option>
+                        <option value="100">100</option>
+                        <option value="150">150</option>
+                        <option value="200">200</option>
+                        <option value="250">250</option>
+                        <option value="500">500</option>
+                        <option value="750">750</option>
+                        <option value="1000">1000</option>
+                        <option value="2500">2500</option>
+                        <option value="5000">5000</option>
+                        <option value="7500">7500</option>
+                        <option value="10000">10000</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div id='mark'>
+
+                  </div>
+                  <br>
+                  <button type="button" onclick="addRecurring()" class="btn btn-primary btn-sm">
+                        <i class="fa fa-plus-circle"></i> Добавить фильтр
+                  </button>
+                </div>
+                <div class="tab-content">
+                  <br>
+                  <div class="col-sm-4"></div>
+                  <div class="col-sm-4">
+                    <button id="get_filter" name="get_filter" type="button" class="btn btn-primary" data-original-title="Фильтровать">
+                      <i class="fa fa-filter" aria-hidden="true"></i> Фильтровать
+                    </button>
+                    <button id="clear" type="submit" class="btn btn-warning" data-original-title="Сброс настроек фильтра">
+                      <i class="fa fa-eraser" aria-hidden="true"></i> Сброс
+                    </button>
+                    <!--button name="get_filter" type="submit" class="btn btn-primary" data-original-title="Фильтровать">
+                      <i class="fa fa-filter" aria-hidden="true"></i> Фильтровать
+                    </button-->
+                  </div>
+                  <div class="col-sm-4"></div>
+                </div>
+              </div>
+              <!--
+              //////////////////////////////
+              //Блок отвечающий за действие
+              //////////////////////////////
+              -->
+              <div role="tabpanel" class="tab-pane" id="paction">
+                <div class="tab-content">
+                  <div class="row">
+                    <div class="col-sm-2">
+                      <label class="control-label">Выберите действие</label>
+                      <select id="do_action" name="do_action" class="form-control">
+                        <option value="0">Выберите действие</option>
+                        <option value="url_change_list">Переместить в список</option>
+                        <option value="url_del_error">Сброс ошибок парсинга</option>
+                        <option value="url_del_cache">Очищать кэш ссылок</option>
+                        <option value="url_create_price_all">Выгрузить ВСЕ ссылки в прайс</option>
+                        <option value="url_create_price_filter">Выгрузить отфильтрованные ссылки в прайс</option>
+                        <option value="url_replace">Поиск замена</option>
+                        <option value="url_del">Удалить ссылки</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="row" id="form_action">
+                    
+                  </div>
+                </div>
+                <div class="tab-content">
+                  <br>
+                  <div class="col-sm-4"></div>
+                  <div class="col-sm-4">
+                    <button id="apply_action" name="apply_action" type="button" class="btn btn-warning" data-original-title="Фильтровать">
+                      <i class="fa fa-gavel" aria-hidden="true"></i> Выполнить действие
+                    </button>
+                    <!--button id="apply_action" name="apply_action" type="submit" class="btn btn-primary" data-original-title="Фильтровать">
+                      <i class="fa fa-gavel" aria-hidden="true"></i> Выполнить действие
+                    </button-->
+                  </div>
+                  <div class="col-sm-4"></div>
+                </div>
+              </div>
+              <div role="tabpanel" class="tab-pane" id="plist">
+                <div class="tab-content">
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <label class="control-label">Название нового списка</label>
+                      <input class="form-control" name="list_name_new" type="text">
+                    </div>
+                    <div class="col-sm-3">
+                      <button type="submit" name="list_add" value="1" class="btn btn-success" data-original-title="Добавить новый список" style="margin: 25px">
+                        <i class="fa fa-plus" aria-hidden="true"></i> Создать список
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <hr>
+                <div class="tab-content">
+                  {% for list_name in list_names %}
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <input class="form-control" value="{{ list_name['name']}}" type="text" readonly>
+                    </div>
+                    <div class="col-sm-3">
+                      <button type="submit" name="list_del" value="{{ list_name['id']}}" class="btn btn-danger" data-original-title="Добавить новый список">
+                        <i class="fa fa-trash-o" aria-hidden="true"></i> Удалить список
+                      </button>
+                    </div>
+                  </div>
+                  <br>
+                  {% endfor %}
+                </div>
+              </div>
+              <div role="tabpanel" class="tab-pane" id="ppars">
+                <div id="progress" class="form-group" hidden="">
+                <div class="col-sm-12">
+                  <div class="progress">
+                    <div class="progress-bar progress-bar-warning progress-bar-striped active" id="pross" style="width: 0%">
+                      <span id="info_count" class="show"></span>
+                    </div>
+                  </div>
+                </div>
+                </div>
+                <div class="tab-content">
+                  <div class="row">
+                    <div class="form-group required">
+                      <div class="col-sm-2"></div>
+                      <div class="col-sm-4">              
+                        <p class="text-center" style="margin: 25px">
+                          <span id="link_scan_count" class="text-danger"></span> | <span id="link_count" class="text-success"></span> | <span id="link_full"></span>
+                        </p>
+                      </div>
+                      <div class="col-sm-2">
+                        <label for="">Выбор списка ссылок</label>
+                        <select name="link_list" id="link_list" class="form-control input-sm">
+                          <option value="">Все ссылки</option>
+                          {% for list_name in list_names %} 
+                          <option value="{{ list_name['id']}}" {{ setting['link_list'] == list_name['id']?'selected':''}}>{{ list_name['name']}}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-sm-2">
+                        <label for="">Ссылки с ошибками</label>
+                        <select name="link_error" id="link_error" class="form-control input-sm">
+                          <option value="">Все ссылки</option>
+                          {% for list_error in list_errors %} 
+                          <option value="{{ list_error}}" {{ setting['link_error'] == list_error?'selected':''}}>{{ list_error}}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-sm-2">
+                          <button type="button" id="links_restart" class="btn btn-warning btn-sm" style="margin-top: 20px"><i class="fa fa-refresh"></i> Перезагрузить ссылки
+                          </button>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="tab-content">
+                  <div class="well">
+                    <div class="row">
+                      <div class="col-sm-4"></div>
+                      <div class="col-sm-2">
+                        <label for="input-pause">Кол-во потоков<span data-toggle="tooltip" data-original-title="Кол-во потоков это количество ссылок которое модуль будет парсить за один запрос, чем выше количество потоков тем быстрее модуль спасрить все ссылки. Но тем выше риск ПОЛУЧИТЬ БАН за аномальную активность на сайте доноре."></span></label>
+                        <select class="form-control" id="thread">
+                          <option value="1" {{ setting['thread'] == 1?'selected':''}}>1 поток</option>
+                          <option value="2" {{ setting['thread'] == 2?'selected':''}}>2 потока</option>
+                          <option value="3" {{ setting['thread'] == 3?'selected':''}}>3 потока</option>
+                          <option value="4" {{ setting['thread'] == 4?'selected':''}}>4 потока</option>
+                          <option value="5" {{ setting['thread'] == 5?'selected':''}}>5 потоков</option>
+                        </select>
+                      </div>
+                      <div class="col-sm-2">
+                        <label for="input-pause">Пауза парсинга<span data-toggle="tooltip" data-original-title="Пауза между запросами к сайту донору. Указывается в секундах. Так же возможно указывать диапазон. К примеру 0-5 в этом случаи будет разная пауза между запросами, рандомно в диапазоне от нуля до пяти секунд."></span></label>
+                        <input class="form-control" id="pars_pause" type="text" value="{{ setting['pars_pause']}}">
+                      </div>
+                      <div class="col-sm-4">
+                        <button id="pars_start" type="button" data-toggle="tooltip" class="btn btn-success" >
+                          <i class="fa fa-play" aria-hidden="true"> Старт парсинга</i>
+                        </button>
+                        <button id="pars_stop" type="button" data-toggle="tooltip" class="btn btn-danger" style="margin: 20px">
+                          <i class="fa fa-stop" aria-hidden="true"> Стоп парсинга</i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div role="tabpanel" class="tab-pane" id="pprice">
+                <div class="tab-content">
+                  <div class="row">
+                    <div class="col-sm-6 col-lg-6">
+                      <label for="filter_link_domain">Скачать файл с ссылками<span data-toggle="tooltip" data-original-title="Для подготовки файла на скачивание перейдите в вкладку действие и выберите какие ссылки вы хотите экспортировать в файл. "></span></label><br>
+                      <button name="download_url_price" value="1" type="submit" form="form" data-toggle="tooltip" class="btn btn-default" data-original-title="Скачать прайс с ссылками" {{ button_url_price?'':'disabled'}}>
+                        <i class="fa fa-download"></i> Скачать прайс с ссылками
+                      </button>
+                      <button name="del_url_price" type="submit" value="1" form="form" data-toggle="tooltip" class="btn btn-danger" data-original-title="Удалить прайс ссылками" {{ button_url_price?'':'disabled'}}>
+                        <i class="fa fa-trash-o"></i> Удалить
+                      </button>
+                    </div>
+                  </div>
+                  <hr>
+                  <label for="filter_link_domain">Импорт ссылок из файла<span data-toggle="tooltip" data-original-title="Для загрузки ссылок вам необходимо выбрать в какой список вы хотите добавить ссылки. Затем выбрать текстовый файл с ссылками, где ссылки записаны в столбик. То есть каждая ссылка записана с новой строки. Обратите внимание что при загрузке ссылок с файла, все ссылки проходят фильтрацию по вашим настройкам и в модуль будут добавлены только те ссылки что соответствуют ваши фильтрам. "></span></label>
+                  <div class="form-group">
+                    <div class="col-sm-2">
+                      <select name="file_link_who" form="form" class="form-control">
+                        <option value="1">Ссылки на товар</option>
+                        <option value="0">Ссылки в очередь сканирования</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-4">
+                      <div class="input-group">
+                        <label class="input-group-btn" >
+                          <input name="import" type="file" form="form" class="main_input_file"/>
+                          <div class="btn btn-default">Выбрать файл…</div>
+                        </label>
+                        <input type="text" class="form-control" id="import" value="Файл не выбран." readonly>
+                        <span class="input-group-btn">
+                        <button class="btn btn-success" type="submit" form="form" name="file" value="file_links">
+                          <i class="fa fa-download" aria-hidden="true"></i> Импортировать ссылки
+                        </button>
+                      </span>
+                      </div>
+                      <script>
+                        $(document).ready(function () {
+                            $(".main_input_file").change(function () {
+                                var f_name = [];
+                                for (var i = 0; i < $(this).get(0).files.length; ++i) {
+                                    f_name.push(" " + $(this).get(0).files[i].name);
+                                }
+                                $("#import").val(f_name.join(", "));
+                            });
+                        });
+                      </script>
+                      <style>
+                        input[type="file"] {
+                          display: none;
+                        }
+                      </style>
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="row">
+                    <div class="col-sm-12">
+                      <div class="alert alert-info" role="alert">
+                        <h3>Если кнопка скачать прайс ссылками не доступна тогда вам нужно создать его.</h3>
+                        <br>
+                        <b>Для создания прайса нужно:</b><br>
+                        1. Отфильтровать ссылки что вас интересуют. (если нужны только определенные ссылки)<br>
+                        2. Перейти на вкладку действие и выбрать одно из двух действий: <b>Выгрузить ВСЕ ссылки в прайс</b> или <b>Выгрузить отфильтрованные ссылки в прайс</b>.<br>
+                        3. Дождаться завершения выгрузки, вы увидите сообщение что действие завершено.<br>
+                        4. <b>ОБНОВИТЬ страницу!!! Это важно!!!</b><br>
+                        <br>
+                        Сам прайс будет в формате csv где каждая ссылка написано с новой строки.<br>
+                        Прайс располагается в директории <b>/admin/uploads/</b><br>
+
+                        Название прайса <b>urls_list_id.csv</b> - Где <b>id</b> это код проекта ссылки которого вы выгружаете.<br>
+                        <br>
+                        <h3>Внимание!!</h3>
+                        При выполнения действия по выгрузке ссылок в прайс лист модуль не очищает его, а дозаписывает ссылки в конец прайс листа.<br>
+                        Удаления прайс листа с ссылками должно производится вручную нажатием на кнопку Удалить. <br>
+                        <br>
+                        <h3>Загрузка ссылок</h3>
+                        Для загрузки ссылок вам необходимо выбрать в какой список вы хотите добавить ссылки. <br>
+                        Затем выбрать текстовый файл с ссылками, где ссылки записаны в столбик. То есть каждая ссылка записана с новой строки. <br>
+                        Обратите внимание что при загрузке ссылок с файла, все ссылки проходят фильтрацию по вашим настройкам и в модуль будут добавлены только те ссылки что соответствуют ваши фильтрам. 
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- /simpleparspage stop-->
+        </div>        
+        <div class="tab-content">
+        <br>
+        <div class="col-md-6" id="page-1">
+          <!--Сюда я отрисую пагинацию-->            
+        </div>
+        <div class="col-md-6" id="products_total">
+          <!--Здесь кол-во товаров-->
+        </div>
+
+          <table class="table">
+            <thead>
+              <tr>
+                <th>id</th>
+                <th>Ссылка</th>
+                <th>Список</th>
+                <th>Ошибки</th>
+                <th>Переход</th>
+                <th>Переход</th>
+                <th>Переход</th>
+                <th>Кэш</th>
+
+              </tr>
+            </thead>
+            <tbody id="products_body">
+
+              <!--Здесь выводится таблица ссылок-->
+
+            </tbody>
+          </table>
+
+        </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /content -->
+
+<script type="text/javascript">
+  //запуск фильтра при заходе на страницу
+  controlFilter(1);
+
+  $("#get_filter").bind("click", function () {
+    controlFilter(1);
+  });
+
+  $("#apply_action").bind("click", function () {
+    controlAction();
+    //Повторно фильтруем.
+    controlFilter(1);
+  });
+
+
+  function controlFilter($page=1){
+    //console.log($page);
+    var data = getForm();
+    data.page = $page;
+    console.log(data);
+    get_urls(data);
+  }
+
+  function controlAction(){
+    var data = getForm();
+    console.log(data);
+    do_action(data);
+    
+
+  }
+  //конец
+
+  function getForm(){
+    var $data_form = {};
+    $('#tools').find ('select, textarea, input').each(function() {
+      $data_form[this.name] = $(this).val();
+      delete $data_form['list_name[]'];
+      delete $data_form['list_error[]'];
+
+      //получаем выбор языков.
+      $('input#checkbox_list_name').each(function(){
+        if($(this).prop("checked")){
+          $data_form['list_name['+$(this).val()+']'] = $(this).val();
+        }
+      })
+      //получаем выбор категорий
+      $('input#checkbox_list_error').each(function(){
+        if($(this).prop("checked")){
+          $data_form['list_error['+$(this).val()+']'] = $(this).val();
+        }
+      })
+
+    });
+    //console.log($data_form);*/
+    return $data_form;
+  }
+
+  function get_urls(data){
+    //console.log(data);
+    $.ajax({
+      url: 'index.php?route=catalog/simplepars/ajax&{{ adap['token']}}&who=listurl&do=filter&dn_id={{ dn_id}}',
+      type: "POST",
+      data: data,
+      dataType: "html",
+      success: function (data) {
+        answ = $.parseJSON(data);
+        if(answ.urls.length == 0){
+          $('#products_body').empty();
+          $('#page-1').empty();
+          $('#resul_act').empty();
+          $("#not_filter").text('Нет ссылок по указанным фильтрам');
+          html_total = '<span class="pull-right"><h4>Отфильтровано <span class="text-danger">'+answ.totla+'</span> ссылок</span></h4>'
+          $('#products_total').empty();
+          $('#products_total').append(html_total);
+          $("#not_filter").show();
+          setTimeout(() => { $("#not_filter").hide() }, 2000);
+
+        }else{
+          render_products_table(answ);
+        }
+      }
+    });
+  }
+
+  function do_action(data){
+    //console.log(data);
+    $.ajax({
+      url: 'index.php?route=catalog/simplepars/ajax&{{ adap['token']}}&who=listurl&do=action&dn_id={{ dn_id}}',
+      type: "POST",
+      data: data,
+      dataType: "html",
+      success: function (data) {
+        answ = $.parseJSON(data);
+        console.log(answ);
+        $("#resul_act").text(answ);
+        $("#resul_act").show();
+        setTimeout(() => { $("#resul_act").hide() }, 3000);
+
+      }
+    });
+  }
+
+  //фунция рендеринга таблицы товаров.
+  function render_products_table(answ){
+    $('#del_ul').remove();
+    $('#products_body').empty();
+    $('#products_total').empty();
+
+    var url_param = "{{ url_param}}";
+    var url_csv = "{{ url_csv}}";
+    var url_im = "{{ url_im}}";
+    var url_page = "{{ url_page}}";
+
+    html ='';
+    for (key in answ.urls) {
+      //console.log(answ.products[key]);
+      html += '<tr>';
+      //html += '<td>[]</td>';
+      html += '<td><a href="'+answ.urls[key].link+'" target="_blank">'+answ.urls[key].id+'</a></td>';
+      html += '<td>'+answ.urls[key].link+'</td>';
+      html += '<td>'+answ.urls[key].list+'</td>';
+      html += '<td>'+answ.urls[key].error+'</td>';
+      html += '<td><a href="'+url_param+answ.urls[key].id+'" target="_blank">Настройка парсинга</a></td>';
+      html += '<td><a href="'+url_im+answ.urls[key].id+'" target="_blank">Парсинг в ИМ</a></td>';
+      html += '<td><a href="'+url_csv+answ.urls[key].id+'" target="_blank">Парсинг в CSV</a></td>';
+      html += '<td>'+answ.urls[key].cached_time+'</td>';
+      html += '</tr>';
+    }
+
+    html_total = '<span class="pull-right"><h4>Отфильтровано <span class="text-danger">'+answ.totla+'</span> ссылок</span></h4>'
+
+    $('#products_body').append(html);
+    $('#page-1').append(answ.pagination);
+    $('#products_total').append(html_total);
+
+    //console.log(answ.pagination);
+  }
+
+  
+</script>
+
+<script type="text/javascript">
+  var i = 1;
+  function addRecurring() {
+
+    html = '<div class="row" id="select_id_'+i+'">';
+    html += '<br>';
+    html += '  <div class="col-sm-2">';
+    html += '   <select class="form-control" name="filters['+i+'][take_filtr]">';
+    html += '     <option value="0">Доступные фильтры</option>';
+    html += '     <option value="string">Фильтр по тексту ссылки</option>';
+    html += '     <option value="url_id">Фильтр по id ссылок</option>';
+    html += '     <option value="date_cach">Фильтр по дате кэширования ссылки</option>';
+    html += '   </select>';
+    html += '  </div>';
+    html += '  <div class="col-sm-1">';
+    html += '   <select class="form-control" name="filters['+i+'][style]">';
+    html += '     <option value="0">Содержит</option>';
+    html += '     <option value="1">Отрицание (не содержит)</option>';
+    html += '   </select>';
+    html += '  </div>';
+
+    html += '  <div class="col-sm-1">';
+    html += '   <select class="form-control" name="filters['+i+'][position]">';
+    html += '     <option value="%{data}%">%[значение]%</option>';
+    html += '     <option value="{data}%">[значение]%</option>';
+    html += '     <option value="%{data}">%[значение]</option>';
+    html += '     <option value="={data}">=</option>';
+    html += '     <option value=">={data}">>=[числу]</option>';
+    html += '     <option value="<={data}"><=[числу]</option>';
+    html += '   </select>';
+    html += '  </div>';
+
+    html += '  <div class="col-sm-5">';
+    html += '    <input class="form-control" name="filters['+i+'][value]" placeholder="Введите искомое значение, или несколько через разделитель |" type="text" value="">';
+    html += '  </div>';
+    html += '  <div class="col-sm-1">';
+    html += '    <button type="button" onclick="$(\'#select_id_'+i+'\').remove()" class="btn btn-danger" title="Удалить фильтр"><i class="fa fa-trash-o"></i></button>';
+    html += '  </div>';
+    html += ' </div>';
+    html += '</div>';
+
+    $('#mark').append(html);
+    i++;
+  }
+</script>
+
+<script type="text/javascript">
+  $("#do_action").bind("change", function () {
+    var do_action = $("#do_action").val();
+    $('#form_action').empty();
+    console.log(do_action);
+
+    if(do_action == 'url_change_list') {
+
+      html = '<br>';
+      html += '<div class="col-sm-3">';
+      html += ' <select class="form-control" name="new_list">';
+      html += '   <option value="0">Общий список</option>';
+      {% for list_name in list_names %} 
+        html += '   <option value="{{ list_name["id"]}}">{{ list_name["name"]}}</option>';
+      {% endfor %}
+      html += ' </select>';
+      html += '</div>';
+
+      $('#form_action').append(html);
+
+    }else if(do_action == 'url_del_error'){
+     
+      html = '<br>';
+      html += '<div class="col-sm-2">';
+      html += ' <select class="form-control" name="del_errors">';
+      html += '   <option value="all">Все ошибки</option>';
+      {% for list_error in list_errors %} 
+        {% if (list_error != '0') %}
+          html += '   <option value="{{ list_error}}">{{ list_error}}</option>';
+        {% endif %}
+      {% endfor %}
+      html += ' </select>';
+      html += '</div>';
+
+      $('#form_action').append(html);
+    
+    }else if(do_action == 'url_del_cache'){
+      
+      html = '<br>';
+      html += '<div class="col-sm-2">';
+      html += ' <select class="form-control" name="which_cache">';
+      html += '   <option value="url_get">Очистить кэш только в отобранных ссылках</option>';
+      html += '   <option value="url_all">Очистить кэш всех ссылок этого проекта</option>';
+      html += ' </select>';
+      html += '</div>';
+      
+      $('#form_action').append(html);
+
+    }else if(do_action == 'url_del'){
+    
+    }else if(do_action == 'url_replace'){
+     
+      html = '<br>';
+      html += ' <div class="col-sm-2">';
+      html += '<label class="control-label">Выберите действие</label>';
+      html += '  <select class="form-control" name="what_do">';
+      html += '    <option value="0">Отредактировать и обновить ссылки в списке</option>';
+      html += '    <option value="1">Отредактировать и добавить как новые ссылки в список</option>';
+      html += '  </select>';
+      html += ' </div>';
+      html += ' <div class="col-sm-5">';
+      html += '<label class="control-label">Поле для правил Поиск|Замены</label>';
+      html += ' <textarea rows="5" name="rules" class="form-control" placeholder="В данном поле вы можете прописать правила поиск замены. Каждое правило записывается с новой строки. "></textarea>';
+      html += ' </div>';
+      html += ' <div class="col-sm-3">';
+      html += '<label class="control-label">Добавить в конец ссылки</label>';
+      html += '  <input class="form-control" name="url_end" type="text">';
+      html += ' </div>';
+
+
+      $('#form_action').append(html);
+    
+    }
+
+
+  });
+</script>
+
+<script type="text/javascript">
+  $("#take_ppars").bind("click", function () {
+    get_url_stats();
+  });
+  //если был изменен выбор ссписка
+  $("#link_list").bind("change", function () {
+    get_url_stats();
+  });
+  $("#link_error").bind("change", function () {
+    get_url_stats();
+  });
+
+  //Нажали рестарт, получаем данные о списках и отправляем запрос.
+  $("#links_restart").bind("click", function () {
+    var data = getSettingUrl();
+    data['links_restart'] = 1;
+    result = url_ajax(data);
+    get_url_stats();
+    $("#pross").css("width","0%");
+    $("#info_count").text("");
+    console.log(result);
+  });
+
+  function get_url_stats(){
+    data = getSettingUrl();
+    urls = url_ajax(data);
+    showUrlsStats(urls);
+    console.log(urls);
+  };
+
+  function url_ajax(data){
+    // /var answ;
+    $.ajax({
+      url: 'index.php?route=catalog/simplepars/ajax&{{ adap['token']}}&who=get_urls&dn_id={{ dn_id}}',
+      type: "POST",
+      data: data,
+      async: false,
+      dataType: "html",
+      success: function (data) {
+        answ = data;
+        answ = $.parseJSON(data);
+      }
+    });
+    //console.log(answ);
+    return answ;
+  };
+
+  function getSettingUrl(){
+    var data_form = {};
+    data_form['link_list'] = $("#link_list").val();
+    data_form['link_error'] = $("#link_error").val();
+
+    console.log(data_form);
+    return data_form;
+  }
+
+  function showUrlsStats(urls){
+    link_scan = urls['total']-urls['queue'];
+    $("#link_scan_count").text("Обработано ссылок: " + link_scan);
+    $("#link_count").text("Ссылок в очереди: " + urls['queue']);
+    $("#link_full").text("[Ссылок в проекте: " + urls['full'] +"]");
+  }
+</script>
+
+<script type="text/javascript">
+  $(document).ready(function () {
+    $("#pars_start").bind("click", function () {
+        var iter = 0;
+        var time1 = new Date().getTime();//Работа с временем. Получаем время начала парсинга.
+        $("#info_count").text("Спарсено: 0 | В очереди: 0 | Осталось ~ 0сек");
+        $("#progress").show();
+        job = 1;
+        //получаем значение 
+        var form = getSetToPars();
+        ajaxpars(time1, iter, form);
+    });
+
+    function ajaxpars(time1, iter, form) {
+      iter++;
+      $.ajax({
+        url: 'index.php?route=catalog/simplepars/parsajax&{{ adap['token']}}&who=pr_cache&i='+iter+'&dn_id={{ dn_id}}',
+        type: "POST",
+        data: form,
+        dataType: "html",
+        success: function (data) {
+          answ = $.parseJSON(data);
+          console.log(answ);
+          //работа с временем
+          var time2 = new Date().getTime();//Получаем время окончания парсинга одной ссылки.
+          var time = secondsToHms(time1, time2, answ.other.clink.link_count, iter);
+          //Конец
+          if (answ.status == 'finish') {
+            $("#msg").text(answ.msg);
+            $("#msg").show();
+            $("#pross").css("width", answ.other.progress + "%");
+            $("#link_scan_count").text("Обработано ссылок: " + answ.other.clink.link_scan_count);
+            $("#link_count").text("Ссылок в очереди: " + answ.other.clink.link_count);
+            $("#progress").hide();
+          } else if (answ.status == 'go') {
+            $("#pross").css("width", answ.other.progress + "%");
+            $("#info_count").text("Спарсено: " + answ.other.clink.link_scan_count + " | В очереди: " + answ.other.clink.link_count + " | Осталось ~ " + time);
+            $("#link_scan_count").text("Обработано ссылок: " + answ.other.clink.link_scan_count);
+            $("#link_count").text("Ссылок в очереди: " + answ.other.clink.link_count);
+            agenpars(time1, iter, form);
+          }
+        }
+      });
+    };
+
+    function agenpars(time1, iter, form) {
+        $("#pars_stop").bind("click", function () {
+            $("#progress").hide();
+            job = 0;
+        });
+        if (job == 1) {
+            ajaxpars(time1, iter, form);
+        }
+        ;
+    };
+    //Фунция преобразования времени в Ч:М:C
+    function secondsToHms(time1, time2, slink, flink) {
+      //получаем количество потоков
+      var thread = {{ setting['thread']}};
+      flink = flink * thread;
+      var link = slink/flink;
+      time = Math.round((link*((time2 - time1)/1000)));
+      time = Number(time);
+      var h = Math.floor(time / 3600);
+      var m = Math.floor(time % 3600 / 60);
+      var s = Math.floor(time % 3600 % 60);
+
+      return ('0' + h).slice(-2) + ":" + ('0' + m).slice(-2) + ":" + ('0' + s).slice(-2);
+    }
+
+    function getSetToPars(){
+      var data_form = {};
+      data_form['thread'] = $("#thread").val();
+      data_form['pars_pause'] = $("#pars_pause").val();
+      return data_form;
+    }
+
+  });
+</script>
+
+<script>
+    (function($) {  function setChecked(target) {   var checked = $(target).find("input[type='checkbox']:checked").length;    if (checked) {      $(target).find('select option:first').html('Выбрано: ' + checked);    } else {      $(target).find('select option:first').html('Выберите из списка');   } }   $.fn.checkselect = function() {   this.wrapInner('<div class="checkselect-popup"></div>');    this.prepend(     '<div class="checkselect-control">' +       '<select class="form-control"><option></option></select>' +       '<div class="checkselect-over"></div>' +      '</div>'    );      this.each(function(){     setChecked(this);   });       this.find('input[type="checkbox"]').click(function(){     setChecked($(this).parents('.checkselect'));    });     this.parent().find('.checkselect-control').on('click', function(){      $popup = $(this).next();      $('.checkselect-popup').not($popup).css('display', 'none');     if ($popup.is(':hidden')) {       $popup.css('display', 'block');       $(this).find('select').focus();     } else {        $popup.css('display', 'none');      }   });     $('html, body').on('click', function(e){      if ($(e.target).closest('.checkselect').length == 0){       $('.checkselect-popup').css('display', 'none');     }   }); };})(jQuery);  $('.checkselect').checkselect();
+</script>
+<style>
+
+  .checkselect {
+    position: relative;
+    
+    text-align: left;
+  }
+
+  .checkselect-control {
+    position: relative;
+    padding: 0 !important;
+  }
+
+  .checkselect-control select {
+  display: block;
+  width: 100%;
+  height: 35px;
+  padding: 8px 13px;
+  font-size: 12px;
+  line-height: 1.42857;
+  color: #555;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+  -webkit-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+  -o-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+  transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+  }
+
+  .form-control {
+
+}
+
+  .checkselect-over {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    cursor: pointer;
+  }
+
+  .checkselect-popup {
+    display: none;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: auto;
+    max-height: 200px;
+    position: absolute;
+    top: 100%;
+    left: 0px;
+    border: 1px solid #dadada;
+    border-top: none;
+    background: #fff;
+    z-index: 9999;
+    overflow: auto;
+    user-select: none;
+  }
+
+  .checkselect label {
+    position: relative;
+    display: block;
+    margin: 0;
+    padding: 4px 6px 4px 25px;
+    font-weight: normal;
+    font-size: 1em;
+    line-height: 1.1;
+    cursor: pointer;
+  }
+
+  .checkselect-popup input {
+    position: absolute;
+    top: 5px;
+    left: 8px;
+    margin: 0 !important;
+    padding: 0;
+  }
+
+  .checkselect-popup label:hover {
+    background: #03a2ff;
+    color: #fff;
+  }
+
+  .checkselect-popup fieldset {
+    display: block;
+    margin: 0;
+    padding: 0;
+    border: none;
+  }
+
+  .checkselect-popup fieldset input {
+    left: 15px;
+  }
+
+  .checkselect-popup fieldset label {
+    padding-left: 32px;
+  }
+
+  .checkselect-popup legend {
+    display: block;
+    margin: 0;
+    padding: 5px 8px;
+    font-weight: 700;
+    font-size: 1em;
+    line-height: 1.1;
+  }
+
+  label>span:after {
+    font-family: FontAwesome;
+    color: #1E91CF;
+    content: "\f059";
+    margin-left: 4px;
+  }
+  
+  .progress {
+    position: relative;
+    margin-top: 9px;
+  }
+
+  .progress span {
+    position: absolute;
+    display: block;
+    width: 100%;
+    color: black;
+  }
+
+  .float-right {
+    float: right !important;
+  }
+
+  label > span:after {
+    font-family: FontAwesome;
+    color: #1E91CF;
+    content: "\f059";
+    margin-left: 4px;
+  }
+</style>
+{{ footer }}

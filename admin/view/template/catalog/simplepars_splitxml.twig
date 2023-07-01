@@ -1,0 +1,485 @@
+{{ header }}{{ column_left }} 
+<div id="content">
+  <!-- ========== HEADER ========== -->
+  <div class="page-header">
+    <div class="container-fluid">
+      <!-- USER TOOLS -->
+      <div class="pull-right">
+        <div class="pull-right">
+          <form class="form-horizontal" id="form_r" method="POST">
+            <button id="pars_start" type="button" form="form" data-toggle="tooltip" title=""
+                    class="btn btn btn-success" data-original-title="Старт парсинга"><i class="fa fa-play"></i>
+            </button>
+            <button id="pars_stop" type="submit" data-toggle="tooltip" title="" class="btn btn-warning"
+                    data-original-title="Стоп/Пауза парсинга"><i class="fa fa-stop" aria-hidden="true"></i>
+            </button>
+            <button id="param_save_global" type="button" data-toggle="tooltip" title="" class="btn btn-primary">Сохранить</button>
+            <button name="update_grab" type="submit" name="form_r" data-toggle="tooltip" title="" class="btn btn-info" data-original-title="Обновить страницу"><i class="fa fa-refresh"></i></i>
+            </button>
+          </form>
+        </div>
+      </div>
+      <form class="form-horizontal" id="form_preview" method="POST">
+      <h1>SimplePars</h1>
+      <!-- BREADCRUMBS -->
+      <ul class="breadcrumb">
+        {% for bread in breadcrumbs %} 
+        <li>
+          <a href="{{ bread['href']}}">{{ bread['text']}}</a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div><!-- /header -->
+  <!-- ========== CONTENT ========== -->
+  <div class="container-fluid">
+    {% if (error) %} 
+    <div class="alert alert-danger">
+      <i class="fa fa-info-circle"></i>{{ error}}
+    </div>
+    {% elseif (success) %} 
+    <div class="alert alert alert-success">
+      <i class="fa fa-info-circle"></i>{{ success}}
+    </div>
+    {% endif %}
+    <div class="alert alert alert-success" hidden id="msg">
+      <i class="fa fa-info-circle"></i>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> Редактирование проекта {{ '<b>['~setting['dn_name']~']</b>'}}</h3>
+      </div>
+      <div class="panel-body">
+
+        <!-- NAVIGATION -->
+        <ul class="nav nav-tabs">
+          {% for page in mpage %} 
+          <li role="presentation" class="{{ page['active']}}">
+            <a href="{{ page['href']}}" id="home-tab" role="tab" aria-controls="home" aria-expanded="true">
+              {{ page['title']}}
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+        <div class="tab-content">
+          <div class="panel-body">
+          <div class="row">
+              <div class="col-sm-12">
+                <div id="progress" hidden>
+                  <div class="col-sm-12">
+                    <div class="progress">
+                      <div id="pross" class="progress-bar progress-bar-warning progress-bar-striped active"
+                           style="width: 0%;">
+                        <span id="info_count" class="show"></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="form-group required">
+                <div class="col-sm-2"></div>
+                <div class="col-sm-5">              
+                  <p class="text-center" style="margin: 25px">
+                    <span id="link_scan_count" class="text-danger"></span> | <span id="link_count" class="text-success"></span> | <span id="link_full"></span>
+                  </p>
+                </div>
+                <div class="col-sm-2">
+                    <button type="button" id="links_restart" class="btn btn-warning btn-sm" style="margin-top: 20px"><i class="fa fa-refresh"></i> Перезагрузить ссылки
+                    </button>
+                </div>
+                <div class="col-sm-2">
+                  <label>Кэш</label>
+                  <select id="cache_page" class="form-control input-sm">
+                    <option value="0" {{ browser['cache_page'] == 0?'selected':''}}>Не использовать кэш</option>
+                    <option value="1" {{ browser['cache_page'] == 1?'selected':''}}>Создавать/Использовать кэш если есть</option>
+                    <option value="2" {{ browser['cache_page'] == 2?'selected':''}}>Парсить и обновлять кэш</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-2">
+                <input class="btn btn-default" type="submit" name="go_show" value="Загрузить Код">
+              </div>
+              <div class="col-sm-4">
+                <select class="form-control" name="view_href">
+                  <option value="0">Выберите ссылку</option>
+                  {% for link in links %} 
+                  <option value="{{ link['link']}}">{{ link['link']}}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-sm-5">
+                <input type="text" name="view_href2" id="view_href2"class="form-control" value="{{ view_href}}" placeholder="Вставьте ссылку что бы увидеть результат парсинга.">
+              </div>
+              <div class="col-sm-1">
+                {% if (view_href) %}
+                <a href="{{ view_href}}" target="_blank" class="btn btn-default"><i class="fa fa-link"></i></a>
+                {% endif %}
+              </div>
+            </div>
+
+          </div>
+          <br><br>
+          <div class="form-group">
+            <div class="col-md-3">
+              <div class="panel panel-default">
+                <div class="panel-heading"><b>Граница деления текста на товары</b></div>
+                <div class="panel-body">
+                  <label for="basic-url">Текст начала парсинга<span data-toggle="tooltip" data-original-title="В этом поле вам необходимо указать текст начала блока товара. Эта граница необходима для того что бы указать модулю где начинается товар. Так же в блоке текст конца парсинга вы укажите каким кодом заканчивается товар. Эта граница по свойствам похожа на повторяющиеся границы парсинга."></span></label>
+                  <input id="pr_start" type="text" name="pr_start" class="form-control" value="{{ xml['pr_start']}}">
+
+                  <label>Текст конца парсинга<span data-toggle="tooltip" data-original-title="Укажите текст на который заканчивается блок товара."></span></label>
+                  <input type="text" id="pr_stop" name="pr_stop" class="form-control" value="{{ xml['pr_stop']}}">
+                </div>
+              </div>
+              <div class="panel panel-default">
+                <div class="panel-heading"><b>Границы для работы с категориями.</b></div>
+                <div class="panel-body">
+                  <div class="row">
+                    <div class="col-sm-12"> 
+                      <label class="control-label">Преобразовать категории ?<span data-toggle="tooltip" data-original-title="Включить или отключить возможность работы с категориями."></span></label>
+                      <select id="cat_work" class="form-control input-sm">
+                        <option value="0" {{ xml['cat_work'] == 0?'selected':''}}>Нет</option>
+                        <option value="1" {{ xml['cat_work'] == 1?'selected':''}}>Да</option>
+                      </select>
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <label>Блок категории<span data-toggle="tooltip" data-original-title="Здесь вам необходимо указать текст начала и конца категории из блока структуры категорий в начале xml файла. Если такой блок есть. Эта граница парсинга должна поделить блок описания структуры категорий на отдельные записи, в каждой записи по одной категории."></span></label>
+                      <input id="cat_start" type="text" name="cat_start" class="form-control" value="{{ xml['cat_start']}}" placeholder="Текст начала парсинга">
+                    </div>
+                    <div class="col-sm-6" style="margin-top: 20px">
+                      <input id="cat_stop" type="text" name="cat_stop" class="form-control" value="{{ xml['cat_stop']}}" placeholder="Текст конца парсинга">
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <label>Название категории<span data-toggle="tooltip" data-original-title="Укажите текст начала и конца парсинга имени категории. Из блока структуры категорий в начале файла. "></span></label>
+                      <input id="cat_name_start" type="text" name="cat_name_start" class="form-control" value="{{ xml['cat_name_start']}}" placeholder="Текст начала парсинга">
+                    </div>
+                    <div class="col-sm-6" style="margin-top: 20px">
+                      <input id="cat_name_stop" type="text" name="cat_name_stop" class="form-control" value="{{ xml['cat_name_stop']}}" placeholder="Текст конца парсинга">
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <label>Иден. категории<span data-toggle="tooltip" data-original-title="Укажите текст начала и конца парсинга идентификатора категории из блок структуры категории в начале файла xml"></span></label>
+                      <input id="cat_id_start" type="text" name="cat_id_start" class="form-control" value="{{ xml['cat_id_start']}}" placeholder="Текст начала парсинга">
+                    </div>
+                    <div class="col-sm-6" style="margin-top: 20px">
+                      <input id="cat_id_stop" type="text" name="cat_id_stop" class="form-control" value="{{ xml['cat_id_stop']}}" placeholder="Текст конца парсинга">
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <label>Иден. родителя<span data-toggle="tooltip" data-original-title="Укажите текст начала и конца парсинга идентификатора родителя категории из блок структуры категории в начале файла xml"></span></label>
+                      <input id="cat_perent_start" type="text" name="cat_perent_start" class="form-control" value="{{ xml['cat_perent_start']}}" placeholder="Текст начала парсинга">
+                    </div>
+                    <div class="col-sm-6" style="margin-top: 20px">
+                      <input id="cat_perent_stop" type="text" name="cat_perent_stop" class="form-control" value="{{ xml['cat_perent_stop']}}" placeholder="Текст конца парсинга">
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <label>Разделитель<span data-toggle="tooltip" data-original-title="Укажите текст разделителя который будет отделять родительскую категорию от младшей в структуре категорий."></span></label>
+                      <input id="cat_delim" type="text" name="cat_delim" class="form-control" value="{{ xml['cat_delim']}}" placeholder="К примеру {csvnc}">
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <label>Кат. В товаре<span data-toggle="tooltip" data-original-title="Укажите текст начал и конца парсинга категорий внутри блока товара, что бы модуль мог заменить id донора на полноценную структуру категорий. "></span></label>
+                      <input id="pr_cat_start" type="text" name="pr_cat_start" class="form-control" value="{{ xml['pr_cat_start']}}" placeholder="Текст начала парсинга">
+                    </div>
+                    <div class="col-sm-6" style="margin-top: 20px">
+                      <input id="pr_cat_stop" type="text" name="pr_cat_stop" class="form-control" value="{{ xml['pr_cat_stop']}}" placeholder="Текст конца парсинга">
+                    </div>
+                  </div>
+                  <br>
+                  <div class="row">
+                    <div class="col-sm-12">
+                      <button id="show_test" type="button" data-toggle="tooltip" class="btn btn-success">Пре дпросмотр</button>
+                      <button id="return_code" type="button" data-toggle="tooltip" class="btn btn-warning">Отмена</button>
+                      <button id="param_save" type="button" data-toggle="tooltip" title="" class="btn btn-primary">Сохранить</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-9">
+              <label for="basic-url">Предпросмотр кода</label>
+              <pre style="max-height: 750px; overflow: auto; padding: 5px" title="Code block"><code id="page_code">{{ page_code}}</code><code id="piece_code" hidden></code></pre>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="col-md-12">
+              <div class="panel panel-default">
+                  <div class="panel-heading"><b>Фильтр товаров</b></div>
+              </div>
+              <div class="col-md-6">
+                <label class="control-label">Что должно быть в товарах<span data-toggle="tooltip" data-original-title="Укажите какой текст должен быть в товаре что бы модуль его добавил. Правил может быть сколько угодно. Каждое правило должно начинаться с новой строки. Между двумя условиями стоит логическое ИЛИ. Поддерживаются регулярные выражения. "></span></label>
+                <textarea rows="6" id="filter_yes" class="col-sm-6 form-control">{{ xml['filter_yes']}}</textarea>
+              </div>
+              <div class="col-md-6">
+                <label class="control-label">Чего в товарах быть не должно<span data-toggle="tooltip" data-original-title="
+                Укажите какого текста в товаре быть не должен что бы модель его добавил. Правил может быть сколько угодно. Каждое правило должно начинаться с новой строки. Между двумя условиями стоит логическое ИЛИ. Поддерживаются регулярные выражения."></span></label>
+                <textarea rows="6" id="filter_no" class="col-sm-6 form-control">{{ xml['filter_no']}}</textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        </form>
+      </div>
+    </div>
+  </div><!-- /content -->
+</div>
+<script type="text/javascript">
+  $(document).ready(function () {
+
+    //загружаем ссылки
+    get_url_stats();
+
+    $("#links_restart").bind("click", function () {
+      var data = {};
+      data['links_restart'] = 1;
+      result = url_ajax(data);
+      get_url_stats();
+      $("#pross").css("width","0%");
+      $("#info_count").text("");
+      console.log(result);
+    });
+
+    $("#cache_page").bind("change", function () {
+      var value = {};
+      value.save_cache_page = 1;
+      value.cache_page = $("#cache_page").val();
+      ajaxGetCode(value);
+    });
+
+    $("#show_test").bind("click", function () {
+      //Показ кода с отдельными товарами.
+      showCode(1);
+    });
+
+    $("#return_code").bind("click", function () {
+        $("#piece_code").hide();
+        $("#page_code").show();
+    });
+
+    //Две кнопки сохранить. Для удобства
+    $("#param_save").bind("click", function () {
+      saveGran();
+    });
+
+    $("#param_save_global").bind("click", function () {
+      saveGran();
+    });
+
+    function getValue(){
+      var value = {};
+      value.link = $("#view_href2").val();
+      value.cat_work = $("#cat_work").val();
+      value.pr_start = $("#pr_start").val();
+      value.pr_stop = $("#pr_stop").val();
+
+      value.cat_start = $("#cat_start").val();
+      value.cat_stop = $("#cat_stop").val();
+      value.cat_name_start = $("#cat_name_start").val();
+      value.cat_name_stop = $("#cat_name_stop").val();
+      value.cat_id_start = $("#cat_id_start").val();
+      value.cat_id_stop = $("#cat_id_stop").val();
+      value.cat_perent_start = $("#cat_perent_start").val();
+      value.cat_perent_stop = $("#cat_perent_stop").val();
+      value.pr_cat_start = $("#pr_cat_start").val();
+      value.pr_cat_stop = $("#pr_cat_stop").val();
+      value.cat_delim = $("#cat_delim").val();
+      value.filter_yes = $("#filter_yes").val();
+      value.filter_no = $("#filter_no").val();
+      
+
+      //console.log(value);
+      return value;
+    }
+
+    function showCode(){
+      var value = getValue();
+      value.show_test = 1;
+
+      if(value.link == ""){
+        $("#msg").text(" Не выбранная ссылка для пред просмотра.");
+        $("#msg").show();
+        setTimeout(() => { $("#msg").hide() }, 2000);
+      }else{
+        var code = ajaxGetCode(value);
+        $("#page_code").hide();
+        $("#piece_code").text(code);
+        $("#piece_code").show();
+      }
+
+      console.log(value);
+    }
+
+    function saveGran(){
+      var value = getValue();
+      value.save_gran = 1;
+      var answ = ajaxGetCode(value);
+
+      $("#msg").text(answ);
+      $("#msg").show();
+      setTimeout(() => { $("#msg").hide() }, 3000);
+      console.log(answ);
+      console.log(value);
+    }
+
+    function ajaxGetCode(value) {
+      var retVal;
+      $.ajax({
+        url: 'index.php?route=catalog/simplepars/ajax&who=splitxml&{{ adap['token']}}&dn_id={{ dn_id}}',
+        type: "POST",
+        data: value,
+        async: false,
+        dataType: "html",
+        success: function (data) {
+          retVal = data;
+        }
+      });
+      return retVal;
+   };
+
+   //Блок отвечающий за подгрузку ссылок.
+  function get_url_stats(){
+    data = {};
+    urls = url_ajax(data);
+    showUrlsStats(urls);
+    console.log(urls);
+  };
+
+  function url_ajax(data){
+    // /var answ;
+    $.ajax({
+      url: 'index.php?route=catalog/simplepars/ajax&{{ adap['token']}}&who=get_urls_sen&dn_id={{ dn_id}}',
+      type: "POST",
+      data: data,
+      async: false,
+      dataType: "html",
+      success: function (data) {
+        answ = data;
+        answ = $.parseJSON(data);
+      }
+    });
+    //console.log(answ);
+    return answ;
+  };
+
+  function showUrlsStats(urls){
+    link_scan = urls['total']-urls['queue'];
+    $("#link_scan_count").text("Обработано ссылок: " + link_scan);
+    $("#link_count").text("Ссылок в очереди: " + urls['queue']);
+    $("#link_full").text("[Ссылок в проекте: " + urls['full'] +"]");
+  }
+
+  });
+</script>
+
+<!--Все что касаемо парсинга-->
+<script type="text/javascript">
+  $(document).ready(function () {
+    $("#pars_start").bind("click", function () {
+      var iter = 0;
+      var time1 = new Date().getTime();//Работа с временем. Получаем время начала парсинга.
+      $("#progress").show();
+      job = 1;
+      ajaxpars(time1, iter);
+    });
+
+    function ajaxpars(time1, iter) {
+      iter++;
+      $.ajax({
+        url: 'index.php?route=catalog/simplepars/parsajax&{{ adap['token']}}&who=pr_xml&dn_id={{ dn_id}}',
+        type: "POST",
+        data: 'pars_data_start=1',
+        dataType: "html",
+          success: function (data) {
+            answ = $.parseJSON(data);
+            console.log(answ);
+            //работа с временем
+            var time2 = new Date().getTime();//Получаем время окончания парсинга одной ссылки.
+            var time = secondsToHms(time1, time2, answ.other.clink.link_count, iter);
+            //Конец
+            if (answ.status == 'finish') {
+              $("#msg").text(answ.msg);
+                $("#msg").show();
+                $("#pross").css("width", answ.other.progress + "%");
+                $("#progress").hide();
+                $("#link_scan_count").text("Обработано ссылок: " + answ.other.clink.link_scan_count);
+                $("#link_count").text("Ссылок в очереди: " + answ.other.clink.link_count);
+              } else if (answ.status == 'go') {
+                $("#pross").css("width", answ.other.progress + "%");
+                $("#info_count").text("Спарсено: " + answ.other.clink.link_scan_count + " | В очереди: " + answ.other.clink.link_count + " | Осталось ~ " + time);
+                $("#link_scan_count").text("Обработано ссылок: " + answ.other.clink.link_scan_count);
+                $("#link_count").text("Ссылок в очереди: " + answ.other.clink.link_count);
+                agenpars(time1, iter);
+              }
+            }
+        });
+    };
+
+    function agenpars(time1, iter) {
+        $("#pars_stop").bind("click", function () {
+            $("#progress").hide();
+            job = 0;
+        });
+        if (job == 1) {
+            ajaxpars(time1, iter);
+        }
+        ;
+    };
+    //Фунция преобразования времени в Ч:М:C
+    function secondsToHms(time1, time2, slink, flink) {
+      //получаем количество потоков
+      var thread = {{ setting['thread']}};
+      flink = flink * thread;
+      var link = slink/flink;
+      time = Math.round((link*((time2 - time1)/1000)));
+      time = Number(time);
+      var h = Math.floor(time / 3600);
+      var m = Math.floor(time % 3600 / 60);
+      var s = Math.floor(time % 3600 % 60);
+
+      return ('0' + h).slice(-2) + ":" + ('0' + m).slice(-2) + ":" + ('0' + s).slice(-2);
+    }
+  });
+
+</script>
+<style>
+
+  .progress {
+    position: relative;
+    margin-top: 9px;
+  }
+
+  .progress span {
+    position: absolute;
+    display: block;
+    width: 100%;
+    color: black;
+  }
+
+  .float-right {
+    float: right !important;
+  }
+
+  label > span:after {
+    font-family: FontAwesome;
+    color: #1E91CF;
+    content: "\f059";
+    margin-left: 4px;
+  }
+</style>
+{{ footer }}

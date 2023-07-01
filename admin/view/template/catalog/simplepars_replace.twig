@@ -1,0 +1,232 @@
+{{ header }}{{ column_left }} 
+<div id="content">
+  <!-- ========== HEADER ========== -->
+  <div class="page-header">
+    <div class="container-fluid">
+      <!-- USER TOOLS -->
+      <div class="pull-right">
+        <button name="save_replace" type="submit" form="form" data-toggle="tooltip" title="" class="btn btn-primary"
+                data-original-title="Сохранить настройки">
+          <i class="fa fa-save"></i>
+        </button>
+        <button name="refresh" type="submit" form="form" data-toggle="tooltip" title="" class="btn btn-default"
+                data-original-title="Обновить страницу">
+          <i class="fa fa-refresh"></i>
+        </button>
+      </div>
+      <h1>SimplePars</h1>
+      <!-- BREADCRUMBS -->
+      <ul class="breadcrumb">
+        {% for bread in breadcrumbs %} 
+        <li>
+          <a href="{{ bread['href']}}">{{ bread['text']}}</a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div><!-- /header -->
+  <!-- ========== CONTENT ========== -->
+  <div class="container-fluid">
+    {% if (error) %} 
+    <div class="alert alert-danger">
+      <i class="fa fa-info-circle"></i>{{ error}}
+    </div>
+    {% elseif (success) %} 
+    <div class="alert alert alert-success">
+      <i class="fa fa-info-circle"></i>{{ success}}
+    </div>
+    {% endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> Редактирование проекта {{ '<b>['~setting['dn_name']~']</b>'}}</h3>
+      </div>
+      <div class="panel-body">
+        <!-- NAVIGATION -->
+        <ul class="nav nav-tabs">
+          {% for page in mpage %} 
+          <li role="presentation" class="{{ page['active']}}">
+            <a href="{{ page['href']}}" id="home-tab" role="tab" aria-controls="home"
+               aria-expanded="true">{{ page['title']}}</a>
+          </li>
+          {% endfor %}
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane active">
+            <!-- simpleparspage start -->
+            <style>
+            select{
+              height: auto !important;
+            }
+            </style>
+            <div class="col-sm-5 col-md-4 col-lg-3">
+              <div class="panel panel-default">
+                <div class="panel-heading">Выберите границу парсинга</div>
+                <div class="panel-body">
+                  <form class="form-horizontal" name="myForm" method="POST">
+                    <select class="form-control" id="" size="18" multiple onchange="window.location.href=this.options[this.selectedIndex].value">
+                      <optgroup label="Простые">
+                        {% for param in params %} 
+                        {% if (param['type'] == 1) %} 
+                        <option id="{{ param['id']}}" value="{{ get_param_href~param['id']}}"
+                                class="{{ param['class']}}">
+                                {{ param['name']~' | {gran_'~param['id']~'}'}}</option>
+                        {% endif %}
+                        {% endfor %}
+                      </optgroup>
+
+                    </select>
+                    <hr>
+                    <select class="form-control" size="18" multiple onchange="window.location.href=this.options[this.selectedIndex].value">
+                      <optgroup label="Повторяющиеся">
+                        {% for param in params %} 
+                        {% if (param['type'] == 2) %} 
+                        <option value="{{ get_param_href~param['id']}}" class="{{ param_id == param['id']?'btn btn-success btn-sm btn-block':'btn btn-default btn-sm btn-block'}}">{{ '@ '~param['name']~' | {gran_'~param['id']~'}'}}</option>
+                        {% endif %}
+                        {% endfor %}
+                      </optgroup>
+                    </select>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-7 col-md-8 col-lg-9">
+              <div class="panel panel-default">
+                <div class="panel-heading">Настройка границ парсинга 
+                  <samp class="text-danger"><b>{{ '['~param_name~']'}}</b></samp>
+                  <samp class="text-info"><b>{{ param_id != 0?'{gran_'~param_id~'}':''}}</b></samp>
+                </div>
+                <div class="panel-body">
+                  <form class="form-horizontal" id="form" method="post">
+                    <div class="form-group required">
+                      <div class="col-sm-3">
+                        <label for="replance_start">Добавить в начало</label>
+                        <input class="form-control" name="text_start" type="text"
+                               value="{{ replace['text_start']}}" id="text_start">
+                      </div>
+                      <div class="col-sm-3">
+                        <label for="replance_stop">Добавить в конец</label>
+                        <input class="form-control" name="text_stop" type="text" value="{{ replace['text_stop']}}"
+                               id="text_stop">
+                      </div>
+                      <div class="col-sm-3">
+                        <label for="replance_stop">Наценка</label>
+                        <input class="form-control" name="arithm" type="text" value="{{ replace['arithm']}}"
+                               id="arithm">
+                      </div>
+                      <div class="col-sm-3">
+                        <label for="replance_search">Захешировать значение (MD5)</label>
+                        <select class="form-control" name="hash">
+                          <option value="0"
+                          {{ replace['hash'] == 0?'selected':''}}>Не хешировать</option>
+                          <option value="4" style="color: #a94442;"
+                          {{ replace['hash'] == 4?'selected':''}}>Хешировать 4 символа (не рекомендую)</option>
+                          <option value="8"
+                          {{ replace['hash'] == 8?'selected':''}}>Хешировать 8 символов</option>
+                          <option value="9"
+                          {{ replace['hash'] == 9?'selected':''}}>Хешировать 9 символов</option>
+                          <option value="10"
+                          {{ replace['hash'] == 10?'selected':''}}>Хешировать 10 символов</option>
+                          <option value="11"
+                          {{ replace['hash'] == 11?'selected':''}}>Хешировать 11 символов</option>
+                          <option value="12"
+                          {{ replace['hash'] == 12?'selected':''}}>Хешировать 12 символов</option>
+                          <option value="13"
+                          {{ replace['hash'] == 13?'selected':''}}>Хешировать 13 символов</option>
+                          <option value="14"
+                          {{ replace['hash'] == 14?'selected':''}}>Хешировать 14 символов</option>
+                          <option value="15"
+                          {{ replace['hash'] == 15?'selected':''}}>Хешировать 15 символов</option>
+                          <option value="16"
+                          {{ replace['hash'] == 16?'selected':''}}>Хешировать 16 символов</option>
+                          <option value="17"
+                          {{ replace['hash'] == 17?'selected':''}}>Хешировать 17 символов</option>
+                          <option value="18"
+                          {{ replace['hash'] == 18?'selected':''}}>Хешировать 18 символов</option>
+                          <option value="19"
+                          {{ replace['hash'] == 19?'selected':''}}>Хешировать 19 символов</option>
+                          <option value="20"
+                          {{ replace['hash'] == 20?'selected':''}}>Хешировать 20 символов</option>
+                          <option value="21"
+                          {{ replace['hash'] == 21?'selected':''}}>Хешировать 21 символов</option>
+                          <option value="22"
+                          {{ replace['hash'] == 22?'selected':''}}>Хешировать 22 символов</option>
+                          <option value="23"
+                          {{ replace['hash'] == 23?'selected':''}}>Хешировать 23 символов</option>
+                          <option value="24"
+                          {{ replace['hash'] == 24?'selected':''}}>Хешировать 24 символов</option>
+                          <option value="25"
+                          {{ replace['hash'] == 25?'selected':''}}>Хешировать 25 символов</option>
+                          <option value="26"
+                          {{ replace['hash'] == 26?'selected':''}}>Хешировать 26 символов</option>
+                          <option value="27"
+                          {{ replace['hash'] == 27?'selected':''}}>Хешировать 27 символов</option>
+                          <option value="28"
+                          {{ replace['hash'] == 28?'selected':''}}>Хешировать 28 символов</option>
+                          <option value="29"
+                          {{ replace['hash'] == 29?'selected':''}}>Хешировать 29 символов</option>
+                          <option value="30"
+                          {{ replace['hash'] == 30?'selected':''}}>Хешировать 30 символов</option>
+                          <option value="31"
+                          {{ replace['hash'] == 31?'selected':''}}>Хешировать 31 символов</option>
+                          <option value="32"
+                          {{ replace['hash'] == 32?'selected':''}}>Хешировать 32 символов</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <div class="col-sm-12">
+                        <label for="replance_search">Правила поиск замены</label>
+                        <textarea name="rules" rows="10" class="col-sm-12 form-control">{{ replace['rules']}}</textarea>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <div class="col-md-12">
+                        <label for="replance_intxt">Исходный текст</label>
+                        <textarea name="text_give" rows="10" class="col-sm-12 form-control" {{ param_type is not empty and param_type == 2?'readonly':''}}>{{ show['text_give']}}</textarea>
+                      </div>                      
+                    </div>
+                    <div class="form-group">
+                      <div class="col-md-12">
+                        <label for="replance_fortxt">Текст после обработки</label>
+                        <textarea name="text_get" rows="10" class="col-sm-12 form-control">{{ show['text_get']}}</textarea>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <div class="col-sm-2">
+                        <button name="check_text" type="submit" form="form" class="btn btn-primary">Преобразовать</button>
+                      </div>
+                      <!--div class="col-sm-2">
+                        <button name="download_param" type="submit" class="btn btn-default">Спарсить границу</button>
+                      </div-->
+                      <div class="col-sm-3">
+                        <div class="btn-group" role="group" aria-label="...">
+                          <button type="submit" name="download_param_and_check" class="btn btn-warning">Сп+Преоб.</button>
+                          <button type="submit" name="download_param" class="btn btn-default">Спарсить границу</button>
+                        </div>
+                      </div>
+                      <div class="col-sm-3">
+                        <select name="download_link" class="form-control">
+                          <option value="0">Выберите ссылку</option>
+                          {% for link in replace_links %} 
+                          <option value="{{ link['link']}}">{{ link['link']}}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-sm-4">
+                          <input type="text" name="view_href" class="form-control" value="{{ view_href}}" placeholder="Вставьте ссылку на страницу сайта, что бы получить код">
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+
+
+            </div>
+            <!-- /simpleparspage stop-->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /content -->
+</div>
+{{ footer }} 

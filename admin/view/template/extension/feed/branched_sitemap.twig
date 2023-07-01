@@ -1,0 +1,543 @@
+{{ header }}
+<style>
+  /*for screens with 1280px - 1440px*/
+  @media (max-width: 1440px) {
+    .col-sm-2 {
+      width: 25%;
+    }
+  }
+  fieldset {
+    border: 1px solid #ccc;
+    padding: 0 15px 15px 15px;
+    margin-bottom: 30px;
+    
+  }
+  
+  fieldset legend {
+    border-bottom: 0;
+    padding-left: 15px;
+    padding-right: 15px;
+    width: auto;
+    font-size: 18px;
+  }
+  
+  .checkbox input {
+    display: inline-block;
+    margin-right: 7px;
+  }
+  
+  .hidden-toggle {
+    display: none;
+  }
+</style>
+{{ column_left }} 
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-branched-sitemap" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a></div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %} 
+        <li><a href="{{ breadcrumb['href'] }}">{{ breadcrumb['text'] }}</a></li>
+        {% endfor %} 
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if (error_warning) %} 
+    <div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> {{ error_warning }} 
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %} 
+    {% if (text_success) %} 
+    <div class="alert alert-success"><i class="fa fa-exclamation-circle"></i> {{ text_success }} 
+    </div>
+    {% endif %} 
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_edit }}</h3>
+      </div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-branched-sitemap" class="form-horizontal">
+          <!-- Licence -->
+          {% if (not valid_licence) %} 
+          <div class="form-group required" id="input-licence-wrapper">
+            <label class="col-sm-2 control-label" for="input-licence">{{ entry_licence }}</label>
+            <div class="col-sm-8">
+              <input type="text" name="feed_branched_sitemap_licence" value="{{ feed_branched_sitemap_licence }}" placeholder="{{ entry_licence }}" id="input-licence" class="form-control" />
+              {% if (errors['licence'] is defined) %}<div class="text-danger">{{ errors['licence'] }}</div>{% endif %} 
+            </div>
+            <div class="col-sm-2">
+              <button id="save-licence" class="btn btn-danger">{{ button_save_licence }}</button>
+            </div>
+          </div>
+          {% else %} 
+          <input type="hidden" name="feed_branched_sitemap_licence" value="{{ feed_branched_sitemap_licence }}" id="input-licence" />
+          {% endif %} 
+          <div id="module-work-area" {{ not valid_licence ? 'style="display: none;"' : '' }}>
+            
+            
+            <!-- Main Setting
+            =================================================================-->
+            <fieldset>
+              <legend>{{ fieldset_main }}</legend>
+              <!-- Status -->
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
+                <div class="col-sm-2">
+                  <select name="feed_branched_sitemap_status" id="input-status" class="form-control">
+                    {% if (feed_branched_sitemap_status) %} 
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %} 
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %} 
+                  </select>
+                </div>
+              </div>
+              <!-- System -->
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-system">{{ entry_system }}</label>
+                <div class="col-sm-2">
+                  <select name="feed_branched_sitemap_system" id="input-system" class="form-control">
+                    {% for system in systems %} 
+                    <option value="{{ system }}" {{ feed_branched_sitemap_system == system ? 'selected' : '' }}>{{ system }}</option>
+                    {% endfor %} 
+                  </select>
+                </div>
+              </div>
+              <!-- Сachetime -->
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-cachetime">{{ entry_cachetime }}</label>
+                <div class="col-sm-2">
+                  <select name="feed_branched_sitemap_cachetime" id="input-cachetime" class="form-control">
+                    {% for cachetime_value in cachetime_values %} 
+                    <option value="{{ cachetime_value['value'] }}" {{ feed_branched_sitemap_cachetime == cachetime_value['value'] ? 'selected' : '' }}>{{ cachetime_value['text'] }}</option>
+                    {% endfor %} 
+                  </select>
+                </div>
+              </div>
+              <!-- Multishop -->
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-multishop">{{ entry_multishop }}</label>
+                <div class="col-sm-2">
+                  <select name="feed_branched_sitemap_multishop" id="input-multishop" class="form-control">
+                    {% if (feed_branched_sitemap_multishop) %} 
+                      <option value="1" selected="selected">{{ text_yes }}</option>
+                      <option value="0">{{ text_no }}</option>
+                    {% else %} 
+                      <option value="1">{{ text_yes }}</option>
+                      <option value="0" selected="selected">{{ text_no }}</option>
+                    {% endif %} 
+                  </select>
+                </div>
+              </div>
+            </fieldset>
+                  
+                  
+            <!-- Feed
+            =================================================================-->
+            <fieldset>
+              <legend>{{ fieldset_feed }}</legend>
+              
+              <!-- Priority Category Level 1 -->
+              <div class="form-group">
+                
+                <!-- Level 1 -->
+                <label class="col-sm-2 control-label" for="input-priority-category-level-1" style="padding-top: 0;">{{ entry_priority_category_level_1 }}</label>
+                <div class="col-sm-1">
+                  <select name="feed_branched_sitemap_priority_category_level_1" id="input-priority-category-level-1" class="form-control">
+                    {% for priority in a_priority_possible %} 
+                    <option value="{{ priority }}" {{ feed_branched_sitemap_priority_category_level_1 == priority ? 'selected' : '' }}>{{ priority }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                  
+                {#<!-- Level 2 -->
+                <label class="col-sm-2 control-label" for="input-priority-category-level-2" style="padding-top: 0;">{{ entry_priority_category_level_2 }}</label>
+                <div class="col-sm-1">
+                  <select name="feed_branched_sitemap_priority_category_level_2" id="input-priority-category-level-2" class="form-control">
+                    {% for priority in a_priority_possible %} 
+                    <option value="{{ priority }}" {{ feed_branched_sitemap_priority_category_level_2 == priority ? 'selected' : '' }}>{{ priority }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                
+                <!-- Level more -->
+                <label class="col-sm-2 control-label" for="input-priority-category-level-more" style="padding-top: 0;">{{ entry_priority_category_level_more }}</label>
+                <div class="col-sm-1">
+                  <select name="feed_branched_sitemap_priority_category_level_more" id="input-priority-category-level-more" class="form-control">
+                    {% for priority in a_priority_possible %} 
+                    <option value="{{ priority }}" {{ feed_branched_sitemap_priority_category_level_more == priority ? 'selected' : '' }}>{{ priority }}</option>
+                    {% endfor %}
+                  </select>
+                </div>#}
+                  
+              </div>
+              
+              <!-- Priority Product -->
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-priority-product" style="padding-top: 0;">{{ entry_priority_product }}</label>
+                <div class="col-sm-1">
+                  <select name="feed_branched_sitemap_priority_product" id="input-priority-product" class="form-control">
+                    {% for priority in a_priority_possible %} 
+                    <option value="{{ priority }}" {{ feed_branched_sitemap_priority_product == priority ? 'selected' : '' }}>{{ priority }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+                  
+              <!-- Priority Manufacturer -->
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-priority-manufacturer" style="padding-top: 0;">{{ entry_priority_manufacturer }}</label>
+                <div class="col-sm-1">
+                  <select name="feed_branched_sitemap_priority_manufacturer" id="input-priority-manufacturer" class="form-control">
+                    {% for priority in a_priority_possible %} 
+                    <option value="{{ priority }}" {{ feed_branched_sitemap_priority_manufacturer == priority ? 'selected' : '' }}>{{ priority }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+                  
+              {% if (blog_are_present) %}
+              <!-- Priority Blog -->
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-priority-blog" style="padding-top: 0;">{{ entry_priority_blog }}</label>
+                <div class="col-sm-1">
+                  <select name="feed_branched_sitemap_priority_blog" id="input-priority-blog" class="form-control">
+                    {% for priority in a_priority_possible %} 
+                    <option value="{{ priority }}" {{ feed_branched_sitemap_priority_blog == priority ? 'selected' : '' }}>{{ priority }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              {% endif %}
+                  
+              <!-- Priority Other -->
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-priority-other" style="padding-top: 0;">{{ entry_priority_other }}</label>
+                <div class="col-sm-1">
+                  <select name="feed_branched_sitemap_priority_other" id="input-priority-other" class="form-control">
+                    {% for priority in a_priority_possible %} 
+                    <option value="{{ priority }}" {{ feed_branched_sitemap_priority_other == priority ? 'selected' : '' }}>{{ priority }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+                  
+              <!-- Feeds Urls -->              
+              <input type="hidden" name="feed_branched_sitemap_url" value="{{ feed_branched_sitemap_url }}" class="form-control" id="input-branched-sitemap-url" />
+              {% for language in languages %}
+              <input type="hidden" readonly="" name="feed_branched_sitemap_lang_flags[{{ language.language_id }}]" value="{{ feed_branched_sitemap_lang_flags[language.language_id] ? feed_branched_sitemap_lang_flags[language.language_id] : '' }}" id="feed-lang-flags-{{ language.language_id }}" />
+              {% endfor %}
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-data-feed">{{ entry_data_feed }}</label>
+                <div class="col-sm-8">
+                  <div id="feeds-urls">
+                  {% for language in languages %}
+                    <div class="input-group {% if feed_branched_sitemap_urls[language.language_id] is empty %} hidden {% endif %}"><span class="input-group-addon"><img src="language/{{ language.code }}/{{ language.code }}.png" title="{{ language.name }}" /></span>
+                      <input type="text" readonly="" name="feed_branched_sitemap_urls[{{ language.language_id }}]" value="{{ feed_branched_sitemap_urls[language.language_id] }}" class="form-control"  id="feed-url-{{ language.language_id }}" />
+                    </div>
+                    {% endfor %}
+                    <button class="btn {% if sitemap_urls_are_defined == true %} btn-warning {% else %} btn-success {% endif %} btn-sm" id="set-sitemap">{% if sitemap_urls_are_defined == true %}{{ rewrite_url_btn_2 }}{% else %}{{ rewrite_url_btn_1 }}{% endif %}</button>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Sitemapindex Status -->
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-sitemapindex-status"><span data-toggle="toggle" title="{{ help_sitemapindex_status }}">{{ entry_sitemapindex_status }}</span></label>
+                <div class="col-sm-2">
+                  <select name="feed_branched_sitemap_sitemapindex_status" id="input-sitemapindex-status" class="form-control">
+                    {% if (feed_branched_sitemap_sitemapindex_status) %} 
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %} 
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %} 
+                  </select>
+                </div>
+              </div>
+                  
+              <!-- Limit -->
+              <div class="form-group depends-on-sitemapindex {% if (not feed_branched_sitemap_sitemapindex_status) %} hidden-toggle {% endif %}">
+                <label class="col-sm-2 control-label" for="input-limit" style="padding-top: 0;"><span data-toggle="toggle" title="{{ help_limit }}">{{ entry_limit }}</span></label>
+                <div class="col-sm-2">
+                  <select name="feed_branched_sitemap_limit" id="input-limit" class="form-control">
+                    {% for limit in limits %} 
+                    <option value="{{ limit }}" {{ feed_branched_sitemap_limit == limit ? 'selected' : '' }}>{{ limit }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+                  
+              <!-- Off Description -->
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-off_description" style="padding-top: 0;"><span data-toggle="toggle" title="{{ help_off_description }}">{{ entry_off_description }}</span></label>
+                <div class="col-sm-2">
+                  <select name="feed_branched_sitemap_off_description" id="input-off_description" class="form-control">
+                    {% if (feed_branched_sitemap_off_description) %} 
+                    <option value="1" selected="selected">{{ text_yes }}</option>
+                    <option value="0">{{ text_no }}</option>
+                    {% else %} 
+                    <option value="1">{{ text_yes }}</option>
+                    <option value="0" selected="selected">{{ text_no }}</option>
+                    {% endif %} 
+                  </select>
+                </div>
+              </div>
+              
+              {% if (blog_are_present) %}
+              <!-- Blogs -->
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ entry_blogs }}</label>
+                <div class="col-sm-4">
+                  <div class="well" style="max-height: 300px; overflow: auto;">
+                  {% for key, value in blogs_possible %}
+                    <div class="checkbox"><label><input type="checkbox" name="feed_branched_sitemap_blogs[{{ key }}]" value="1" {% if (feed_branched_sitemap_blogs[key] == 1) %}checked="checked"{% endif %}/>{{ value }}</label></div>
+                  {% endfor  %}
+                  </div>
+                </div>
+              </div>
+              {% endif %}
+                  
+            </fieldset>
+            
+                
+            <!-- Feed With Image            
+            =================================================================-->
+            <fieldset>
+              <legend>{{ fieldset_feed_image }}</legend>
+              <div class="row">
+                <div class="col-sm-10"><div class="alert alert-info">{{ alert_feed_image }}</div></div>
+              </div>
+              
+              <!-- Image Status -->
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-image-status">{{ entry_image_status }}</label>
+                <div class="col-sm-2">
+                  <select name="feed_branched_sitemap_image_status" id="input-image-status" class="form-control">
+                    {% if (feed_branched_sitemap_image_status) %} 
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %} 
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %} 
+                  </select>
+                </div>
+              </div>
+                  
+              <!-- Off Check Image File -->
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-off_check_image_file" style="padding-top: 0;"><span data-toggle="toggle" title="{{ help_off_check_image_file }}">{{ entry_off_check_image_file }}</span></label>
+                <div class="col-sm-2">
+                  <select name="feed_branched_sitemap_off_check_image_file" id="input-off_check_image_file" class="form-control">
+                    {% if (feed_branched_sitemap_off_check_image_file) %} 
+                    <option value="1" selected="selected">{{ text_yes }}</option>
+                    <option value="0">{{ text_no }}</option>
+                    {% else %} 
+                    <option value="1">{{ text_yes }}</option>
+                    <option value="0" selected="selected">{{ text_no }}</option>
+                    {% endif %} 
+                  </select>
+                </div>
+              </div>
+                  
+              <!-- WebP Status -->
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-webp-status"><span data-toggle="toggle" title="{{ help_webp_status }}">{{ entry_webp_status }}</span></label>
+                <div class="col-sm-2">
+                  <select name="feed_branched_sitemap_webp_status" id="input-webp-status" class="form-control">
+                    {% if (feed_branched_sitemap_webp_status) %} 
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %} 
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %} 
+                  </select>
+                </div>
+              </div>
+                  
+              <!-- Require Image Caption -->
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-require_image_caption" style="padding-top: 0;"><span data-toggle="toggle" title="{{ help_require_image_caption }}">{{ entry_require_image_caption }}</span></label>
+                <div class="col-sm-2">
+                  <select name="feed_branched_sitemap_require_image_caption" id="input-require_image_caption" class="form-control">
+                    {% if (feed_branched_sitemap_require_image_caption) %} 
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %} 
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %} 
+                  </select>
+                </div>
+              </div>
+                  
+            </fieldset>
+                
+            
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="copywrite" style="padding: 10px 10px 0 10px; border: 1px dashed #ccc;">
+    	<p>
+    		&copy; {{ text_author }}: <a href="https://bit.ly/3QVQqwd" target="_blank">Serge Tkach</a>
+    		<br/>
+				{{ text_author_support }}: <a href="https://support.sergetkach.com/category/details/3.html" target="_blank">https://support.sergetkach.com/category/details/3.html</a>
+    		<br/>
+				{{ text_module_version }}: <span style="font-weight: bold;">1.13.7</span>
+    		<br/>
+				{{ text_system_version }}: <span style="font-weight: bold;">3.x</span>
+    	</p>
+    </div>
+  </div>
+</div>
+      
+<!-- Modal -->
+<div class="modal fade" id="sitemapModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">{{ modal_title }}</h4>
+      </div>
+      <div class="modal-body">
+        <div id="form-set-sitemap-answer"></div>
+        <form id="form-set-sitemap" class="form hide-if-success-response" method="post">
+          <!-- Sitemap Url -->
+          <div class="form-group">
+            <label class="control-label" for="input-sitemap-url">{{ modal_input_seo_url }}</label>
+            <input type="text" name="sitemap_url" value="" class="form-control" id="input-sitemap-url" />
+          </div>
+          {% if is_multilingual == true %}
+          <!-- Language URL -->
+          <div class="form-group">
+            <label class="control-label" for="input-language-flag">{{ modal_language_url }}</label>
+            <div class="">
+              {% for language in languages %}
+              <div class="input-group"><span class="input-group-addon"><img src="language/{{ language.code }}/{{ language.code }}.png" title="{{ language.name }}" /></span>
+                <input type="text" name="language_url[{{ language.language_id }}]" value="{{ feed_branched_sitemap_home_urls[language.language_id] }}" class="form-control" />
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+          <div class="row">
+            <div class="col-sm-12">
+              <button type="button" class="btn btn-primary pull-right" id="add-sitemap-to-htaccess">{{ modal_btn }}</button>
+            </div>
+          </div>
+        </form>        
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<script>
+  var target_feed_id = '';
+  
+  $('#set-sitemap').click(function(e) {
+    e.preventDefault();
+    
+    $('.hide-if-success-response').show();
+    
+    $('#form-set-sitemap-answer').html('');
+
+    $('#input-sitemap-url').val('{{ feed_branched_sitemap_url }}');
+    
+    target_feed_id = '#feed-url-';
+    
+    $('#sitemapModal').modal('toggle');
+  });
+  
+  $('#add-sitemap-to-htaccess').click(function(e) {
+    e.preventDefault();
+    
+    $('#input-branched-sitemap-url').val($('#input-sitemap-url').val());
+        
+    var serializeFormData = $('#form-set-sitemap').serialize();
+
+    $.ajax({
+      url: 'index.php?route=extension/feed/branched_sitemap/addSitemapRewriteUrl&user_token={{ user_token }}',
+      type: 'POST',
+      dataType: 'json',
+      data: serializeFormData,
+      beforeSend: function() {
+        $('#add-sitemap-to-htaccess').prop('disabled', true);
+      },
+      success: function (json) {
+        console.log('success ajax request');
+        if (json['success']) {
+          console.log('success result');
+          
+          $('.hide-if-success-response').hide();
+          
+          $('#form-set-sitemap-answer').html('<div class="alert alert-success">' + json['success'] + '</div>');
+          
+          console.log('feeds_urls');
+          console.debug(json['feeds_urls']);
+          
+          $.each( json['feeds_urls'], function(language_id, feed) {
+            $(target_feed_id + language_id).parent('.input-group').removeClass('hidden');
+            
+            console.log('---');
+            console.log('language_id: ' + language_id);
+            console.log('feed: ' + feed);
+            $(target_feed_id + language_id).val(feed);
+            
+          });
+          
+          if (undefined !== json['lang_flags']) {        
+            $.each( json['lang_flags'], function(language_id, flag) {
+              $('#feed-lang-flags-' + language_id).val(flag);
+            });          
+          }
+          
+          setTimeout(function() {
+            autoSave();
+          }, 100);
+          
+        } else {
+          console.log('error');
+          $('#form-set-sitemap-answer').html('<div class="alert alert-danger"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' + json['error'] + '</div>');
+        }
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        // Error ajax query
+        console.log('AJAX query Error: ' + textStatus);
+      },
+      complete: function() {
+        $('#add-sitemap-to-htaccess').prop('disabled', false);
+      }
+    });
+  });
+  
+  
+  function autoSave() {
+    var serializeFormData = $('#form-branched-sitemap').serialize();
+    
+    $.ajax({
+      url: 'index.php?route=extension/feed/branched_sitemap/autoSave&user_token={{ user_token }}',
+      type: 'POST',
+      data: serializeFormData
+    });
+  }
+  
+  $('#input-sitemapindex-status').change(function() {
+    if ($(this).val() != 1) {
+      $('.depends-on-sitemapindex').slideUp();
+    } else {
+      $('.depends-on-sitemapindex').slideDown();
+    }
+  });
+
+</script>
+{{ footer }}

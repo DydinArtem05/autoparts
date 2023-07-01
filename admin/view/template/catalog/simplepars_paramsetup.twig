@@ -1,0 +1,535 @@
+{{ header }}{{ column_left }} 
+<div id="content">
+  <!-- ========== HEADER ========== -->
+  <div class="page-header">
+    <div class="container-fluid">
+      <!-- USER TOOLS -->
+      <div class="pull-right">
+        <form class="form-horizontal" id="form_r" method="POST">
+          <button name="update_grab" type="submit" name="form_r" data-toggle="tooltip" title="" class="btn btn-info" data-original-title="Обновить страницу"><i class="fa fa-refresh"></i></i>
+          </button>
+        </form>
+      </div>
+      <h1>SimplePars</h1>
+      <!-- BREADCRUMBS -->
+      <ul class="breadcrumb">
+        {% for bread in breadcrumbs %} 
+        <li><a href="{{ bread['href']}}">{{ bread['text']}}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div><!-- /header -->
+  <!-- ========== CONTENT ========== -->
+  <div class="container-fluid">
+    {% if (error) %} 
+    <div class="alert alert-danger">
+      <i class="fa fa-info-circle"></i>{{ error}}
+    </div>
+    {% elseif (success) %} 
+    <div class="alert alert alert-success">
+      <i class="fa fa-info-circle"></i>{{ success}}
+    </div>
+    {% endif %}
+    <div class="alert alert alert-danger" hidden id="msg">
+      <i class="fa fa-info-circle"></i>{{ text_grab_link_and}}
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> Редактирование проекта {{ '<b>['~setting['dn_name']~']</b>'}}</h3>
+      </div>
+      <div class="panel-body">
+        <!-- NAVIGATION -->
+        <ul class="nav nav-tabs">
+          {% for page in mpage %} 
+          <li role="presentation" class="{{ page['active']}}">
+            <a href="{{ page['href']}}" id="home-tab" role="tab" aria-controls="home" aria-expanded="true">
+              {{ page['title']}}
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane active">
+            <!-- simpleparspage start -->
+            <div class="well">
+              <div class="row">
+                <div class="col-md-6">
+                  <form class="form-horizontal" id="form" method="POST">
+                    <label for="firstname">Название границ</label>
+                    <div class="input-group">
+                      <input id="param_name" type="text" name="param_name" class="form-control" value="{{ activ_param['name']}}">
+                      <span class="input-group-btn">
+                        <button id="act" name="act" value="new" type="button" class="btn btn-success" data-toggle="tooltip"
+                          data-placement="top" title="Добавить / Сохранить">
+                          <i id="fa-save" class="fa fa-plus-circle" aria-hidden="true"> Добавить</i>
+                        </button>
+                      </span>
+                    </div>
+                    <hr />
+                    <input type="hidden" id="param_id" name="param_id" value="{{ activ_param['id']}}">
+                    <label for="basic-url">Текст начала парсинга</label>
+                    <input id="param_start" type="text" name="param_start" class="form-control" value="{{ activ_param['start']}}">
+                    <hr>
+                    <label>Текст конца парсинга</label>
+                    <input type="text" id="param_stop" name="param_stop" class="form-control" value="{{ activ_param['stop']}}">
+                    <hr>
+                    <div class="row">
+                      <div class="col-sm-6 col-md-6" style="position: 21px;top: 21px;">
+                        <div class="btn-group" role="group" aria-label="...">
+                          <button id="get_piece_code" type="button" name="piece_code" value="go" class="btn btn-success">Пред просмотр границы</button>
+                          <button id="return_code" type="button" class="btn btn-warning">Отмена</button>
+                        </div>
+                      </div>
+                  </form>
+                  <form class="form-horizontal" id="form_preview" method="POST">
+                      <div class="col-md-3">
+                        <label>Показывать превью</label>
+                        <select name="pre_view_param" id="pre_view_param" class="form-control">
+                          <option value="1" {{ setting['pre_view_param'] == 1?'selected':''}}>Да</option>
+                          <option value="0" {{ setting['pre_view_param'] == 0?'selected':''}}>Нет</option>
+                        </select>
+                      </div>
+                      <div class="col-md-3">
+                        <label>Подсветка синтаксиса</label>
+                        <select name="pre_view_syntax" id="pre_view_syntax" class="form-control">
+                          <option value="1" {{ setting['pre_view_syntax'] == 1?'selected':''}}>Да</option>
+                          <option value="0" {{ setting['pre_view_syntax'] == 0?'selected':''}}>Нет</option>
+                        </select>
+                      </div>
+                    </div>
+                    <hr>
+                  </form>
+                </div>
+                <div class="col-md-6">
+                  <form class="form-horizontal" name="myForm" method="POST">
+                    <label>Выбор границы парсинга</label>
+                    <div class="input-group">
+                      <select id="get_param_id" name="get_param_id" class="form-control">
+                        <option value="0">Создать новую границу парсинга</option>
+                        {% for param in params %} 
+                        <option value="{{ param['id']}}" {% if (activ_param['id'] is not empty and activ_param['id'] == param['id']) %}{{ 'selected' }}{% endif %}>
+                          {{ param['type'] == 1 ? param['name']~' | {gran_'~param['id']~'}' : '@ '~param['name']~' |{gran_'~param['id']~'}'}}
+                        </option>
+                        {% endfor %}
+                      </select>
+                      <div class="input-group-btn">
+                        <button type="submit" name="copy_param" value="yes" class="btn btn-warning" data-toggle="tooltip" data-placement="top" title="Копировать границу парсинга">
+                          <i class="fa fa-files-o" aria-hidden="true"></i>
+                        </button>
+                      </div>
+                      <div class="input-group-btn">
+                        <button type="submit" name="del_param" value="yes" class="btn btn-danger" data-toggle="tooltip" data-placement="top" title="Удалить границу">
+                          <i class="fa fa-minus-circle" aria-hidden="true"> Удалить</i>
+                        </button>
+                      </div>
+                    </div>
+                    <hr />
+                    <label>Тип границы парсинга</label>
+                    <select id="type_param" name="type_param" class="form-control" form="form">
+                      <option value="1">Обычная граница парсинга</option>
+                      <option value="2" {{ menup['type_param'] == 2 or activ_param is not empty and activ_param['type'] == 2 ? 'selected' : '' }}>@ Повторяющаясь граница парсина</option>
+                    </select>
+                    <hr>
+                    <div class="row">
+                      <div class="col-sm-4 col-md-4">
+                        <label>Парсить с границами</label>
+                        <select id="with_teg" name="with_teg" class="form-control" form="form">
+                          <option value="1" {{ activ_param['with_teg'] is defined and activ_param['with_teg'] == 1?'selected':''}}>Нет</option>
+                          <option value="0" {{ activ_param['with_teg'] is defined and activ_param['with_teg'] == 0?'selected':''}}>Да</option>
+                        </select>
+                      </div>
+                      <div class="col-sm-4 col-md-4">
+                        <label>Пропустить вхождения</label>
+                        <input id="skip_enter" name="skip_enter" class="form-control" type="text" value="{{ activ_param['skip_enter'] is empty?0:activ_param['skip_enter']}}" form="form">
+                      </div>
+                      <div class="col-sm-4 col-md-4">
+                        <label>Где пропускать</label>
+                        <select id="skip_where" name="skip_where" class="form-control" form="form">
+                          <option value="1" {{ activ_param['skip_where'] is not empty and activ_param['skip_where'] == 1?'selected':''}}>С начала</option>
+                          <option value="2" {{ activ_param['skip_where'] is not empty and activ_param['skip_where'] == 2?'selected':''}}>С конца</option>
+                          <option value="3" {{ activ_param['skip_where'] is not empty and activ_param['skip_where'] == 3?'selected':''}}>С начала и с конца</option>
+                        </select>
+                      </div>
+                    </div>
+                    <hr />
+                    <div id="type_hidden" class="row" hidden>
+                      <div class="col-sm-6 col-md-4">
+                        <label>Область для повторяющей</label>
+                        <select id="base_id" name="base_id" class="form-control" form="form">
+                          <option value="0">Весь html Документ</option>
+                          {% for param in params %}
+ {% if (param['type'] == 1) %} 
+                              <option {% if (activ_param['base_id'] is not empty and activ_param['base_id'] == param['id']) %}{{ 'selected' }}{% endif %}
+                            value="{{ param['id']}}">{{ param['name']}}</option>
+                          {% endif %}{% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-sm-3 col-md-4">
+                        <label>Разделитель</label>
+                        <input id="delim" name="delim" class="form-control" type="text" value="{{ activ_param['delim'] is empty?'{csvnc}':activ_param['delim']}}" form="form">
+                      </div>
+                      <div class="col-sm-3 col-md-4">
+                        <label>Порядок вывода</label>
+                        <select id="reverse" name="reverse" class="form-control" form="form">
+                          <option value="0" {{ activ_param['reverse'] is not empty and activ_param['reverse'] == 0?'selected':''}}>Нормальный</option>
+                          <option value="1" {{ activ_param['reverse'] is not empty and activ_param['reverse'] == 1?'selected':''}}>Обратный</option>
+                        </select>
+                      </div>
+                    </div>
+                    <hr>
+                  </form>
+                </div>
+              </div>
+              <div class="row">
+                <form class="form-horizontal" method="POST">
+                  <div class="col-sm-2">
+                    <button type="submit" class="btn btn-default">Загрузить страницу</button>
+                  </div>
+                  <div class="col-sm-7">
+                    <input type="text" id="view_href" name="view_href" class="form-control" value="{{ view_link}}" placeholder="Вставьте ссылку на страницу сайта, что бы получить код">
+                  </div>
+                  <div class="col-sm-1">
+                    {% if (view_link is not empty) %}
+                    <a href="{{ view_link}}" target="_blank" class="btn btn-default"><i class="fa fa-link"></i></a>
+                    {% endif %}
+                  </div>
+                </form>
+                <form class="form-horizontal" id="form_cache" method="POST">
+                  <div class="col-md-2">
+                    <select name="cache_page" id="cache_page" class="form-control">
+                      <option value="0" {{ browser['cache_page'] == 0?'selected':''}}>Не использовать кэш</option>
+                      <option value="1" {{ browser['cache_page'] == 1?'selected':''}}>Создавать/Использовать кэш если есть</option>
+                      <option value="2" {{ browser['cache_page'] == 2?'selected':''}}>Парсить и обновлять кэш</option>
+                    </select>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-10">
+                <!--подсветка синтаксиса-->
+                <style>
+                  iframe {
+                    margin: 0 auto;
+                    display: block;
+                    border: 1px solid #ccc;
+                  }
+
+                  select {
+                    height: 900px;
+                    /* Ширина списка в пикселах */
+                  }
+
+                  li.L0,
+                  li.L1,
+                  li.L2,
+                  li.L3,
+                  li.L5,
+                  li.L6,
+                  li.L7,
+                  li.L8 {
+                    list-style-type: decimal !important
+                  }
+                </style>
+                {% if (setting['pre_view_syntax']) %}
+                <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+                {% endif %}
+                <!--Подсветка синтаксиса-->
+                <pre id="pre_code" style="max-height: {{ setting['pre_view_param'] == 1?'500px;':'1000px;'}} overflow: auto; padding: 5px" title="Code block"><code id="page_code" class="{{ setting['pre_view_syntax']?'prettyprint lang-html linenums':''}}">{{ page_code}}</code><code id="piece_code" hidden></code></pre>
+                
+                <iframe id="iframe" style="{{ setting['pre_view_param'] == 1?'display:on':'display:none' }}" width="100%" height="700" class="" src="" name="iframe" scrolling="auto" allowfullscreen></iframe>
+
+              </div>
+              <div class="col-md-2">
+                <div class="panel panel-default" style="max-height: 1158px; overflow: auto;">
+                  <ul class="list-unstyled" style="white-space: nowrap;">
+                     {% for key,href in hrefs %} 
+                    <li>
+                      <span>[<a title="Открыть страницу в новом окне браузера" target="_blank" href="{{ href['link']}}">{{ key}}</a>] </span>
+                      <span><a title="Просмотр кода этой страницы" href="{{ view_href~href['id']}}">{{ href['link']}}</a>
+                      </span>
+                    </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <!-- /simpleparspage stop-->
+          </div>
+        </div>
+        </form>
+      </div>
+    </div>
+  </div><!-- /content -->
+</div>
+<script>
+    $(document).ready(function () {
+
+      var type = $("#type_param").val();
+      if(type == 2) {
+        $("#type_hidden").show();
+      }else{
+        $("#type_hidden").hide();
+      }
+
+      $("#act").bind("click", function () {
+        var value = getValue();
+
+        if(value.param_id == value.base_id){
+          $("#msg").text("Не правильно выбрана Область для повторяющей");
+          $("#msg").show();
+        }else{
+          ajaxPut(value);
+        }
+      });
+
+      $("#get_param_id").bind("change", function () {
+        var value = {};
+        value.get_param_id = $("#get_param_id").val();
+        //Предупреждения нельзя выбрать границу для повторений.
+        $("#msg").hide()
+
+        if(value.get_param_id == 0){
+          DefultValue()
+        }else{
+          ajaxGet(value);
+        }
+
+      });
+
+      $("#type_param").bind("change", function () {
+        var type_param = $("#type_param").val();
+
+        if(type_param == 2) {
+          $("#type_hidden").show();
+        }else{
+          $("#type_hidden").hide();
+        }
+
+        var param_id = {};
+        param_id = $("#get_param_id").val();
+        console.log(param_id);
+      });
+
+      $("#base_id").bind("change", function () {
+        $("#msg").hide()
+      });
+
+      $("#get_piece_code").bind("click", function () {
+        var value = getValue();
+        delete value.act;
+        value.piece_code = "go";
+        value.link = $("#view_href").val();
+
+        if(value.link == ""){
+          $("#msg").text(" не выбранная ссылка для пред просмотра.");
+          $("#msg").show();
+        }else{
+          var code = ajaxGetCode(value);
+          $("#page_code").hide();
+          $("#piece_code").text(code);
+          $("#piece_code").show();
+        }
+      });
+
+      $("#return_code").bind("click", function () {
+        $("#piece_code").hide();
+        $("#page_code").show();
+      });
+      
+      $("#cache_page").bind("change", function () {
+        var value = {};
+        value.do = 'cache_page';
+        value.cache_page = $("#cache_page").val();
+        //Предупреждения нельзя выбрать границу для повторений.
+        ajaxSelect(value);
+      });
+
+      $("#pre_view_syntax").bind("change", function () {
+        var value = {};
+        value.do = 'pre_view_syntax';
+        value.pre_view_syntax = $("#pre_view_syntax").val();
+        //Предупреждения нельзя выбрать границу для повторений.
+        ajaxSelect(value);
+
+      });
+
+      //проверяем нужно ли выводить iframe если да то выводим.
+      if($("#pre_view_param").val() == 1){
+        $('iframe').attr('src', "{{ view_link}}");
+      }
+
+      $("#pre_view_param").bind("change", function () {
+        var value = {};
+        value.do = 'pre_view_param';
+        value.pre_view_param = $("#pre_view_param").val();
+        //Предупреждения нельзя выбрать границу для повторений.
+        ajaxSelect(value);
+        if(value.pre_view_param == 0){
+          $("#pre_code").attr("style", "max-height: 1000px; overflow: auto; padding: 5px");
+          $("#iframe").attr("style", "display:none");
+          $('iframe').attr('src', "");
+        }else{
+          $("#pre_code").attr("style", "max-height: 500px; overflow: auto; padding: 5px");
+          //если было выключен пред просмотр iframe а потом включили, то загружаем его.
+          $('iframe').attr('src', "{{ view_link}}");
+          $("#iframe").attr("style", "display:on");
+        }
+      
+      });
+
+      $("#pre_view_param").bind("change", function () {
+        $('iframe').attr('src', "{{ view_link}}");
+      });
+
+      function addValue(data){
+        var param = $.parseJSON(data);
+        if(param.type == 2){
+          $("#type_hidden").show();
+        }else{
+          $("#type_hidden").hide();
+        }
+
+        if(param.id > 0){
+          $("#act").attr('class', 'btn btn-warning');
+          $("#act").val(param.id);
+          $("#fa-save").attr('class', 'fa fa-save');
+          $("#fa-save").text(' Обновить');
+
+        }else{
+          $("#act").attr('class', 'btn btn-success');
+          $("#act").val('new');
+          $("#type_param").val("1");
+          $("#fa-save").attr('class', 'fa fa-plus-circle');
+          $("#fa-save").text(' Добавить');
+        }
+
+        $("#param_name").val(param.name);
+        $("#param_id").val(param.id);
+        $("#param_start").val(param.start);
+        $("#param_stop").val(param.stop);
+        $("#type_param").val(param.type);
+        $("#with_teg").val(param.with_teg);
+        $("#skip_enter").val(param.skip_enter);
+        $("#skip_where").val(param.skip_where);
+        $("#base_id").val(param.base_id);
+        $("#delim").val(param.delim);
+        $("#reverse").val(param.reverse);
+
+      }
+
+      function DefultValue(){
+        $("#type_hidden").hide();
+        $("#act").attr('class', 'btn btn-success');
+        $("#act").val('new');
+        $("#fa-save").attr('class', 'fa fa-plus-circle');
+        $("#fa-save").text(' Добавить');
+
+        $("#param_name").val("");
+        $("#param_id").val("");
+        $("#param_start").val("");
+        $("#param_stop").val("");
+        $("#type_param").val("1");
+        $("#with_teg").val("1");
+        $("#skip_enter").val("0");
+        $("#skip_where").val("1");
+        $("#base_id").val("0");
+        $("#delim").val("{csvnc}");
+        $("#reverse").val("0");
+      }
+
+      function getValue(){
+        var value = {};
+        value.param_name = $("#param_name").val();
+        value.act = $("#act").val();
+        value.param_id  = $("#param_id").val();
+        value.param_start  = $("#param_start").val();
+        value.param_stop  = $("#param_stop").val();
+        value.type_param  = $("#type_param").val();
+        value.with_teg  = $("#with_teg").val();
+        value.skip_enter  = $("#skip_enter").val();
+        value.skip_where  = $("#skip_where").val();
+        value.base_id  = $("#base_id").val();
+        value.delim  = $("#delim").val();
+        value.reverse  = $("#reverse").val();
+        //console.log(value);
+        return value;
+      }
+
+      function addNewSelect(data){
+        var param = $.parseJSON(data);
+        if(param.type == 2){
+          param.name = '@'+param.name;
+        }
+        $("#get_param_id").append(new Option(param.name + ' | {gran_'+param.id+'}', param.id));
+
+        if(param.type == 1){
+          $("#base_id").append(new Option(param.name + ' | {gran_'+param.id+'}', param.id));
+        }
+
+      }
+
+      function ajaxPut(value) {
+        $.ajax({
+          url: 'index.php?route=catalog/simplepars/ajax&who=paramsetup&{{ adap['token']}}&dn_id={{ dn_id}}',
+          type: "POST",
+          data: value,
+          dataType: "html",
+          success: function (data) {
+            //console.log(data);
+            if (data == "save_param") {
+              console.log('Настройка сохранена.');
+            }else{
+              addNewSelect(data);
+              DefultValue();
+            }
+          }
+        });
+      };
+      //выбор переключателей, кеширование, синтаксис, iframe
+      function ajaxSelect(value) {
+        console.log(value);
+        $.ajax({
+          url: 'index.php?route=catalog/simplepars/ajax&who=paramsetup&{{ adap['token']}}&dn_id={{ dn_id}}',
+          type: "POST",
+          data: value,
+          dataType: "html",
+          success: function (data) {
+          }
+        });
+      };
+
+
+      function ajaxGet(value) {
+        $.ajax({
+          url: 'index.php?route=catalog/simplepars/ajax&who=paramsetup&{{ adap['token']}}&dn_id={{ dn_id}}',
+          type: "POST",
+          data: value,
+          dataType: "html",
+          success: function (data) {
+            if (Object.keys(data).length == 0) {
+              console.log('пуст');
+            }else{
+              addValue(data);
+            }
+          }
+        });
+      };
+
+      function ajaxGetCode(value) {
+        var retVal;
+        $.ajax({
+          url: 'index.php?route=catalog/simplepars/ajax&who=paramsetup&{{ adap['token']}}&dn_id={{ dn_id}}',
+          type: "POST",
+          data: value,
+          async: false,
+          dataType: "html",
+          success: function (data) {
+            retVal = data;
+          }
+        });
+        return retVal;
+      };
+    });
+</script>
+{{ footer }} 

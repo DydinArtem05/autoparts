@@ -1,0 +1,123 @@
+{{ header }}{{ column_left }} 
+<div id="content">
+  <!-- ========== HEADER ========== -->
+  <div class="page-header">
+    <div class="container-fluid">
+      <!-- USER TOOLS -->
+      <div class="pull-right">
+        <button type="button" class="btn btn-default" onClick="window.location.reload();" title="Обновить логи"><i
+                  class="fa fa-refresh"></i>
+        </button>
+      </div>
+      <h1>SimplePars</h1>
+      <!-- BREADCRUMBS -->
+      <ul class="breadcrumb">
+        {% for bread in breadcrumbs %} 
+        <li><a href="{{ bread['href']}}">{{ bread['text']}}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div><!-- /header -->
+  <!-- ========== CONTENT ========== -->
+  <div class="container-fluid">
+    {% if (error) %} 
+    <div class="alert alert-danger">
+      <i class="fa fa-info-circle"></i>{{ error}}
+    </div>
+    {% elseif (success) %} 
+    <div class="alert alert alert-success">
+      <i class="fa fa-info-circle"></i>{{ success}}
+    </div>
+    {% endif %}
+    <div class="alert alert alert-success" hidden id="msg">
+      <i class="fa fa-info-circle"></i>{{ text_grab_link_and}}
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> Редактирование проекта {{ '<b>['~setting['dn_name']~']</b>'}}</h3>
+      </div>
+      <div class="panel-body">
+        <form method="post" enctype="multipart/form-data" id="form" class="form-horizontal">
+          <!-- NAVIGATION -->
+          <ul class="nav nav-tabs">
+            {% for page in mpage %} 
+            <li role="presentation" class="{{ page['active']}}">
+              <a href="{{ page['href']}}" id="home-tab" role="tab" aria-controls="home" aria-expanded="true">
+                {{ page['title']}}
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+          <div class="tab-content">
+            <div class="tab-pane active">
+              <!-- simpleparspage start -->
+              <div class="form-group">
+                <div class="col-sm-5">
+                  <div class="input-group">
+                    <label class="input-group-btn" >
+                      <input name="import" type="file" class="main_input_file"/>
+                      <div class="btn btn-default">Выбрать файл…</div>
+                    </label>
+                    <input type="text" class="form-control" id="import" value="Файл не выбран." readonly>
+                    <span class="input-group-btn">
+                    <button class="btn btn-info" type="submit" name="sub_import">
+                      <i class="fa fa-download" aria-hidden="true"></i> Импорт
+                    </button>
+                  </span>
+                  </div>
+                  <script>
+                      $(document).ready(function () {
+                          $(".main_input_file").change(function () {
+                              var f_name = [];
+                              for (var i = 0; i < $(this).get(0).files.length; ++i) {
+                                  f_name.push(" " + $(this).get(0).files[i].name);
+                              }
+                              $("#import").val(f_name.join(", "));
+                          });
+                      });
+                  </script>
+                  <style>
+                    input[type="file"] {
+                      display: none;
+                    }
+                  </style>
+                </div>
+                <div class="col-sm-5">
+                  <div class="input-group">
+                <span class="input-group-btn">
+                  <button class="btn btn-warning" name="dw_form" type="submit">
+                    <i class="fa fa-upload" aria-hidden="true"></i> Экспорт
+                  </button>
+                </span>
+                    <select class="form-control" id="select-action-1" name="links">
+                      <option value="0">Настройки без ссылок</option>
+                      <option value="1">Настройки и ссылки на товар</option>
+                      <option value="2">Настройки и ссылки очереди сканирования</option>
+                      <option value="3" selected>Настройки и все ссылки</option>
+                      <option value="4" style="color: #a94442;">Настройки и все ссылки, прокси, настройки авторизации. (Полный экспорт)</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-sm-2">
+                  <button name="clear_project" value="1" type="submit" class="btn btn-danger" onclick="return confirm('Вы уверены что хотите полностью сбросить настройки проекта ? ')">Сброс настроек проекта</button>
+                </div>
+              </div>
+              <div class="alert alert-info" role="alert">
+                При помощи данной функции вы можете: <br>
+                1. Переносить настройки между разными проектами. <br>
+                2. Сохранять форму на разном этапе настройки. <br>
+                3. Делится вашими настройками с другим пользователями сообщества. <br>
+                <br>
+                Просьба<br>
+                Если у вас не получается что то настроить и вы хотите получить помощь, сделайте экспорт формы и
+                отправьте её вместе с вашими вопросом. <br>
+              </div>
+              <!-- /simpleparspage stop-->
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div><!-- /content -->
+</div>
+{{ footer }} 

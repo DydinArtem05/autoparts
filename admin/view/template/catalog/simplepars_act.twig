@@ -1,0 +1,48 @@
+{{ header }}{{ column_left }} 
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      {% if (error) %} 
+      <div class="alert alert-danger">
+        <i class="fa fa-info-circle"></i>{{ error}}
+      </div>
+      {% elseif (success) %}
+      <div class="alert alert-success">
+        <i class="fa fa-info-circle"></i>{{ success}}
+      </div>  
+      {% elseif (success_act) %}
+      <div class="alert alert-success">
+        <i class="fa fa-info-circle"></i>{{ success_act}}
+      </div> 
+      {% endif %}
+      <h2><strong>Работа с лицензией модуля</strong></h2><br>
+      <form class="form-horizontal" id="form_show" method="POST">
+      <div class="row">
+        <div class="col-md-1">
+          <input form="form_show" class="btn btn-success" type="submit" name="activ" value="Активировать">
+        </div>
+        <div class="col-sm-7">
+          <input type="text" name="hash" class="form-control" value="" placeholder="Вставьте лицензионный ключ">
+        </div>
+        <div class="col-md-1">
+          <input form="form_show" class="btn btn-danger" type="submit" name="de_activ" value="Сбросить лицензию">
+        </div>
+      </div>
+      </form>
+      <br>
+      <div class="row">
+        <div class="col-sm-12 col-lg-12">
+          <div class="alert alert-info" role="alert">
+            <h3>Как получить лицензионный ключ?</h3>
+
+            <p>После того как вы приобрели лицензию модуля SimplePars вам необходимо написать в запрос на получения лицензионного ключа разработчику модуля "Rassol2" - <a target="_blank" href="https://opencartforum.com/profile/23826-rassol2/">https://opencartforum.com/profile/23826-rassol2/</a><br>
+            Писать необходимо с аккаунта с которого был приобретен модуль.</p>
+            <br>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{ footer }}

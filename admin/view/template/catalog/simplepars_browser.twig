@@ -1,0 +1,648 @@
+{{ header }}{{ column_left }} 
+<div id="content">
+  <style>
+    .progress {
+      position: relative;
+      margin-top: 9px;
+    }
+
+    .progress span {
+      position: absolute;
+      display: block;
+      width: 100%;
+      color: black;
+    }
+  </style>
+  <form method="post" enctype="multipart/form-data" id="form-proxy-list" class="form-horizontal"></form>
+  <form method="post" enctype="multipart/form-data" id="form-browser" class="form-horizontal">
+  <!-- ========== HEADER ========== -->
+  <div class="page-header">
+    <div class="container-fluid">
+      <!-- USER TOOLS -->
+      <div class="pull-right">
+        <input name="save_browser" value="Сохранить" type="submit" data-toggle="tooltip" class="btn btn-primary" data-original-title="Сохранить настройки">
+        <button name="update_browser" type="submit" form="form-browser" data-toggle="tooltip" class="btn btn-info" data-original-title="Обновить страницу">
+          <i class="fa fa-refresh"></i>
+        </button>
+      </div>
+      <h1>SimplePars</h1>
+      <!-- BREADCRUMBS -->
+      <ul class="breadcrumb">
+        {% for bread in breadcrumbs %}
+        <li><a href="{{ bread['href']}}">{{ bread['text']}}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div><!-- /header -->
+  <!-- ========== CONTENT ========== -->
+  <div class="container-fluid">
+    {% if (error) %} 
+    <div class="alert alert-danger">
+      <i class="fa fa-info-circle"></i>{{ error}}
+    </div>
+    {% elseif (warning) %} 
+    <div class="alert alert-warning">
+      <i class="fa fa-info-circle"></i>{{ warning}}
+    </div>
+    {% endif %}
+    <div class="alert alert alert-danger" hidden id="msg">
+      <i class="fa fa-info-circle"></i>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Настройка браузера {{ '<b>['~setting['dn_name']~']</b>'}}</h3>
+      </div>
+      <div class="panel-body">
+        
+          <!-- NAVIGATION -->
+          <ul class="nav nav-tabs">
+            {% for page in mpage %} 
+            <li role="presentation" class="{{ page['active']}}">
+              <a href="{{ page['href']}}" id="home-tab" role="tab" aria-controls="home" aria-expanded="true">
+                {{ page['title']}}
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+          <div class="tab-content">
+            <div class="tab-pane active">
+              <!-- simpleparspage start -->
+              <!-- Nav tabs -->
+              <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active"><a href="#sDefault" aria-controls="sDefault" role="tab" data-toggle="tab">Общие</a></li>
+                <li role="presentation"><a href="#settingProx" aria-controls="profile" role="tab" data-toggle="tab">Прокси</a></li>
+                <li role="presentation"><a href="#logIn" aria-controls="profile" role="tab" data-toggle="tab">Авторизация</a></li>
+              </ul>
+              <!-- Tab panes -->
+              <div class="tab-content">
+                <div class="row">
+                  <div class="col-sm-8 col-sm-offset-2">
+                    <div id="progress" class="progress" hidden>
+                      <div id="pross" class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                        <span id="info_count" class="show"></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div role="tabpanel" class="tab-pane active" id="sDefault">
+                  <div class="form-group">
+                    <div class="col-sm-2">
+                      <label for="input-pr">Использовать прокси</label>
+                      <select name="proxy_use" class="form-control">
+                        <option value="0" {{ browser['proxy_use'] == 0?'selected':''}}>Не использовать прокси</option>
+                        <option value="2" {{ browser['proxy_use'] == 2?'selected':''}}>Проверенный список прокси</option>
+                        <option value="1" {{ browser['proxy_use'] == 1?'selected':''}}>Полный список прокси [Не рекомендуется]</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-2">
+                      <label for="input-pr">Авторизация</label>
+                      <select name="auth_use" class="form-control">
+                        <option value="0" {{ browser['auth_use'] == 0?'selected':''}}>Не использовать</option>
+                        <option value="1" {{ browser['auth_use'] == 1?'selected':''}}>Использовать POST метод для автоматической авторизации</option>
+                        <option value="2" {{ browser['auth_use'] == 2?'selected':''}}>Использовать htpasswd метод для автоматической авторизации</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-2">
+                      <label for="input-pr">Парсить заголовки</label>
+                      <select name="header_get" class="form-control">
+                        <option value="1" {{ browser['header_get'] == 1?'selected':''}}>Да</option>
+                        <option value="0" {{ browser['header_get'] == 0?'selected':''}}>Нет</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-2">
+                      <label for="input-pr">Переходить по редиректами</label>
+                      <select name="followlocation" class="form-control">
+                        <option value="1" {{ browser['followlocation'] == 1?'selected':''}}>Да</option>
+                        <option value="0" {{ browser['followlocation'] == 0?'selected':''}}>Нет</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-2">
+                      <label for="input-pr">Макс. время выполнения запроса</label>
+                      <select name="timeout" class="form-control">
+                        <option value="1" {{ browser['timeout'] == 1?'selected':''}}>1 сек</option>
+                        <option value="2" {{ browser['timeout'] == 2?'selected':''}}>2 сек</option>
+                        <option value="3" {{ browser['timeout'] == 3?'selected':''}}>3 сек</option>
+                        <option value="4" {{ browser['timeout'] == 4?'selected':''}}>4 сек</option>
+                        <option value="5" {{ browser['timeout'] == 5?'selected':''}}>5 сек</option>
+                        <option value="6" {{ browser['timeout'] == 6?'selected':''}}>6 сек</option>
+                        <option value="7" {{ browser['timeout'] == 7?'selected':''}}>7 сек</option>
+                        <option value="8" {{ browser['timeout'] == 8?'selected':''}}>8 сек</option>
+                        <option value="9" {{ browser['timeout'] == 9?'selected':''}}>9 сек</option>
+                        <option value="10" {{ browser['timeout'] == 10?'selected':''}}>10 сек</option>
+                        <option value="11" {{ browser['timeout'] == 11?'selected':''}}>11 сек</option>
+                        <option value="12" {{ browser['timeout'] == 12?'selected':''}}>12 сек</option>
+                        <option value="13" {{ browser['timeout'] == 13?'selected':''}}>13 сек</option>
+                        <option value="14" {{ browser['timeout'] == 14?'selected':''}}>14 сек</option>
+                        <option value="15" {{ browser['timeout'] == 15?'selected':''}}>15 сек</option>
+                        <option value="16" {{ browser['timeout'] == 16?'selected':''}}>16 сек</option>
+                        <option value="17" {{ browser['timeout'] == 17?'selected':''}}>17 сек</option>
+                        <option value="18" {{ browser['timeout'] == 18?'selected':''}}>18 сек</option>
+                        <option value="19" {{ browser['timeout'] == 19?'selected':''}}>19 сек</option>
+                        <option value="20" {{ browser['timeout'] == 20?'selected':''}}>20 сек</option>
+                        <option value="21" {{ browser['timeout'] == 21?'selected':''}}>21 сек</option>
+                        <option value="23" {{ browser['timeout'] == 22?'selected':''}}>23 сек</option>
+                        <option value="22" {{ browser['timeout'] == 23?'selected':''}}>22 сек</option>
+                        <option value="24" {{ browser['timeout'] == 24?'selected':''}}>24 сек</option>
+                        <option value="25" {{ browser['timeout'] == 25?'selected':''}}>25 сек</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-2">
+                      <label for="input-pr">Версия протокола</label>
+                      <select name="protocol_version" class="form-control">
+                        <option value="0" {{ browser['protocol_version'] == 0?'selected':''}}>По умолчанию CURL сам пытается определить версию (Не рекомендую)
+                        </option>
+                        <option value="1" {{ browser['protocol_version'] == 1?'selected':''}}>Использование HTTP/1.0</option>
+                        <option value="2" {{ browser['protocol_version'] == 2?'selected':''}}>Использование HTTP/1.1 (По умолчанию)</option>
+                        <option value="3" {{ browser['protocol_version'] == 3?'selected':''}}>Использование HTTP/2.0</option>
+                        <option value="4" {{ browser['protocol_version'] == 4?'selected':''}}>Использование HTTP/2.0 только по TLS (HTTPS), доступно с PHP 7.0</option>
+                        <option value="5" {{ browser['protocol_version'] == 5?'selected':''}}>Использование HTTP/2.0 HTTP запросы без TLS, доступно с PHP 7.0</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="col-sm-8"><label for="input-pr">Куки браузера</label><textarea name="coockie_list" cols="30" rows="7" class="form-control">{{ browser['cookie_list']}}</textarea></div>
+                    <div class="col-sm-2">
+                      <label for="input-pr">Использовать куки</label>
+                      <select name="cookie_use" class="form-control">
+                        <option value="1" {{ browser['cookie_use'] == 1?'selected':''}}>Да</option>
+                        <option value="0" {{ browser['cookie_use'] == 0?'selected':''}}>Нет</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-2">
+                      <label for="input-pr">Обновлять куки ?</label>
+                      <select name="cookie_up" id="" class="form-control">
+                        <option value="1" {{ browser['cookie_up'] == 1?'selected':''}}>Принимать куки с донора, и обновлять у себя</option>
+                        <option value="0" {{ browser['cookie_up'] == 0?'selected':''}}>Не обновлять куки, отправлять одни и теже постоянно</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="col-sm-8"><label for="input-pr">Список User-Agent</label><textarea name="user_agent_list" cols="30" rows="7" class="form-control">{{ browser['user_agent_list']}}</textarea></div>
+                    <div class="col-sm-2">
+                      <label for="input-pr">Отправлять User-Agent</label>
+                      <select name="user_agent_use" class="form-control">
+                        <option value="1" {{ browser['user_agent_use'] == 1?'selected':''}}>Да</option>
+                        <option value="0" {{ browser['user_agent_use'] == 0?'selected':''}}>Нет</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-2">
+                      <label for="input-pr">Менять User-Agent</label>
+                      <select name="user_agent_change" class="form-control">
+                        <option value="0" {{ browser['user_agent_change'] == 0?'selected':''}}>Нет</option>
+                        <option value="1" {{ browser['user_agent_change'] == 1?'selected':''}}>Да (каждый запрос)</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="col-sm-8"><label for="input-pr">Собственные заголовки</label><textarea name="header_list" id="" cols="30" rows="7" class="form-control">{{ browser['header_list']}}</textarea></div>
+                    <div class="col-sm-2">
+                      <label for="input-pr">Отправлять свои заголовки</label>
+                      <select name="header_use" class="form-control">
+                        <option value="1" {{ browser['header_use'] == 1?'selected':''}}>Да</option>
+                        <option value="0" {{ browser['header_use'] == 0?'selected':''}}>Нет</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-2">
+                      <label for="input-pr">Менять заголовки</label>
+                      <select name="header_change" class="form-control">
+                        <option value="0" {{ browser['header_change'] == 0?'selected':''}}>Нет</option>
+                        <option value="1" {{ browser['header_change'] == 1?'selected':''}}>Да (Каждый запрос)</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="col-sm-12">
+                      <div class="alert alert-info" role="alert">
+                        <h3>Форма записи Куки файлов (Cookie)</h3>
+                        <b>Имя куки=Значение;</b><br>
+                        Каждая новая кука должна быть записана с новой строки и заканчиваться на символ ;<br>
+                        <br><h4>Пример:</h4>
+                        PHPSESSID=iu441bmp3jm30vodi9cn22bas4;<br>
+                        language=ru;<br>
+                        currency=UAH;<br>
+                        viewed=1895;<br>
+                        <br>
+
+                        <h3>Форма записи User-Agent</h3>
+                        Разные User-Agent записываются с новой строки.<br>
+                        <br><h4>Пример :</h4>
+                        Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36<br>
+                        Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36<br>
+                        Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36<br>
+                        <br>
+
+                        <h3>Форма записи заголовков</h3>
+                        Каждый заголовок пишется с новой строки.<br>
+                        Сначала идет имя заголовка затем двоеточие и после содержимое<br>
+                        <b>Accept-Language: ru-RU</b><br>
+                        Так же вы можете сделать несколько наборов заголовков разделяя их тремя знаками решетки с новой строки.<br>
+                        <br><h4>Пример:</h4>
+
+                        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8<br>
+                        Accept-Language: ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3<br>
+                        Accept-Encoding: gzip, deflate<br>
+                        Referer: http://simplepars.top/<br><br>
+                        <b>###</b><br><br>
+                        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8<br>
+                        Accept-Language: ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3<br>
+                        Accept-Encoding: gzip, deflate<br>
+                        Referer: http://simplepars.top/<br>
+                        Connection: keep-alive<br><br>
+                        <b>###</b><br><br>
+                        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8<br>
+                        Accept-Language: ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3<br>
+                        Accept-Encoding: gzip, deflate<br>
+                        Referer: http://simplepars.top/<br>
+                        Connection: keep-alive<br>
+                        Upgrade-Insecure-Requests: 1<br>
+                        Cache-Control: max-age=0<br>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="logIn">
+                  <div class="form-group">
+                    <div class="col-sm-12">
+                      <label>Ссылка на страницу авторизации</label>
+                      <input type="url" class="form-control" name="auth_url" id="auth_url" value="{{ browser['auth_url']}}" placeholder="Ссылка на страницу авторизации">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="col-sm-2">
+                      <label>Метод авторизации</label>
+                      <select name="auth_type" id="auth_type" class="form-control">
+                        <option value="1" {{ browser['auth_type'] == 1?'selected':''}}>POST запрос</option>
+                        <option value="2" {{ browser['auth_type'] == 2?'selected':''}}>htpasswd авторизация</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="col-sm-12">
+                      <label for="addToLogin">Данные для авторизации</label>
+                      <textarea class="form-control" name="auth_data" id="auth_data" rows="3">{{ browser['auth_data']}}</textarea>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="col-sm-2">
+                      <button id="get_auth" type="button" data-toggle="tooltip" class="btn btn-success" data-original-title="Отправить запрос на авторизацию">Авторизироваться
+                      </button>
+                    </div>
+                  </div>
+                  <div class="alert alert alert-danger" hidden id="msg_auth">
+                    <i class="fa fa-info-circle"></i>
+                  </div>
+                  <div class="form-group">
+                    <div class="col-sm-2" style="position: 21px;top: 21px;">
+                      <button id="br_auth_check" type="button" class="btn btn-warning">Проверить авторизацию</button>
+                    </div>
+                    <div class="col-sm-2"  style="position: 21px;top: 21px;">
+                      <button id="br_auth_get_page" type="button" class="btn btn-default">Загрузить код страницы</button>
+                    </div>
+                    <div class="col-sm-5">
+                      <label>Ссылка для проверки авторизации</label>
+                      <input type="url" class="form-control" name="auth_url_check" id="auth_url_check" value="{{ browser['auth_url_check']}}" placeholder="Ссылка для проверки авторизации">
+                    </div>
+                    <div class="col-sm-2">
+                      <label>Проверочное текст</label>
+                      <input type="text" class="form-control" name="auth_str" id="auth_str" value="{{ browser['auth_str']}}" placeholder="Проверочное слово">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="col-md-12">
+                      <pre style="max-height: 750px; overflow: auto; padding: 5px" title="Code block"><code id="code_page"></code></pre>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="col-sm-12">
+                      <div class="alert alert-info" role="alert">
+                       
+                        <h1>Форма записи данных для авторизации</h1>
+                        <br>
+                        <h2>Метод: POST запрос</h2>
+                        <b>email=support@simplepars.top&password=111111</b><br>
+                        <br>
+                        Обратите внимание, что название данных отделяется от значения знаком равно <b>=</b> <br>
+                        А разные данные друг от друга знаком <b>&</b> то есть в нашем случае email и его значение от password и его значения отделяется символом &<br>
+                        Это сделано не просто так, есть сайты который в вкладке запроса прям так и пишут данные.<br>
+                        <br>
+                        <h2>Метод: htpasswd</h2>
+                        <b>login:password</b><br><br>
+                        Здесь все гораздо проще достаточно написать Логин и Пароль через разделитель двоеточие.<br>
+                        <br>
+                        <h2>Инструкция</h2>
+                        <b>Инструкция доступна по ссылкке</b> - <a target="_blank" href="https://simplepars.top/index.php?page=note&n=42">https://simplepars.top/index.php?page=note&n=42</a><br>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="settingProx">
+                  <div class="row">
+                    <div class="col-md-3">
+                      <div class="form-group">
+                        <div class="col-sm-12">
+                          <label for="url-check">Ссылка на сайт донор</label>
+                          <input type="text" name="ch_url" value="{{ browser['ch_url']}}" form="form-browser" class="form-control">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="form-group">
+                        <div class="col-sm-12">
+                          <label for="txt-check">Проверочный текст</label>
+                          <input type="text" name="ch_pattern" value="{{ browser['ch_pattern']}}" form="form-browser" class="form-control">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group" style="margin-top:22px;">
+                        <div class="col-sm-12">
+                          <div class="btn-group btn-group-justified" role="group" aria-label="...">
+                            <div class="btn-group" role="group">
+                              <input id="start_check_proxy" class="btn btn-success" type="button" value="Старт проверки прокси">
+                            </div>
+                            <div class="btn-group" role="group">
+                              <input id="stop_check_proxy" class="btn btn-warning" type="button" value="Остановить проверку прокси">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <div class="col-sm-6">
+                          <label for="proxOff">Полный список прокси</label>
+                          <textarea name="proxy_list" form="form-proxy-list" rows="24" class="form-control">{{ proxy_list['list']}}</textarea>
+                          <p class="text-right">{{ 'Количество прокси: '~proxy_list['list_count']}}</p>
+                        </div>
+                        <div class="col-sm-6">
+                          <label for="proxOn">Проверенный список прокси</label>
+                          <textarea readonly name="proxy_list_work" form="form-proxy-list" rows="24" class="form-control">{{ proxy_list['list_work']}}</textarea>
+                          <p class="text-right">{{ 'Количество проверенных прокси: '~proxy_list['list_work_count']}}</p>
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <div class="col-sm-12">
+                          <input name="save_proxy_list" form="form-proxy-list" class="btn btn-success" type="submit" value="Сохранить список">
+                          <input name="reset_proxy_list" form="form-proxy-list" class="btn btn-warning" type="submit" value="Сбросить списко провернных">
+                          <input name="clear_proxy_list" form="form-proxy-list" class="btn btn-danger" type="submit" value="Очистить списки">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+
+                      <div class="row">
+                        <div class="col-sm-12">
+                          <h3>Настройки проверки прокси</h3>
+                        </div>
+                        <div class="col-sm-5">
+                          <label for="proxOn">Максимальное время выполнения запроса</label>
+                          <select name="ch_timeout" class="form-control" style="margin-top:5px;">
+                            <option value="3" {{ browser['ch_timeout'] == 3?'selected':''}}>3 сек</option>
+                            <option value="4" {{ browser['ch_timeout'] == 4?'selected':''}}>4 сек</option>
+                            <option value="5" {{ browser['ch_timeout'] == 5?'selected':''}}>5 сек</option>
+                            <option value="6" {{ browser['ch_timeout'] == 6?'selected':''}}>6 сек</option>
+                            <option value="7" {{ browser['ch_timeout'] == 7?'selected':''}}>7 сек</option>
+                            <option value="8" {{ browser['ch_timeout'] == 8?'selected':''}}>8 сек</option>
+                            <option value="9" {{ browser['ch_timeout'] == 9?'selected':''}}>9 сек</option>
+                            <option value="10" {{ browser['ch_timeout'] == 10?'selected':''}}>10 сек</option>
+                            <option value="11" {{ browser['ch_timeout'] == 11?'selected':''}}>11 сек</option>
+                            <option value="12" {{ browser['ch_timeout'] == 12?'selected':''}}>12 сек</option>
+                            <option value="13" {{ browser['ch_timeout'] == 13?'selected':''}}>13 сек</option>
+                            <option value="14" {{ browser['ch_timeout'] == 14?'selected':''}}>14 сек</option>
+                            <option value="15" {{ browser['ch_timeout'] == 15?'selected':''}}>15 сек</option>
+                            <option value="16" {{ browser['ch_timeout'] == 16?'selected':''}}>16 сек</option>
+                            <option value="17" {{ browser['ch_timeout'] == 17?'selected':''}}>17 сек</option>
+                            <option value="18" {{ browser['ch_timeout'] == 18?'selected':''}}>18 сек</option>
+                            <option value="19" {{ browser['ch_timeout'] == 19?'selected':''}}>19 сек</option>
+                            <option value="20" {{ browser['ch_timeout'] == 20?'selected':''}}>20 сек</option>
+                            <option value="21" {{ browser['ch_timeout'] == 21?'selected':''}}>21 сек</option>
+                            <option value="22" {{ browser['ch_timeout'] == 22?'selected':''}}>22 сек</option>
+                            <option value="23" {{ browser['ch_timeout'] == 23?'selected':''}}>23 сек</option>
+                            <option value="24" {{ browser['ch_timeout'] == 24?'selected':''}}>24 сек</option>
+                            <option value="25" {{ browser['ch_timeout'] == 25?'selected':''}}>25 сек</option>
+                          </select>
+                        </div>
+                        <div class="col-sm-5">
+                          <label for="proxOn">Ожидать соединения</label>
+                          <select name="ch_connect_timeout" from="form-browser" class="form-control" style="margin-top:5px;">
+                            <option value="1" {{ browser['ch_connect_timeout'] == 1?'selected':''}}>1 сек</option>
+                            <option value="2" {{ browser['ch_connect_timeout'] == 2?'selected':''}}>2 сек</option>
+                            <option value="3" {{ browser['ch_connect_timeout'] == 3?'selected':''}}>3 сек</option>
+                            <option value="4" {{ browser['ch_connect_timeout'] == 4?'selected':''}}>4 сек</option>
+                            <option value="5" {{ browser['ch_connect_timeout'] == 5?'selected':''}}>5 сек</option>
+                            <option value="6" {{ browser['ch_connect_timeout'] == 6?'selected':''}}>6 сек</option>
+                            <option value="7" {{ browser['ch_connect_timeout'] == 7?'selected':''}}>7 сек</option>
+                            <option value="8" {{ browser['ch_connect_timeout'] == 8?'selected':''}}>8 сек</option>
+                            <option value="9" {{ browser['ch_connect_timeout'] == 9?'selected':''}}>9 сек</option>
+                            <option value="10" {{ browser['ch_connect_timeout'] == 10?'selected':''}}>10 сек</option>
+                            <option value="11" {{ browser['ch_connect_timeout'] == 11?'selected':''}}>11 сек</option>
+                            <option value="12" {{ browser['ch_connect_timeout'] == 12?'selected':''}}>12 сек</option>
+                            <option value="13" {{ browser['ch_connect_timeout'] == 13?'selected':''}}>13 сек</option>
+                            <option value="14" {{ browser['ch_connect_timeout'] == 14?'selected':''}}>14 сек</option>
+                            <option value="15" {{ browser['ch_connect_timeout'] == 15?'selected':''}}>15 сек</option>
+                            <option value="16" {{ browser['ch_connect_timeout'] == 16?'selected':''}}>16 сек</option>
+                            <option value="17" {{ browser['ch_connect_timeout'] == 17?'selected':''}}>17 сек</option>
+                            <option value="18" {{ browser['ch_connect_timeout'] == 18?'selected':''}}>18 сек</option>
+                            <option value="19" {{ browser['ch_connect_timeout'] == 19?'selected':''}}>19 сек</option>
+                            <option value="20" {{ browser['ch_connect_timeout'] == 20?'selected':''}}>20 сек</option>
+                            <option value="21" {{ browser['ch_connect_timeout'] == 21?'selected':''}}>21 сек</option>
+                            <option value="23" {{ browser['ch_connect_timeout'] == 23?'selected':''}}>23 сек</option>
+                            <option value="22" {{ browser['ch_connect_timeout'] == 22?'selected':''}}>22 сек</option>
+                            <option value="24" {{ browser['ch_connect_timeout'] == 24?'selected':''}}>24 сек</option>
+                            <option value="25" {{ browser['ch_connect_timeout'] == 25?'selected':''}}>25 сек</option>
+                          </select>
+                        </div>
+                      </div>
+                      </br>
+
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-12 col-lg-12">
+                      <div class="alert alert-info" role="alert">
+                        <h3>Форма записи прокси</h3><br>
+                        <b>ip:port</b> - пример 123.456.789:80<br>
+                        <br>
+                        <b>ip:port:proxy-type</b> - пример 123.456.789:80:HTTP<br>
+                        <br>
+                        Если вы используете приватные прокси тогда логин и пароль так же записывается через : после порта.<br>
+                        <b>ip:port:proxy-type:login:password</b> - пример 123.456.789:80:SOCKS4:login:password<br>
+                        <br>
+                        Каждый новый прокси нужно записывать в новой строке<br>
+                        <b>Пример</b><br>
+                        123.456.789:80:SOCKS4<br>
+                        123.456.789:80:HTTP:login:password<br>
+                        123.456.789:8080::login:password<br>
+                        123.456.789:1080<br>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                </form>
+              </div>
+              <!-- /simpleparspage stop-->
+            </div>
+          </div>
+      </div>
+    </div>
+  </div><!-- /content --> 
+</div>
+<script type="text/javascript">
+  $(document).ready(function() {
+    $("#start_check_proxy").bind("click", function() {
+      var iter = 0;
+      var time1 = new Date().getTime(); //Работа с временем. Получаем время начала парсинга.
+      $("#progress").show();
+      job = 1;
+      ajaxpars(time1, iter);
+    });
+
+    function ajaxpars(time1, iter) {
+      iter++;
+      $.ajax({
+        url: 'index.php?route=catalog/simplepars/parsajax&{{ adap['token']}}&who=br_pr&i=' + iter + '&dn_id={{ dn_id}}',
+        type: "GET",
+        success: function(data) {
+          answ = $.parseJSON(data);
+          console.log(answ);
+          //работа с временем
+          var time2 = new Date().getTime(); //Получаем время окончания парсинга одной ссылки.
+          var time = secondsToHms(time1, time2, answ.other.proxy_wait, iter);
+          //Конец
+          if (answ.status == 'finish') {
+            $("#msg").text(answ.msg);
+            $("#msg").show();
+            $("#pross").css("width", answ.other.progress + "%");
+            $("#progress").hide();
+          } else if (answ.status == 'go') {
+            $("#pross").css("width", answ.other.progress + "%");
+            $("#info_count").text("Проверено прокси: " + answ.other.proxy_done + " | Ожидает проверки: " + answ.other.proxy_wait + " | Осталось ~ " + time);
+            agenpars(time1, iter);
+          }
+        }
+      });
+    };
+
+    function agenpars(time1, iter) {
+      $("#stop_check_proxy").bind("click", function() {
+        $("#progress").hide();
+        job = 0;
+      });
+      if (job == 1) {
+        ajaxpars(time1, iter);
+      };
+    };
+    //Фунция преобразования времени в Ч:М:C
+    function secondsToHms(time1, time2, slink, flink) {
+      var link = slink / flink;
+      time = Math.round((link * ((time2 - time1) / 1000)));
+      time = Number(time);
+      var h = Math.floor(time / 3600);
+      var m = Math.floor(time % 3600 / 60);
+      var s = Math.floor(time % 3600 % 60);
+
+      return ('0' + h).slice(-2) + ":" + ('0' + m).slice(-2) + ":" + ('0' + s).slice(-2);
+    }
+
+    //авторизация
+    $("#get_auth").bind("click", function() {
+      var value = getValue();
+      var code = '';
+      //проверяем что бы пользователь указал ссылку на авторизацию
+      if(value.auth_url){
+        code = ajax_auth(value, "br_auth");
+        if(code){
+          $("#msg").text('Запрос на авторизацию был отправлен. Проверить результат можно выполнив проверку авторизации');
+          $("#msg").attr('class', 'alert alert alert-success');
+          $("#msg").show();
+          setTimeout(() => { $("#msg").hide() }, 2000);
+        }
+      }else{
+        $("#msg").text('Укажите ссылку на страницу авторизации.');
+        $("#msg").attr('class', 'alert alert alert-danger');
+        $("#msg").show();
+        setTimeout(() => { $("#msg").hide() }, 2000);
+      }
+    });
+    
+    $("#br_auth_check").bind("click", function() {
+      var value = getValue();
+      var code = '';
+      if(value.auth_url_check){
+        if(value.auth_str){
+          code = ajax_auth(value, "br_auth_check");
+          if(code){
+            $("#msg_auth").text('Авторизация прошла успешно, проверочный код был обнаружен на странице!!!');
+            $("#msg_auth").attr('class', 'alert alert alert-success');
+            $("#msg_auth").show();
+            setTimeout(() => { $("#msg_auth").hide() }, 2000);
+          }else{
+            $("#msg_auth").text('Внимание!!! Авторизация не прошла, проверочный код не был найдет на странице.');
+            $("#msg_auth").attr('class', 'alert alert alert-danger');
+            $("#msg_auth").show();
+            setTimeout(() => { $("#msg_auth").hide() }, 2000);
+          }
+        }else{
+          $("#msg").text('Укажите проверочный текст для проверки авторизации');
+          $("#msg").attr('class', 'alert alert alert-danger');
+          $("#msg").show();
+          setTimeout(() => { $("#msg").hide() }, 2000);
+        }
+      }else{
+        $("#msg").text('Укажите ссылку на проверочную страницу.');
+        $("#msg").attr('class', 'alert alert alert-danger');
+        $("#msg").show();
+        setTimeout(() => { $("#msg").hide() }, 2000);
+      }
+    });
+
+    $("#br_auth_get_page").bind("click", function() {
+      var value = getValue();
+      var code = '';
+      value.auth_url_check = $("#auth_url_check").val();
+      if(value.auth_url_check){
+        code = ajax_auth(value, "br_auth_get_page");
+        $('#code_page').empty();
+        $("#code_page").text(code);
+      }else{
+        $("#msg").text('Укажите ссылку на проверочную страницу.');
+        $("#msg").attr('class', 'alert alert alert-danger');
+        $("#msg").show();
+        setTimeout(() => { $("#msg").hide() }, 2000);
+      }
+    });
+
+
+
+    //запрос на получения кода.
+    function ajax_auth(value, what) {
+      $.ajax({
+        url: 'index.php?route=catalog/simplepars/ajax&{{ adap['token']}}&who='+what+'&dn_id={{ dn_id}}',
+        type: "POST",
+        data: value,
+        async: false,
+        success: function(data) {
+          answ = $.parseJSON(data);
+        }
+      });
+      return answ;
+    };
+
+    function getValue(){
+      var value = {};
+      value.auth_url = $("#auth_url").val();
+      value.auth_type = $("#auth_type").val();
+      value.auth_data = $("#auth_data").val();
+      value.auth_url_check = $("#auth_url_check").val();
+      value.auth_str = $("#auth_str").val();
+
+      console.log(value);
+      return value;
+    }
+    //Конец авторизации
+  });
+</script>
+{{ footer }} 
