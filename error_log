@@ -1,0 +1,78 @@
+[24-Jun-2023 11:54:40 UTC] PHP Fatal error:  Uncaught Exception: Error: E-Mail sender required! in /home/autopa15/public_html/system/library/mail.php:127
+Stack trace:
+#0 /home/autopa15/public_html/catalog/controller/information/contact.php(220): Mail->send()
+#1 /home/autopa15/public_html/storage/modification/system/engine/action.php(79): ControllerInformationContact->ajaxSend()
+#2 /home/autopa15/public_html/catalog/controller/startup/router.php(25): Action->execute(Object(Registry))
+#3 /home/autopa15/public_html/storage/modification/system/engine/action.php(79): ControllerStartupRouter->index()
+#4 /home/autopa15/public_html/system/engine/router.php(67): Action->execute(Object(Registry))
+#5 /home/autopa15/public_html/system/engine/router.php(56): Router->execute(Object(Action))
+#6 /home/autopa15/public_html/system/framework.php(168): Router->dispatch(Object(Action), Object(Action))
+#7 /home/autopa15/public_html/system/startup.php(104): require_once('/home/autopa15/...')
+#8 /home/autopa15/public_html/index.php(30): start('catalog')
+#9 {main}
+  thrown in /home/autopa15/public_html/system/library/mail.php on line 127
+[25-Jun-2023 05:44:13 UTC] PHP Fatal error:  Uncaught Exception: Error: E-Mail sender required! in /home/autopa15/public_html/system/library/mail.php:127
+Stack trace:
+#0 /home/autopa15/public_html/catalog/controller/information/contact.php(219): Mail->send()
+#1 /home/autopa15/public_html/storage/modification/system/engine/action.php(79): ControllerInformationContact->ajaxSend()
+#2 /home/autopa15/public_html/catalog/controller/startup/router.php(25): Action->execute(Object(Registry))
+#3 /home/autopa15/public_html/storage/modification/system/engine/action.php(79): ControllerStartupRouter->index()
+#4 /home/autopa15/public_html/system/engine/router.php(67): Action->execute(Object(Registry))
+#5 /home/autopa15/public_html/system/engine/router.php(56): Router->execute(Object(Action))
+#6 /home/autopa15/public_html/system/framework.php(168): Router->dispatch(Object(Action), Object(Action))
+#7 /home/autopa15/public_html/system/startup.php(104): require_once('/home/autopa15/...')
+#8 /home/autopa15/public_html/index.php(30): start('catalog')
+#9 {main}
+  thrown in /home/autopa15/public_html/system/library/mail.php on line 127
+[25-Jun-2023 05:50:38 UTC] PHP Fatal error:  Uncaught Exception: Error: E-Mail sender required! in /home/autopa15/public_html/system/library/mail.php:127
+Stack trace:
+#0 /home/autopa15/public_html/catalog/controller/information/contact.php(219): Mail->send()
+#1 /home/autopa15/public_html/storage/modification/system/engine/action.php(79): ControllerInformationContact->ajaxSend()
+#2 /home/autopa15/public_html/catalog/controller/startup/router.php(25): Action->execute(Object(Registry))
+#3 /home/autopa15/public_html/storage/modification/system/engine/action.php(79): ControllerStartupRouter->index()
+#4 /home/autopa15/public_html/system/engine/router.php(67): Action->execute(Object(Registry))
+#5 /home/autopa15/public_html/system/engine/router.php(56): Router->execute(Object(Action))
+#6 /home/autopa15/public_html/system/framework.php(168): Router->dispatch(Object(Action), Object(Action))
+#7 /home/autopa15/public_html/system/startup.php(104): require_once('/home/autopa15/...')
+#8 /home/autopa15/public_html/index.php(30): start('catalog')
+#9 {main}
+  thrown in /home/autopa15/public_html/system/library/mail.php on line 127
+[25-Jun-2023 05:51:13 UTC] PHP Fatal error:  Uncaught Exception: Error: E-Mail sender required! in /home/autopa15/public_html/system/library/mail.php:127
+Stack trace:
+#0 /home/autopa15/public_html/catalog/controller/information/contact.php(219): Mail->send()
+#1 /home/autopa15/public_html/storage/modification/system/engine/action.php(79): ControllerInformationContact->ajaxSend()
+#2 /home/autopa15/public_html/catalog/controller/startup/router.php(25): Action->execute(Object(Registry))
+#3 /home/autopa15/public_html/storage/modification/system/engine/action.php(79): ControllerStartupRouter->index()
+#4 /home/autopa15/public_html/system/engine/router.php(67): Action->execute(Object(Registry))
+#5 /home/autopa15/public_html/system/engine/router.php(56): Router->execute(Object(Action))
+#6 /home/autopa15/public_html/system/framework.php(168): Router->dispatch(Object(Action), Object(Action))
+#7 /home/autopa15/public_html/system/startup.php(104): require_once('/home/autopa15/...')
+#8 /home/autopa15/public_html/index.php(30): start('catalog')
+#9 {main}
+  thrown in /home/autopa15/public_html/system/library/mail.php on line 127
+[25-Jun-2023 07:30:44 UTC] PHP Fatal error:  Uncaught Exception: Error: E-Mail sender required! in /home/autopa15/public_html/system/library/mail.php:127
+Stack trace:
+#0 /home/autopa15/public_html/catalog/controller/information/contact.php(219): Mail->send()
+#1 /home/autopa15/public_html/storage/modification/system/engine/action.php(79): ControllerInformationContact->ajaxSend()
+#2 /home/autopa15/public_html/catalog/controller/startup/router.php(25): Action->execute(Object(Registry))
+#3 /home/autopa15/public_html/storage/modification/system/engine/action.php(79): ControllerStartupRouter->index()
+#4 /home/autopa15/public_html/system/engine/router.php(67): Action->execute(Object(Registry))
+#5 /home/autopa15/public_html/system/engine/router.php(56): Router->execute(Object(Action))
+#6 /home/autopa15/public_html/system/framework.php(168): Router->dispatch(Object(Action), Object(Action))
+#7 /home/autopa15/public_html/system/startup.php(104): require_once('/home/autopa15/...')
+#8 /home/autopa15/public_html/index.php(30): start('catalog')
+#9 {main}
+  thrown in /home/autopa15/public_html/system/library/mail.php on line 127
+[25-Jun-2023 07:31:14 UTC] PHP Fatal error:  Uncaught Exception: Error: E-Mail sender required! in /home/autopa15/public_html/system/library/mail.php:127
+Stack trace:
+#0 /home/autopa15/public_html/catalog/controller/information/contact.php(219): Mail->send()
+#1 /home/autopa15/public_html/storage/modification/system/engine/action.php(79): ControllerInformationContact->ajaxSend()
+#2 /home/autopa15/public_html/catalog/controller/startup/router.php(25): Action->execute(Object(Registry))
+#3 /home/autopa15/public_html/storage/modification/system/engine/action.php(79): ControllerStartupRouter->index()
+#4 /home/autopa15/public_html/system/engine/router.php(67): Action->execute(Object(Registry))
+#5 /home/autopa15/public_html/system/engine/router.php(56): Router->execute(Object(Action))
+#6 /home/autopa15/public_html/system/framework.php(168): Router->dispatch(Object(Action), Object(Action))
+#7 /home/autopa15/public_html/system/startup.php(104): require_once('/home/autopa15/...')
+#8 /home/autopa15/public_html/index.php(30): start('catalog')
+#9 {main}
+  thrown in /home/autopa15/public_html/system/library/mail.php on line 127
