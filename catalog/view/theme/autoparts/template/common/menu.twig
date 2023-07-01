@@ -1,0 +1,123 @@
+<nav id="menu" class="navbar">
+    <div class="accordion">
+      <input id="toggle1" type="checkbox" class="accordion-toggle" name="toggle" />
+      <label for="toggle1">Меню <i class="fa-solid fa-plus"></i></label>
+      <section>
+        <div class="container">
+        	<ul class="menu-list">
+        		<li class="menu-list-inline-item-categories">Категорії
+        			<span class="caret"></span>
+        		</li>
+        		<li class="menu-list-inline-item">
+        			<a href="https://autopartsinvolved.com/">Головна</a>
+        		</li>
+        		<li class="menu-list-inline-item">
+        			<a href="https://autopartsinvolved.com/%D1%81ontact_us">Контакти</a>
+        		</li>
+        		<li class="menu-list-inline-item">
+        			<a href="https://autopartsinvolved.com/про_нас">Про нас</a>
+        		</li>
+        	</div>
+        </div>
+      </section>
+    </div>
+    <div class="container menu-container">
+    	<ul class="menu-list">
+    		<li class="menu-list-inline-item-categories">Категорії
+    			<span class="caret"></span>
+    		</li>
+    		<li class="menu-list-inline-item">
+    			<a href="https://autopartsinvolved.com/">Головна</a>
+    		</li>
+    		<li class="menu-list-inline-item">
+    			<a href="https://autopartsinvolved.com/%D1%81ontact_us">Контакти</a>
+    		</li>
+    		<li class="menu-list-inline-item">
+    			<a href="https://autopartsinvolved.com/про_нас">Про нас</a>
+    		</li>
+    	</div>
+    </div>
+</nav>
+<div class="categories-menu">
+	<div class="container">
+        {% if categories %}
+    	<ul class="categories">
+    		{% for category in categories %}
+    			{% if category.children %}
+    				<li class="dropdown">
+    					<a href="{{ category.href }}">{{ category.name }}</a>
+    					{% if category.children %}
+    						<span class="menu__arrow"><span class="caret"></span></span>
+    					{% endif %}
+    					<ul class="sub_level2">
+    						{% if category.column > 0 %}
+                                {% set column = category.column %}
+                            {% else %}
+                                {% set column = 1 %}
+                            {% endif %}
+                            
+                            {% for children in category.children|batch(category.children|length / column|round(1, 'ceil')) %}
+    
+    							{% for child in children %}
+    								{% if child.children %}
+    									<li class="dropdown">
+    										<a href="{{ child.href }}">{{ child.name }}</a>
+    										<span class="menu__arrow"><span class="caret"></span></span>
+    										<ul class="sub_level3">
+    											{% for children in child.children %}
+    												<li>
+    													<a href="{{ children.href }}">{{ children.name }}</a>
+    												</li>
+    											{% endfor %}
+    										</ul>
+    									</li>
+    								{% else %}
+    									<li>
+    										<a href="{{ child.href }}">{{ child.name }}</a>
+    									</li>
+    								{% endif %}
+    							{% endfor %}
+    						{% endfor %}
+    					</ul>
+    				</li>
+    			{% else %}
+    				<li>
+    					<a href="{{ category.href }}">{{ category.name }}</a>
+    				</li>
+    			{% endif %}
+    		{% endfor %}
+    	</ul>
+    </div>
+</div>
+
+<script>
+	const categoriesBtns = document.querySelectorAll('.menu-list-inline-item-categories');
+	const categoriesMenu = document.querySelector('.categories-menu');
+	const accordionCheckbox = document.querySelector('.accordion-toggle');
+    const arrows = document.querySelectorAll('.menu__arrow');
+
+	categoriesBtns.forEach(function (categoriesBtn) {
+        categoriesBtn.addEventListener('click', function () {
+            categoriesMenu.classList.toggle('block');
+        });
+    });
+
+    arrows.forEach((arrow) => {
+      arrow.addEventListener('click', () => {
+        const subMenu = arrow.nextElementSibling;
+        subMenu.classList.toggle('show');
+        arrow.classList.toggle('rotate');
+      });
+    });
+    
+    accordionCheckbox.addEventListener('click', () => {
+        console.log(!accordionCheckbox.checked)
+        if(!accordionCheckbox.checked){
+            categoriesMenu.classList.remove('block')
+        }   
+    })
+
+    
+</script>
+
+{% endif %}

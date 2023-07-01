@@ -1,0 +1,134 @@
+{{ header }}
+<div id="overlay">
+    <div class="popup">
+        <div class="close-popup" onclick="document.getElementById('overlay').style.display='none';"></div>
+        <div id="welcome">
+            Просимо вибачення за тимчасові незручності, сайт ще в стані розробки та доповнення товару.
+            <p>Дякую, що відвідуюте наш сайт</p>
+        </div>
+    </div>
+</div>
+    <div class="categories-burger">
+        <div id="categories-button" class="categories-button">
+            <span></span>
+        </div>
+        {{ content_top }}
+    </div>
+<div class="car-block">
+    <div class="description-car-block">
+    <div class="text-description">
+        Онлайн магазин автозапчастин
+    </div>
+    <div class="small-text-description">
+        Ваш автомобіль буде вдячний
+    </div>
+    <div class="description-button">
+      <a href="#vin-block">Пошук за Vin номером</a>
+    </div>
+  </div>
+
+</div>
+{{ column_left }}
+<div class="container">
+        {#<div class="owl-carousel owl-theme">#}
+        {#    <div class="item"><img src="../../../../../image/catalog/slider/1.png" /></div>#}
+        {#    <div class="item"><img src="../../../../../image/catalog/slider/2.png" /></div>#}
+        {#    <div class="item"><img src="../../../../../image/catalog/slider/3.png" /></div>#}
+        {#</div>#}
+        <div id="brands" class="brands-block">
+          {{ content_bottom }}
+        </div>
+    </div>
+<div class="vin-block" id="vin-block">
+    <div class="container">
+        <div id="vin-overlay">
+            <div class="popup">
+                <div class="close-popup" onclick="document.getElementById('vin-overlay').style.display='none';"></div>
+                <div id="vin-welcome">
+                    
+                </div>
+            </div>
+        </div>
+      <div class="title-vin-block" name="vin-block">
+        <div class="main-title-vin-block">Якщо вам потрібно дізнатись про деталь автомобіля по VIN номеру, тоді звертайтесь до нас</div>
+        <div class="subtitle-vin-block">Проглядаємо як Американські, так і Європейські авто</div>
+      </div>
+      <form method="post" action="" enctype="multipart/form-data" id="vin-form">
+        <!-- Имя пользователя -->
+        <div class="group-of-form">
+          <label for="name" class="main-label">Як ми можемо до вас звертатись ?</label>
+          <input id="name" type="text" name="name" class="form-input" value="" placeholder="Введіть ім'я" minlength="2"
+            maxlength="30" required="required">
+        </div>
+        <!-- Номер пользователя -->
+        <div class="group-of-form">
+          <label for="number" class="main-label">На який номер телефону вам надіслати інформацію ? </label>
+          <input id="number" type="text" name="number" required="required" class="form-input" value=""
+            placeholder="Номер телефону" minlength="10" maxlength="14">
+        </div>
+      <!-- Vin номер машины -->
+        <div class="group-of-form">
+          <label for="vin" class="main-label">Введіть ваш VIN номер автомобіля до якого потрібна запчастина </label>
+          <input id="vin" type="text" name="vin" required="required" class="form-input" value=""
+            placeholder="Введть Vin номер вашої машини" minlength="15" maxlength="17">
+        </div>
+        <!-- Сообщение пользователя -->
+        <div class="group-of-form">
+          <label for="message" class="main-label">Ваші побажання до пошуку за VIN номером (не обов'язково)</label>
+          <textarea id="message" name="message" class="form-control" rows="10"
+            placeholder="Введіть ваші побажання" minlength="20" maxlength="500"
+            ></textarea>
+        </div>
+         <div id="invalid-feedback"></div>
+        <!-- Кнопка для отправки формы на сервер -->
+        <div class="form-submit">
+          <button id="sendForm">Надіслати</button>
+        </div>
+    </form>
+    </div>
+</div>
+<script>
+$('.owl-carousel').owlCarousel({
+    loop:true,
+    autoplay:true,
+    autoplayTimeout:3000,
+    margin:10,
+    nav: false,
+    responsive:{
+        0:{
+            items:1
+        },
+        600:{
+            items:1
+        },
+        1000:{
+            items:1
+        }
+    }
+})
+$(function(){
+    //Send Form    
+	$('#sendForm').on("click",function(){		
+         var dataContact = $('#vin-form').serialize();
+    	    $.ajax({			
+    	        url:'index.php?route=information/contact/ajaxSend',			
+    	        data: dataContact,			
+    	        type:'post',			
+    	        dataType:'json',
+    	        beforeSend: function(){
+    	            $("#sendForm").prop("disabled", true);
+    	        },
+    	        success: function(response){
+    	            if(response["success"]){                    
+    	                $("#sendForm").prop("disabled", false);                    
+    	                $("#vin-form").trigger("reset"); 
+    	                $("#vin-overlay").css("display","block");
+    	                $("#vin-welcome").text(response["success"])			
+    	            }            
+    	        }        
+    	    })	
+    	}
+    )})
+</script>
+    {{ column_right }}
+{{ footer }}

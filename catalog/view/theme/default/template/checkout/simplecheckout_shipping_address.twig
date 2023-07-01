@@ -1,0 +1,13 @@
+<div class="simplecheckout-block" id="simplecheckout_shipping_address" {{ hide ? 'data-hide="true"' : '' }} {{ display_error and has_error ? 'data-error="true"' : '' }}>
+  {% if display_header %}
+    <div class="checkout-heading panel-heading">{{ text_checkout_shipping_address }}</div>
+  {% endif %}
+  <div class="simplecheckout-block-content">
+    {% for row in rows %}
+      {{ row }}
+    {% endfor %}
+    {% for row in hidden_rows %}
+      {{ row }}
+    {% endfor %}
+  </div>
+</div>

@@ -1,0 +1,69 @@
+<div id="cart" class="dropdown btn-group btn-block">
+	<div class="cart-block">
+		<div class="widget-cart-block">
+			Кошик
+			<span class="subtotal">{{ text_price }}</span>
+		</div>
+		<span id="cart-count-total">{{ text_items }}</span>
+	</div>
+	<div class="dropdown-menu pull-right cart-dropdown-menu">
+		<h3 class="mini-cart-heading">Мій кошик</h3>
+		{% if products or vouchers %}
+			<ul class="cart-list">
+				{% for product in products %}
+					<li class="product-item">
+						<div class="shopping-cart-inline">
+							{% if product.thumb %}
+								<a href="{{ product.href }}"><img src="{{ product.thumb }}" alt="{{ product.name }}" title="{{ product.name }}" class="img-thumbnail img-shopping-cart"/></a>
+							{% endif %}
+						</div>
+						<div class="shopping-cart-inline wid-50">
+							<div>
+								<a href="{{ product.href }}">{{ product.name }}</a>
+								{% if product.option %}
+									{% for option in product.option %}
+										<br/>
+										-
+										<small>{{ option.name }}
+											{{ option.value }}</small>
+									{% endfor %}
+								{% endif %}
+								{% if product.recurring %}
+									<br/>
+									-
+									<small>{{ text_recurring }}
+										{{ product.recurring }}</small>
+								{% endif %}
+							</div>
+							<div>x
+								{{ product.quantity }}</div>
+							<div>{{ product.total }}</div>
+						</div>
+						<div class="shopping-cart-inline" id="delete-button">
+							<button type="button" onclick="cart.remove('{{ product.cart_id }}');" title="{{ button_remove }}" class="button-remove-product">
+								<i class="fa fa-times"></i>
+							</button>
+						</div>
+					</li>
+				{% endfor %}
+
+			</ul>
+			<div class="total-price_shopping-cart text-right">
+				<strong>Всього:
+				</strong>
+				{{ text_price }}
+			</div>
+			<div class="checkout-button">
+				<a href="{{ checkout }}">
+					<strong>
+						{{ text_checkout }}
+					</strong>
+				</a>
+			</div>
+		{% else %}
+			<li>
+				<p class="text-center">{{ text_empty }}</p>
+			</li>
+		{% endif %}
+	</div>
+</div>

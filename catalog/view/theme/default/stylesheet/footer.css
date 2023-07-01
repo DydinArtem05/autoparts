@@ -1,0 +1,332 @@
+footer {
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    background-color: #262f34;
+    border: 0;
+    height: 332px;
+    left: 0px;
+    font-family: 'Inter';
+}
+
+.main-info-footer{
+    color: #fff;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    background-color: transparent;
+    border: 0;
+    height: 300px;
+    left: 0px;
+    width: 80%;
+    margin: 0 auto;
+}
+
+.wrapper-little-footer{
+    color: #fff;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    background-color: transparent;
+    border: 0;
+    height: 40px;
+    left: 0px;
+    width: 100%;
+    border-top: 1px solid;
+}
+
+#logo-footer{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0px;
+    width: 20%;
+    height: 75px;
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+}
+
+.link-block-footer {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 0px;
+    gap: 50px;
+    height: 160px;
+    flex: none;
+    order: 1;
+    align-self: stretch;
+    flex-grow: 0;
+    margin-left: 200px;
+    width: 73%;
+}
+
+.list-unstyled{
+    font-size: 18px;
+    line-height: 30px;
+}
+
+.title-of-link-block{
+    font-size: 23px;
+    line-height: 23px;
+}
+
+.little-footer{
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 40px;
+    width: 80%;
+    flex: none;
+    order: 1;
+    align-self: stretch;
+    flex-grow: 0;
+    margin: 10px auto;
+}
+
+.component-of-little-footer{
+    color: #fff;
+    font-size: 18px;
+}
+
+.component-of-little-footer i{
+    font-size: 18px;
+    margin-right: 10px;
+}
+
+.component-of-little-footer a{
+    color: #ccccc7;
+    font-size: 20px;
+    transition:0.5s ease;
+}
+
+.component-of-little-footer a:hover{
+    color: #fff;
+    transition: 0.5s ease;
+}
+
+
+@media screen and (min-width: 1000px) and (max-width:1260px) {
+    .main-info-footer{
+        color: #fff;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        border: 0;
+        height: 300px;
+        left: 0px;
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .link-block-footer {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        padding: 0px;
+        gap: 50px;
+        height: 160px;
+        flex: none;
+        order: 1;
+        align-self: stretch;
+        flex-grow: 0;
+        margin-left: 50px;
+        width: 80%;
+    }
+    .list-unstyled{
+        font-size: 15px;
+        line-height: 22px;
+    }
+    
+    .title-of-link-block{
+        font-size: 18px;
+        line-height: 18px;
+    }
+    .little-footer{
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 20px;
+        height: 40px;
+        width: 80%;
+        flex: none;
+        order: 1;
+        align-self: stretch;
+        flex-grow: 0;
+        margin: 10px auto;
+    }
+    .component-of-little-footer{
+        color: #fff;
+        font-size: 15px;
+    }
+    
+    .component-of-little-footer i{
+        font-size: 15px;
+        margin-right: 6px;
+    }
+    
+    .component-of-little-footer a{
+        color: #fff;
+        font-size: 18px;
+    }
+    
+    .component-of-little-footer a:hover{
+        color: #FA0000;
+        font-size: 18px;
+    }
+}
+
+@media screen and (min-width: 700px) and (max-width:1000px) {
+    footer{
+        height: 250px;
+        background-color: #262f34;
+    }
+    .main-info-footer{
+        color: #fff;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        border: 0;
+        height: 150px;
+        left: 0px;
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .link-block-footer {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        padding: 0px;
+        gap: 50px;
+        height: 135px;
+        flex: none;
+        order: 1;
+        align-self: stretch;
+        flex-grow: 0;
+        margin-left: 50px;
+        width: 80%;
+    }
+    .list-unstyled{
+        font-size: 12px;
+        line-height: 20px;
+    }
+    
+    .title-of-link-block{
+        font-size: 15px;
+        line-height: 16px;
+    }
+    .little-footer{
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 20px;
+        height: 40px;
+        width: 95%;
+        flex: none;
+        order: 1;
+        align-self: stretch;
+        flex-grow: 0;
+        margin: 10px auto;
+    }
+    .component-of-little-footer{
+        color: #fff;
+        font-size: 14px;
+    }
+    
+    .component-of-little-footer i{
+        font-size: 15px;
+        margin-right: 6px;
+    }
+    
+    .component-of-little-footer a{
+        color: #fff;
+        font-size: 13px;
+    }
+    
+    .component-of-little-footer a:hover{
+        color: #FA0000;
+        font-size: 13px;
+    }
+
+}
+
+@media screen and (min-width: 270px) and (max-width:700px) {
+    footer {
+        
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        background-color: #262f34;
+        border: 0;
+        height: auto;
+        left: 0px;
+        font-family: 'Inter';
+        padding: 0;
+    }
+    .main-info-footer {
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        background-color: transparent;
+        border: 0;
+        height: auto;
+        left: 0px;
+        width: 80%;
+        margin: 0 auto;
+    }
+    #logo-footer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 0px;
+        width: 60%;
+        height: 75px;
+        flex: none;
+        order: 0;
+        flex-grow: 0;
+        margin-bottom: 20px;
+    }
+    .link-block-footer {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 0px;
+        gap: 30px;
+        height: auto;
+        flex: none;
+        order: 1;
+        align-self: stretch;
+        flex-grow: 0;
+        width: 73%;
+        margin-left: 0;
+        margin-bottom: 20px;
+    }
+    .wrapper-little-footer {
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        background-color: transparent;
+        border: 0;
+        height: auto;
+        width: 100%;
+        border-top: 1px solid;
+    }
+    .little-footer {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+        height: auto;
+        width: 80%;
+        flex: none;
+        order: 1;
+        align-self: stretch;
+        flex-grow: 0;
+        margin: 10px auto;
+    }
+}

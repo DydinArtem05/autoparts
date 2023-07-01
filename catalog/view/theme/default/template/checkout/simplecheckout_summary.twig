@@ -1,0 +1,129 @@
+<div class="simplecheckout-block" id="simplecheckout_summary" {{ hide ? 'data-hide="true"' : '' }}>
+    {% if display_header %}
+      <div class="checkout-heading panel-heading">{{ text_summary }}</div>
+    {% endif %}
+
+    {% if display_products %}
+      <div class="table-responsive">
+          <table class="simplecheckout-cart">
+              <colgroup>
+                  <col class="image">
+                  <col class="name">
+                  <col class="model">
+                  <col class="quantity">
+                  <col class="price">
+                  <col class="total">
+              </colgroup>
+              <thead>
+                  <tr>
+                      <th class="image">{{ column_image }}</th>
+                      <th class="name">{{ column_name }}</th>
+                      <th class="model">{{ column_model }}</th>
+                      <th class="quantity">{{ column_quantity }}</th>
+                      <th class="price">{{ column_price }}</th>
+                      <th class="total">{{ column_total }}</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  {% for product in products  %}
+                      <tr>
+                          <td class="image">
+                              {% if product['thumb'] %}
+                                  <a href="{{ product['href'] }}"><img src="{{ product['thumb'] }}" alt="{{ product['name'] }}" title="{{ product['name'] }}" /></a>
+                              {% endif %}
+                          </td>
+                          <td class="name">
+                              <a href="{{ product['href'] }}">{{ product['name'] }}</a>
+                              <div class="options">
+                              {% for option in product['option']  %}
+                              &nbsp;<small> - {{ option['name'] }}: {{ option['value'] }}</small><br />
+                              {% endfor %}
+                              </div>
+                              {% if product['reward'] %}
+                              <small>{{ product['reward'] }}</small>
+                              {% endif %}
+                          </td>
+                          <td class="model">{{ product['model'] }}</td>
+                          <td class="quantity">{{ product['quantity'] }}</td>
+                          <td class="price">{{ product['price'] }}</td>
+                          <td class="total">{{ product['total'] }}</td>
+                      </tr>
+                  {% endfor %}
+                  {% for voucher_info in vouchers  %}
+                      <tr>
+                          <td class="image"></td>
+                          <td class="name">{{ voucher_info['description'] }}</td>
+                          <td class="model"></td>
+                          <td class="quantity">1</td>
+                          <td class="price">{{ voucher_info['amount'] }}</td>
+                          <td class="total">{{ voucher_info['amount'] }}</td>
+                      </tr>
+                  {% endfor %}
+              </tbody>
+          </table>
+      </div>
+    {% endif %}
+
+    {% if not display_products and display_totals_block and display_totals is not empty %}
+      <div class="simplecheckout-summary-totals">
+    {% endif %}
+
+    {% if display_totals_block %}
+      {% for total in totals  %}
+        {% if total['code'] in display_totals %}
+          <div class="simplecheckout-cart-total" id="total_{{ total['code'] }}">
+              <span><b>{{ total['title'] }}:</b></span>
+              <span class="simplecheckout-cart-total-value">{{ total['text'] }}</span>
+          </div>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+
+    {% if not display_products and display_totals_block and display_totals is not empty %}
+      </div>
+    {% endif %}
+
+    {% if display_comment %}
+      {% if summary_comment %}
+      <table class="simplecheckout-cart simplecheckout-summary-info">
+        <thead>
+          <tr>
+            <th class="name">{{ text_summary_comment }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ summary_comment }}</td>
+          </tr>
+        </tbody>
+      </table>
+      {% endif %}
+    {% endif %}
+    
+    {% if display_address %}
+      {% if summary_payment_address or summary_shipping_address %}
+        <table class="simplecheckout-cart simplecheckout-summary-info">
+          <thead>
+            <tr>
+              {% if summary_payment_address %}
+              <th class="name">{{ text_summary_payment_address }}</th>
+              {% endif %}
+              {% if summary_shipping_address %}
+              <th class="name">{{ text_summary_shipping_address }}</th>
+              {% endif %}
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              {% if summary_payment_address %}
+              <td>{{ summary_payment_address }}</td>
+              {% endif %}
+              {% if summary_shipping_address %}
+              <td>{{ summary_shipping_address }}</td>
+              {% endif %}
+            </tr>
+          </tbody>
+        </table>
+      {% endif %}
+    {% endif %}
+</div>

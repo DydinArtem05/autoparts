@@ -1,0 +1,20 @@
+<div class="simplecheckout-block" id="simplecheckout_login" {{ has_error ? 'data-error="true"' : '' }}>
+    <div class="simplecheckout-block-content">
+        <div id="simple_login_header"><img style="cursor:pointer;" data-onclick="close" src="{{ additional_path }}catalog/view/image/close.png"></div>
+        {% if error_login %}
+        <div class="alert alert-danger simplecheckout-warning-block">{{ error_login }}</div>
+        {% endif %}
+        <fieldset>
+            <div class="form-group">
+                <label class="control-label">{{ entry_email }}</label>
+                <input class="form-control" data-onkeydown="detectEnterAndLogin" type="text" name="email" value="{{ email }}" /></label>
+            </div>
+            <div class="form-group">
+                <label class="control-label">{{ entry_password }}</label>
+                <input class="form-control" data-onkeydown="detectEnterAndLogin" type="password" name="password" value="" /></label>
+                <a href="{{ forgotten }}">{{ text_forgotten }}</a>
+            </div>
+            <a id="simplecheckout_button_login" data-onclick="login" class="button btn-primary button_oc btn"><span>{{ button_login }}</span></a>
+        </fieldset>
+    </div>
+</div>

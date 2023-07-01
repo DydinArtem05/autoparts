@@ -1,0 +1,16 @@
+<div class="simplecheckout-block" id="simplecheckout_customer" {{ hide ? 'data-hide="true"' : '' }} {{ display_error and has_error ? 'data-error="true"' : '' }}>
+  {% if display_header or display_login %}
+  <div class="checkout-heading panel-heading"><span>{{ text_checkout_customer }}</span>{% if display_login %}<span class="checkout-heading-button"><a href="javascript:void(0)" data-onclick="openLoginBox">{{ text_checkout_customer_login }}</a></span>{% endif %}</div>
+  {% endif %}
+  <div class="simplecheckout-block-content">
+    {% if display_registered %}
+      <div class="alert alert-success">{{ text_account_created }}</div>
+    {% endif %}
+    {% if display_you_will_registered %}
+      <div class="you-will-be-registered">{{ text_you_will_be_registered }}</div>
+    {% endif %}
+    {% for row in rows %}
+      {{ row }}
+    {% endfor %}
+  </div>
+</div>

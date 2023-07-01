@@ -1,0 +1,49 @@
+<footer>
+  <div class="main-info-footer">
+        <div id="logo-footer"><a href="{{ home }}"><img src="../../../../../image/catalog/logo.png" title="{{ name }}" alt="{{ name }}" class="img-responsive" /></a></div>
+        {% if informations %}
+        <div class="link-block-footer">
+          <div class="information-block">
+            <h5 class="title-of-link-block">{{ text_information }}</h5>
+            <ul class="list-unstyled">
+             {% for information in informations %}
+              <li><a href="{{ information.href }}">{{ information.title }}</a></li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+          <div class="service-block">
+            <h5 class="title-of-link-block">{{ text_service }}</h5>
+            <ul class="list-unstyled">
+              <li><a href="{{ contact }}">{{ text_contact }}</a></li>
+              <li><a href="{{ return }}">{{ text_return }}</a></li>
+            </ul>
+          </div>
+          <div class="account-block">
+            <h5 class="title-of-link-block">{{ text_account }}</h5>
+            <ul class="list-unstyled">
+              <li><a href="{{ account }}">{{ text_account }}</a></li>
+              <li><a href="{{ order }}">{{ text_order }}</a></li>
+              <li><a href="{{ wishlist }}">{{ text_wishlist }}</a></li>
+              <li><a href="{{ newsletter }}">{{ text_newsletter }}</a></li>
+            </ul>
+          </div>
+       </div>
+  </div>
+  <div class="wrapper-little-footer">
+    <div class="little-footer">
+        <div class="component-of-little-footer">© 2022, autopartsinvolved.ua</div>
+        <div class="component-of-little-footer">Відправка новою поштою по всій Україні</div>
+        <div class="component-of-little-footer"><a href="tel:+380639607501"><i class="fa fa-phone"></i>+380639607501</a></div>
+        <div class="component-of-little-footer"><a href="mailto:autopartsinvolved@gmail.com"><i class="fa fa-envelope"></i>autopartsinvolved@gmail.com</a></div>
+    </div>
+  </div>
+</footer>
+{% for script in scripts %}
+<script src="{{ script }}" type="text/javascript"></script>
+{% endfor %}
+<!--
+OpenCart is open source software and you are free to remove the powered by OpenCart if you want, but its generally accepted practise to make a small donation.
+Please donate via PayPal to donate@opencart.com
+//-->
+</body></html>

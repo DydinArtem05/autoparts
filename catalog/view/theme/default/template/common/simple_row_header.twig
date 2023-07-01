@@ -1,0 +1,9 @@
+<div class="form-group">
+  <div class="col-sm-12">
+    {% if tag != '' %}
+      <{{ tag }}>{{ label }}</{{ tag }}>
+    {% else %}
+      {{ label }}
+    {% endif %}  
+  </div>
+</div>

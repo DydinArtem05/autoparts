@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<!--[if IE 8 ]><html dir="{{ direction }}" lang="{{ lang }}" class="ie8"><![endif]-->
+<!--[if IE 9 ]><html dir="{{ direction }}" lang="{{ lang }}" class="ie9"><![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!-->
+<html dir="{{ direction }}" lang="{{ lang }}">
+<!--<![endif]-->
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>{{ title }}</title>
+    <base href="{{ base }}" />
+    {% if description %}
+    <meta name="description" content="{{ description }}" />
+    {% endif %}
+    {% if keywords %}
+    <meta name="keywords" content="{{ keywords }}" />
+    {% endif %}
+    <script src="catalog/view/javascript/jquery/jquery-2.1.1.min.js" type="text/javascript"></script>
+    <link href="catalog/view/javascript/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen" />
+    <script src="catalog/view/javascript/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <link href="catalog/view/javascript/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:400,400i,300,700" rel="stylesheet" type="text/css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Forum&display=swap" rel="stylesheet">
+    <link href="catalog/view/theme/default/stylesheet/stylesheet.css" rel="stylesheet">
+    <link href="catalog/view/theme/default/stylesheet/header.css" rel="stylesheet">
+    <link href="catalog/view/theme/default/stylesheet/body.css" rel="stylesheet">
+    <link href="catalog/view/theme/default/stylesheet/footer.css" rel="stylesheet">
+    {% for style in styles %}
+    <link href="{{ style.href }}" type="text/css" rel="{{ style.rel }}" media="{{ style.media }}" />
+    {% endfor %}
+    {% for script in scripts %}
+    <script src="{{ script }}" type="text/javascript"></script>
+    {% endfor %}
+    <script src="catalog/view/javascript/common.js" type="text/javascript"></script>
+    {% for link in links %}
+    <link href="{{ link.href }}" rel="{{ link.rel }}" />
+    {% endfor %}
+    {% for analytic in analytics %}
+    {{ analytic }}
+    {% endfor %}
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-PCTZP0PY3T"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'G-PCTZP0PY3T');
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+</head>
+<body>
+<header>    
+    <div class="container">
+        <div class="header-brow">
+            <div class="logo">{% if logo %}<a href="{{ home }}"><img src="{{ logo }}" title="{{ name }}" alt="{{ name }}" class="img-responsive" /></a></div>{%else%} 
+            <h1><a href="{{ home }}">{{ name }}</a></h1></div>{% endif %}
+            <ul class="list-inline">
+                <li><a href="{{ wishlist }}" id="wishlist-total" title="{{ text_wishlist }}"><i class="fa fa-heart"></i> <span class="hidden-xs hidden-sm hidden-md">{{ text_wishlist }}</span></a></li>
+                <li class="dropdown"><a href="{{ account }}" title="{{ text_account }}" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> <span class="hidden-xs hidden-sm hidden-md">{{ text_account }}</span> <i class="fa fa-caret-down"></i></a>
+                  <ul class="dropdown-menu dropdown-menu-right">
+                    {% if logged %}
+                    <li><a href="{{ account }}">{{ text_account }}</a></li>
+                    <li><a href="{{ order }}">{{ text_order }}</a></li>
+                    <li><a href="{{ transaction }}">{{ text_transaction }}</a></li>
+                    <li><a href="{{ download }}">{{ text_download }}</a></li>
+                    <li><a href="{{ logout }}">{{ text_logout }}</a></li>
+                    {% else %}
+                    <li><a href="{{ register }}">{{ text_register }}</a></li>
+                    <li><a href="{{ login }}">{{ text_login }}</a></li>
+                    {% endif %}
+                  </ul>
+                </li>
+                <li><a href="tel:+380639607501"><i class="fa fa-phone"></i> <span class="hidden-xs hidden-sm hidden-md">{{ telephone }}</span></a></li>
+            </ul>
+            <div class="products-cart">{{ cart }}</div>
+        </div>
+    </div>
+</header>
+<div class="search-products">{{ search }}</div>
+<div class="top-container">
+  <div class="container">
+      {{ content_top }}
+      <div class="header-burger-menu"><span></span></div>
+  </div>
+</div>
+{{ menu }}
