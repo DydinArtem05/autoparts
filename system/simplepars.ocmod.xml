@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+  	<name>DEV-OPENCART.COM — SimplePars</name>
+    <version>4.9.x</version>
+    <link>https://dev-opencart.com</link>
+    <author>DEV-OPENCART.COM</author>
+    <code>dev_opencart_com_simple_pars</code> 
+
+	<!--controller-->
+	<file path="admin/controller/common/column_left.php" >
+		<operation>
+			<search><![CDATA[if ($this->user->hasPermission('access', 'catalog/download')) {]]></search>
+			<add position="before"><![CDATA[if ($this->user->hasPermission('access', 'catalog/simplepars')) {
+				$catalog[] = array(
+					'name'	   => $this->language->get('SimplePars'),
+					'href'     => $this->url->link('catalog/simplepars', 'user_token=' . $this->session->data['user_token'], true),
+					'children' => array()		
+				);
+			}]]></add>
+		</operation>
+	</file>	
+	
+</modification>

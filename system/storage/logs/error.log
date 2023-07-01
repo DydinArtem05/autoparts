@@ -1,0 +1,10 @@
+2023-01-02 8:18:37 - PHP Warning:  mysqli::__construct(): (HY000/1049): Unknown database 'root' in E:\OSPanel\domains\autoparts\system\library\db\mysqli.php on line 7
+2023-01-02 8:18:37 - PHP Warning:  DB\MySQLi::__construct(): Couldn't fetch mysqli in E:\OSPanel\domains\autoparts\system\library\db\mysqli.php on line 10
+2023-01-02 8:18:37 - PHP Warning:  DB\MySQLi::__construct(): Couldn't fetch mysqli in E:\OSPanel\domains\autoparts\system\library\db\mysqli.php on line 10
+2023-01-02 8:18:37 - PHP Notice:  Undefined variable: mysql in E:\OSPanel\domains\autoparts\install\controller\install\step_3.php on line 280
+2023-01-02 8:18:37 - PHP Notice:  Trying to get property of non-object in E:\OSPanel\domains\autoparts\install\controller\install\step_3.php on line 280
+2023-01-02 8:19:06 - PHP Warning:  mysqli::__construct(): (HY000/1049): Unknown database 'admin' in E:\OSPanel\domains\autoparts\system\library\db\mysqli.php on line 7
+2023-01-02 8:19:06 - PHP Warning:  DB\MySQLi::__construct(): Couldn't fetch mysqli in E:\OSPanel\domains\autoparts\system\library\db\mysqli.php on line 10
+2023-01-02 8:19:06 - PHP Warning:  DB\MySQLi::__construct(): Couldn't fetch mysqli in E:\OSPanel\domains\autoparts\system\library\db\mysqli.php on line 10
+2023-01-02 8:19:06 - PHP Notice:  Undefined variable: mysql in E:\OSPanel\domains\autoparts\install\controller\install\step_3.php on line 280
+2023-01-02 8:19:06 - PHP Notice:  Trying to get property of non-object in E:\OSPanel\domains\autoparts\install\controller\install\step_3.php on line 280
